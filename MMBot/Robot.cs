@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
@@ -11,6 +12,7 @@ namespace MMBot
         private string _name = "mmbot";
         private IAdapter _adapter;
         private Brain brain;
+        public List<Listener> _listeners = new List<Listener>();
 
         public Robot(IAdapter adapter, string name = "mmbot")
         {
@@ -55,9 +57,21 @@ namespace MMBot
 
         public void Receive(Message message)
         {
-            foreach (Listener listener in _listeners)
+            foreach (var listener in _listeners)
             {
-
+                try
+                {
+                    listener.Call(message);
+                    if (message.Done)
+                    {
+                        break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    // TODO: Logging exception in listener
+                }
+                
             }
         }
 
@@ -71,10 +85,10 @@ namespace MMBot
     public class Listener
     {
         private readonly Robot _robot;
-        private readonly Func<Message, bool> _matcher;
-        private readonly Action<Response<Message>> _callback;
+        private readonly Func<Message, MatchResult> _matcher;
+        private readonly Action<IResponse<Message>> _callback;
 
-        public Listener(Robot robot, Func<Message, bool> matcher, Action<Response<Message>> callback)
+        public Listener(Robot robot, Func<Message, MatchResult> matcher, Action<IResponse<Message>> callback)
         {
             _robot = robot;
             _matcher = matcher;
@@ -83,14 +97,24 @@ namespace MMBot
 
         public bool Call(Message message)
         {
-            if (_matcher(message))
+            MatchResult matchResult = _matcher(message);
+            if (matchResult.IsMatch)
             {
                 // TODO: Log
                 //@robot.logger.debug \
                 //  "Message '#{message}' matched regex /#{inspect @regex}/" if @regex
 
-                _callback(_robot.GetResponse())
+                _callback(Response.Create(_robot, message, matchResult));
+                return true;
             }
+            return false;
         }
+    }
+
+    public class MatchResult
+    {
+        public bool IsMatch { get; private set; }
+
+
     }
 }

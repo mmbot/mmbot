@@ -1,9 +1,32 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace MMBot
 {
-    public class Response<T> where T : Message
+    public abstract class Response
     {
+        public static IResponse<Message> Create(Robot robot, Message message, MatchResult matchResult)
+        {
+            if (message is TextMessage)
+            {
+                return new Response<TextMessage>(robot, message as TextMessage, matchResult);
+            }
+
+            throw new NotImplementedException();
+        }
+    }
+
+    public interface IResponse<out T> where T : Message
+    {
+    }
+
+    public class Response<T> : IResponse<T> where T : Message
+    {
+        public Response(Robot robot, TextMessage textMessage, MatchResult matchResult)
+        {
+            
+        }
+
         public void Send(params string[] messages)
         {
 
