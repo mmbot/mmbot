@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot", "MMBot\MMBot.csproj", "{0CF33652-B99B-4854-BC70-250B6C2F646A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Jabbr", "MMBot.Jabbr\MMBot.Jabbr.csproj", "{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CF33652-B99B-4854-BC70-250B6C2F646A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CF33652-B99B-4854-BC70-250B6C2F646A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CF33652-B99B-4854-BC70-250B6C2F646A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CF33652-B99B-4854-BC70-250B6C2F646A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
