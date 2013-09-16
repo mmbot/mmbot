@@ -39,8 +39,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adapters\Extensions.cs" />
+    <Compile Include="Adapters\Shell.cs" />
     <Compile Include="Brain.cs" />
-    <Compile Include="IAdapter.cs" />
+    <Compile Include="Adapter.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Response.cs" />
     <Compile Include="MMBot.cs" />

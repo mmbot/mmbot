@@ -10,11 +10,11 @@ namespace MMBot
     public class Robot
     {
         private string _name = "mmbot";
-        private IAdapter _adapter;
+        private Adapter _adapter;
         private Brain brain;
         public List<Listener> _listeners = new List<Listener>();
 
-        public Robot(IAdapter adapter, string name = "mmbot")
+        public Robot(Adapter adapter, string name = "mmbot")
         {
             _adapter = adapter;
             _name = name;

@@ -14,5 +14,7 @@ namespace MMBot
         public string Id { get; private set; }
 
         public IEnumerable<string> Roles { get; private set; }
+
+        public string Name { get; private set; }
     }
 }

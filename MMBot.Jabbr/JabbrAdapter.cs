@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace MMBot.Jabbr
 {
-    public class JabbrAdapter : IAdapter
+    public class JabbrAdapter : Adapter
     {
-
+        public JabbrAdapter(Robot robot) : base(robot)
+        {
+        }
     }
 }
