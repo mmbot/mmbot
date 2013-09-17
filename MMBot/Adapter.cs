@@ -1,47 +1,49 @@
-﻿namespace MMBot
+﻿using System.Threading.Tasks;
+
+namespace MMBot
 {
     public abstract class Adapter
     {
-        private readonly Robot _robot;
+        protected readonly Robot _robot;
 
         protected Adapter(Robot robot)
         {
             _robot = robot;
         }
 
-        public virtual void Send(Envelope envelope, params string[] messages)
+        public virtual Task Send(Envelope envelope, params string[] messages)
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual void Emote(Envelope envelope, params string[] messages)
+        public virtual Task Emote(Envelope envelope, params string[] messages)
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual void Reply(Envelope envelope, params string[] messages)
+        public virtual Task Reply(Envelope envelope, params string[] messages)
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual void Topic(Envelope envelope, params string[] messages)
+        public virtual Task Topic(Envelope envelope, params string[] messages)
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual void Play(Envelope envelope, params string[] messages)
+        public virtual Task Play(Envelope envelope, params string[] messages)
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual void Run()
+        public virtual Task Run()
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
-        public virtual void Close()
+        public virtual Task Close()
         {
-
+            return TaskAsyncHelper.Empty;
         }
 
         public virtual void Receive(Message message)
@@ -55,6 +57,19 @@
 
     public class Envelope
     {
+        public Envelope(Message message)
+        {
+            User = message.User;
+            if (message is TextMessage)
+            {
+                Message = ((TextMessage) message).Text;
+            }
+        }
+
         public User User { get; set; }
+
+        public string Room { get; set; }
+
+        public string Message { get; set; }
     }
 }

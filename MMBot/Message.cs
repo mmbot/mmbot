@@ -2,7 +2,7 @@
 {
     public class Message
     {
-        public User User { get; private set; }
+        public User User { get; protected set; }
 
         public bool Done { get; set; }
 
@@ -14,6 +14,16 @@
 
     public class TextMessage : Message
     {
+        
+
+        public TextMessage(User user, string content, string id)
+        {
+            User = user;
+            Text = content;
+            Id = id;
+        }
+
+        public string Id { get; private set; }
         public string Text { get; private set; }
     }
 

@@ -8,6 +8,6 @@ namespace MMBot
 {
     public class MMBot
     {
-
+        
     }
 }

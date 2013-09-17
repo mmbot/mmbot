@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0CF33652-B99B-4854-BC70-250B6C2F646A}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{C1A33745-2F1D-49BB-AB87-A6247B6C7F99}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MMBot</RootNamespace>
-    <AssemblyName>MMBot</AssemblyName>
+    <RootNamespace>MMBot.Runner</RootNamespace>
+    <AssemblyName>MMBot.Runner</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -39,21 +41,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdapterNotConfiguredException.cs" />
-    <Compile Include="Adapters\Extensions.cs" />
-    <Compile Include="Adapters\Shell.cs" />
-    <Compile Include="Brain.cs" />
-    <Compile Include="Adapter.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="Response.cs" />
-    <Compile Include="MMBot.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Robot.cs" />
-    <Compile Include="Scripts\Ping.cs" />
-    <Compile Include="TaskAsyncHelper.cs" />
-    <Compile Include="User.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MMBot.Jabbr\MMBot.Jabbr.csproj">
+      <Project>{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}</Project>
+      <Name>MMBot.Jabbr</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMBot\MMBot.csproj">
+      <Project>{0CF33652-B99B-4854-BC70-250B6C2F646A}</Project>
+      <Name>MMBot</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
