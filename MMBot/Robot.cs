@@ -105,6 +105,7 @@ namespace MMBot
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     // TODO: Logging exception in listener
                 }
                 
