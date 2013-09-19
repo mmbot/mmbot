@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MMBot
 {
@@ -9,6 +11,11 @@ namespace MMBot
         protected Adapter(Robot robot)
         {
             _robot = robot;
+        }
+
+        public virtual void Configure(IDictionary<string, string> config)
+        {
+
         }
 
         public virtual Task Send(Envelope envelope, params string[] messages)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace MMBot.Scripts
 {
@@ -8,11 +9,11 @@ namespace MMBot.Scripts
         {
             robot.Respond(@"PING$",msg => msg.Send("PONG"));
 
-            robot.Respond(@"ECHO (.*)$", msg => msg.Send(msg.Match[0].Value));
+            robot.Respond(@"ECHO (.*)$", msg => msg.Send(msg.Match[0].Groups[1].Value));
 
-            robot.Respond(@"TIME$", msg => msg.Send(string.Format("Server time is: {0}", DateTime.Now.ToString("U"))));
+            robot.Respond(@"TIME$", msg => msg.Send(string.Format("Server time is: {0} {1}", DateTime.Now.ToString("U"), TimeZoneInfo.Local.DisplayName)));
 
-            robot.Respond(@"DIE$", msg => msg.Send(msg.Match[0].Value));
+            robot.Respond(@"DIE$", msg => Environment.Exit(0));
         }
     }
 

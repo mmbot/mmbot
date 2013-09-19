@@ -49,7 +49,7 @@ namespace MMBot
         {
             regex = string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
 
-            _listeners.Add(new TextListener(this, new Regex(regex), action));
+            _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action));
         }
 
         public void Enter(Action<Response<EnterMessage>> action)
@@ -101,7 +101,11 @@ namespace MMBot
         {
             _adapter = Activator.CreateInstance(_adapterType, this) as Adapter;
         }
-        
+
+        public void Configure(Dictionary<string, string> config)
+        {
+            Adapter.Configure(config);
+        }
     }
 
     public class Listener<T> : IListener

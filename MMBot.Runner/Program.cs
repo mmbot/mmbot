@@ -19,10 +19,19 @@ namespace MMBot.Runner
             {
                 return;
             }
-
-            JabbrAdapter.Configure("https://jabbr.net/", "mmbot", password, "mmbottest");
-
+            
             var robot = Robot.Create<JabbrAdapter>();
+
+            // If not configured via dictionary then matching environment vars will be used
+
+            robot.Configure(
+                new Dictionary<string, string>
+                {
+                    {"HUBOT_JABBR_HOST", "https://jabbr.net/"},
+                    {"HUBOT_JABBR_NICK", "mmbot"},
+                    {"HUBOT_JABBR_PASSWORD", password},
+                    {"HUBOT_JABBR_ROOMS", "mmbottest"}
+                });
 
             //TODO: Discover scripts
             new Ping().Register(robot);
