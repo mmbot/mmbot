@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using MMBot.Adapters;
+using MMBot.Scripts;
 
 namespace MMBot
 {
@@ -16,10 +19,21 @@ namespace MMBot
         private Adapter _adapter;
         private Type _adapterType;
         private Brain brain;
-        public List<IListener> _listeners = new List<IListener>();
+        private readonly List<IListener> _listeners = new List<IListener>();
+        private readonly List<string> _helpCommands = new List<string>();
 
         public Adapter Adapter {
             get { return _adapter; }
+        }
+
+        public List<string> HelpCommands
+        {
+            get { return _helpCommands; }
+        }
+
+        public string Alias { get; set; }
+        public string Name {
+            get { return _name; }
         }
 
         public static Robot Create<TAdapter>(string name = "mmbot") where TAdapter : Adapter
@@ -105,6 +119,28 @@ namespace MMBot
         public void Configure(Dictionary<string, string> config)
         {
             Adapter.Configure(config);
+        }
+
+        public void LoadScripts(Assembly assembly)
+        {
+            assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach( s =>
+            {
+                Console.WriteLine("Loading script {0}", s.Name);
+                var script = (Activator.CreateInstance(s) as IMMBotScript);
+                RegisterScript(script);
+            });
+        }
+
+        public void LoadScript<TScript>() where TScript : IMMBotScript, new()
+        {
+            var script = new TScript();
+            RegisterScript(script);
+        }
+
+        private void RegisterScript(IMMBotScript script)
+        {
+            script.Register(this);
+            HelpCommands.AddRange(script.GetHelp());
         }
     }
 

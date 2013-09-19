@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace MMBot.Scripts
@@ -15,10 +17,23 @@ namespace MMBot.Scripts
 
             robot.Respond(@"DIE$", msg => Environment.Exit(0));
         }
+
+        public IEnumerable<string> GetHelp()
+        {
+            return new[]
+            {
+                "mmbot ping -  Reply with pong",
+                "mmbot echo <text> - Reply back with <text>",
+                "mmbot time - Reply with current time",
+                "mmbot die - End mmbot process"
+            };
+        }
     }
 
     public interface IMMBotScript
     {
         void Register(Robot robot);
+
+        IEnumerable<string> GetHelp();
     }
 }

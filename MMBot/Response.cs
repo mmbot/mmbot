@@ -34,15 +34,15 @@ namespace MMBot
     public class Response<T> : IResponse<T> where T : Message
     {
         private readonly Robot _robot;
-        private readonly T _message;
         private readonly Envelope _envelope;
 
         public Response(Robot robot, T textMessage, MatchResult matchResult)
         {
             _robot = robot;
-            _message = textMessage;
-            _envelope = new Envelope(_message);
+            
+            _envelope = new Envelope(textMessage);
             Match = matchResult.Match;
+            Message = textMessage;
         }
 
         public async Task Send(params string[] messages)

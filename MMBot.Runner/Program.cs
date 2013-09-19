@@ -34,7 +34,8 @@ namespace MMBot.Runner
                 });
 
             //TODO: Discover scripts
-            new Ping().Register(robot);
+            
+            robot.LoadScripts(typeof (Robot).Assembly);
 
             robot.Run();
 
