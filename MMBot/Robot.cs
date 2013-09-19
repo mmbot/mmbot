@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.Win32;
 using MMBot.Adapters;
 using MMBot.Scripts;
@@ -65,6 +66,13 @@ namespace MMBot
 
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action));
         }
+
+        //public void Respond(string regex, Func<IResponse<TextMessage>, Task> action)
+        //{
+        //    regex = string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
+
+        //    _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), a => action(a)));
+        //}
 
         public void Enter(Action<Response<EnterMessage>> action)
         {

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -25,10 +29,12 @@ namespace MMBot
         Task Topic(params string[] message);
         Task Play(params string[] message);
         Task Locked(params string[] message);
-        Task Random(params string[] message);
+        T Random<T>(IEnumerable<T> message);
         void Finish();
         MatchCollection Match { get; }
         T Message { get; }
+
+        HttpWrapper Http(string url);
     }
 
     public class Response<T> : IResponse<T> where T : Message
@@ -75,9 +81,14 @@ namespace MMBot
             return TaskAsyncHelper.Empty;
         }
 
-        public Task Random(params string[] message)
+        static Random _random = new Random(DateTime.Now.Millisecond);
+        public T Random<T>(IEnumerable<T> messages)
         {
-            return TaskAsyncHelper.Empty;
+            if (messages == null || !messages.Any())
+            {
+                return default(T);
+            }
+            return messages.ElementAt(_random.Next(messages.Count() - 1));
         }
 
         public void Finish()
@@ -88,6 +99,11 @@ namespace MMBot
         public MatchCollection Match { get; private set; }
 
         public T Message { get; private set; }
+
+        public HttpWrapper Http(string url)
+        {
+            return new HttpWrapper(url);
+        }
         
     }
 }
