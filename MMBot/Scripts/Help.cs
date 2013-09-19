@@ -33,6 +33,7 @@ namespace MMBot.Scripts
                 help = help.Select(h => NameReplacementRegex.Replace(h, alias));
 
                 msg.Send(string.Join(Environment.NewLine, help.OrderBy(h => h)));
+                msg.Message.Done = true;
             });
         }
 

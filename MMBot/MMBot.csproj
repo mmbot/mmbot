@@ -63,6 +63,7 @@
     <Compile Include="Scripts\Math.cs" />
     <Compile Include="Scripts\Ping.cs" />
     <Compile Include="Scripts\Rules.cs" />
+    <Compile Include="Scripts\Spot.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
