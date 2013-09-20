@@ -12,14 +12,14 @@ namespace MMBot.Scripts
         {
             robot.Respond(@"pug me", async msg =>
             {
-                var res = await msg.Http("http://pugme.herokuapp.com/random").Get();
+                var res = await msg.Http("http://pugme.herokuapp.com/random").GetJson();
                 await msg.Send((string)res.pug);
             });
 
             robot.Respond(@"pug bomb( (\d+))?", async msg =>
             {
-                var count = msg.Match[0].Groups.Count > 2 ? msg.Match[0].Groups[2].Value : "5";
-                var res = await msg.Http("http://pugme.herokuapp.com/bomb?count=" + count).Get();
+                var count = msg.Match.Count() > 2 ? msg.Match[2] : "5";
+                var res = await msg.Http("http://pugme.herokuapp.com/bomb?count=" + count).GetJson();
                 foreach(var pug in res.pugs)
                 {
                     await msg.Send((string)pug);
@@ -28,7 +28,7 @@ namespace MMBot.Scripts
 
             robot.Respond(@"how many pugs are there", async msg =>
             {
-                var res = await msg.Http("http://pugme.herokuapp.com/count").Get();
+                var res = await msg.Http("http://pugme.herokuapp.com/count").GetJson();
                 await msg.Send(string.Format("There are {0} pugs.", res.pug_count));
             });
         }

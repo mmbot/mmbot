@@ -14,8 +14,8 @@ namespace MMBot.Scripts
         {
             robot.Respond("(?:(satellite|terrain|hybrid)[- ])?map me (.+)", msg =>
             {
-                var mapType = msg.Match[0].Groups.Count > 1 ? "roadmap" : msg.Match[0].Groups[1].Value;
-                var location = msg.Match[0].Groups[2].Value;
+                var mapType = msg.Match.Count() > 1 ? "roadmap" : msg.Match[1];
+                var location = msg.Match[2];
                 var mapUrl = "http://maps.google.com/maps/api/staticmap?markers=" +
                              WebUtility.UrlEncode(location) +
                              "&size=400x400&maptype=" +

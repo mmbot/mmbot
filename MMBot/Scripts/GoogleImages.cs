@@ -17,15 +17,15 @@ namespace MMBot.Scripts
 
         public void Register(Robot robot)
         {
-            robot.Respond(@"(image|img)( me)? (.*)", msg => ImageMe(msg, msg.Match[0].Groups[3].Value, url => msg.Send(url)));
+            robot.Respond(@"(image|img)( me)? (.*)", msg => ImageMe(msg, msg.Match[3], url => msg.Send(url)));
 
-            robot.Respond(@"animate( me)? (.*)", msg => ImageMe(msg, msg.Match[0].Groups[2].Value, url => msg.Send(url), true));
+            robot.Respond(@"animate( me)? (.*)", msg => ImageMe(msg, msg.Match[2], url => msg.Send(url), true));
 
             robot.Respond(@"(?:mo?u)?sta(?:s|c)he?(?: me)? (.*)", async msg =>
             {
                 var type = _random.Next(2);
                 var mustachify = string.Format("http://mustachify.me/{0}?src=", type);
-                var imagery = msg.Match[0].Groups[1].Value;
+                var imagery = msg.Match[1];
                 if (_httpRegex.IsMatch(imagery))
                 {
                     await msg.Send(mustachify + imagery);
@@ -60,7 +60,7 @@ namespace MMBot.Scripts
                     safe = "active",
                     imgtype = faces ? "face" : animated ? "animated" : null
                 })
-                .Get();
+                .GetJson();
 
             dynamic images = res;
             try

@@ -27,9 +27,9 @@ namespace MMBot.Scripts
 
             robot.Respond(regex, async msg =>
             {
-                var term = "\"" + msg.Match[0].Groups[3].Value.Trim() + "\"";
-                var origin = GetCode(msg.Match[0].Groups[1].Value) ?? "auto";
-                var target = GetCode(msg.Match[0].Groups[2].Value) ?? "en";
+                var term = "\"" + msg.Match[3].Trim() + "\"";
+                var origin = GetCode(msg.Match[1]) ?? "auto";
+                var target = GetCode(msg.Match[2]) ?? "en";
 
                 var res = await msg.Http("https://translate.google.com/translate_a/t")
                     .Query(new
@@ -46,7 +46,7 @@ namespace MMBot.Scripts
                         text = term
                     })
                     .Headers(new Dictionary<string, string> {{"User-Agent", "Mozilla/5.0"}})
-                    .Get();
+                    .GetJson();
 
                 var language = _languages[(string) res[2]];
                 string result;
@@ -58,7 +58,7 @@ namespace MMBot.Scripts
                 {
                     return;
                 }
-                if (string.IsNullOrWhiteSpace(msg.Match[0].Groups[2].Value))
+                if (string.IsNullOrWhiteSpace(msg.Match[2]))
                 {
                     await msg.Send(string.Format("{0} is {1} for {2}", term, language, result.Trim()));
                 }

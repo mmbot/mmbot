@@ -17,7 +17,7 @@ namespace MMBot.Scripts
             {
                 IEnumerable<string> help = robot.HelpCommands;
 
-                var filter = msg.Match[0].Groups[1].Value;
+                var filter = msg.Match[1];
 
                 if (!string.IsNullOrWhiteSpace(filter))
                 {

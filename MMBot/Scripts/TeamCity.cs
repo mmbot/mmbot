@@ -37,7 +37,7 @@ namespace MMBot.Scripts
             {
                 var res = await msg.Http(string.Format("http://{0}/httpAuth/app/rest/builds/?locator=running:true", _hostname))
                           .Headers(GetHeaders())
-                          .Get();
+                          .GetJson();
                 if (res.count == 0)
                 {
                     await msg.Send("No builds are currently running");

@@ -59,7 +59,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Robot.cs" />
     <Compile Include="Scripts\Giphy.cs" />
-    <Compile Include="Scripts\ReplyGif.cs" />
     <Compile Include="Scripts\Translate.cs" />
     <Compile Include="Scripts\GoogleImages.cs" />
     <Compile Include="Scripts\Help.cs" />
@@ -72,6 +71,8 @@
     <Compile Include="Scripts\Rules.cs" />
     <Compile Include="Scripts\Spot.cs" />
     <Compile Include="Scripts\TeamCity.cs" />
+    <Compile Include="Scripts\Urban.cs" />
+    <Compile Include="Scripts\Xkcd.cs" />
     <Compile Include="Scripts\Youtube.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="User.cs" />

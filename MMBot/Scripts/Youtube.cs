@@ -12,7 +12,7 @@ namespace MMBot.Scripts
         {
             robot.Respond(@"(youtube|yt)( me)? (.*)", async msg =>
             {
-                var query = msg.Match[0].Groups[3].Value;
+                var query = msg.Match[3];
                 var res = await msg.Http("http://gdata.youtube.com/feeds/api/videos")
                     .Query(new Dictionary<string, string>
                     {
@@ -21,7 +21,7 @@ namespace MMBot.Scripts
                         {"alt", "json"},
                         {"q", query}
                     })
-                    .Get();
+                    .GetJson();
 
                 var videos = res.feed.entry;
 

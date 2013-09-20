@@ -19,10 +19,10 @@ namespace MMBot.Scripts
 
             robot.Respond(@"spot me (.*)$", async msg =>
             {
-                var q = msg.Match[0].Groups[1].Value;
+                var q = msg.Match[1];
                 var res = await msg.Http("http://ws.spotify.com/search/1/track.json")
                     .Query(new {q})
-                    .Get();
+                    .GetJson();
 
                 foreach(var t in res.tracks)
                 {

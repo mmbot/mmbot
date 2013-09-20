@@ -18,7 +18,7 @@ namespace MMBot.Scripts
 
             robot.Respond(@"(gif|giphy)( me)? (.*)", async msg =>
             {
-                var query = msg.Match[0].Groups[3].Value;
+                var query = msg.Match[3];
 
                 var res = await msg.Http(baseUri + "/gifs/search")
                     .Query(new
@@ -26,7 +26,7 @@ namespace MMBot.Scripts
                         q = query,
                         api_key = apiKey
                     })
-                    .Get();
+                    .GetJson();
 
                 try
                 {

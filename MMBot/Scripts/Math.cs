@@ -17,7 +17,7 @@ namespace MMBot.Scripts
                     .Query(new
                         {
                             hl = "en",
-                            q = msg.Match[0].Groups[3].Value
+                            q = msg.Match[3]
                         })
                     .Headers(new Dictionary<string, string>
                         {
@@ -25,7 +25,7 @@ namespace MMBot.Scripts
                             {"Accept-Charset", "utf-8"},
                             {"User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1"}
                         })
-                    .Get();
+                    .GetJson();
 
                 try
                 {

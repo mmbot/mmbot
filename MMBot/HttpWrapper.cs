@@ -74,14 +74,32 @@ namespace MMBot
             return new Uri(newUri + string.Join("&", array));
         }
 
-        public async Task<dynamic> Get()
+        public async Task<dynamic> GetJson()
         {
             var uri = BuildUri();
             var client = new HttpClient();
             _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
-            
+
             var result = await client.GetStringAsync(uri);
             return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
         }
+
+        public async Task<HttpResponseMessage> Get()
+        {
+            var uri = BuildUri();
+            var client = new HttpClient();
+            _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+
+            return await client.GetAsync(uri);
+        }
     }
+
+    public static class HttpClientExtensions
+    {
+        public static async Task<dynamic> Json(this HttpResponseMessage response)
+        {
+            return await JsonConvert.DeserializeObjectAsync<dynamic>(await response.Content.ReadAsStringAsync());
+        }
+    }
+
 }
