@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using MMBot.Adapters;
 using Newtonsoft.Json;
 
 namespace MMBot
@@ -68,7 +69,8 @@ namespace MMBot
         {
             var uri = BuildUri();
             var client = new HttpClient();
-
+            _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+            
             var result = await client.GetStringAsync(uri);
             return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
         }

@@ -33,12 +33,12 @@ namespace MMBot.Scripts
                 return;
             }
 
-            robot.Respond(@"what('s| is) building$", async msg =>
+            robot.Respond(@"what('?s| is) building$", async msg =>
             {
                 var res = await msg.Http(string.Format("http://{0}/httpAuth/app/rest/builds/?locator=running:true", _hostname))
                           .Headers(GetHeaders())
                           .Get();
-                if (res.Count == 0)
+                if (res.count == 0)
                 {
                     await msg.Send("No builds are currently running");
                 }
