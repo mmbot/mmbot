@@ -13,11 +13,6 @@ namespace MMBot
             _robot = robot;
         }
 
-        public virtual void Configure(IDictionary<string, string> config)
-        {
-
-        }
-
         public virtual Task Send(Envelope envelope, params string[] messages)
         {
             return TaskAsyncHelper.Empty;

@@ -59,11 +59,13 @@
     <Compile Include="Robot.cs" />
     <Compile Include="Scripts\GoogleImages.cs" />
     <Compile Include="Scripts\Help.cs" />
+    <Compile Include="Scripts\IConfigurableScript.cs" />
     <Compile Include="Scripts\IMMBotScript.cs" />
     <Compile Include="Scripts\Math.cs" />
     <Compile Include="Scripts\Ping.cs" />
     <Compile Include="Scripts\Rules.cs" />
     <Compile Include="Scripts\Spot.cs" />
+    <Compile Include="Scripts\TeamCity.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>

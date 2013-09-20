@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Data;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
@@ -22,6 +23,7 @@ namespace MMBot
         private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly List<string> _helpCommands = new List<string>();
+        private IDictionary<string, string> _config;
 
         public Adapter Adapter {
             get { return _adapter; }
@@ -37,17 +39,18 @@ namespace MMBot
             get { return _name; }
         }
 
-        public static Robot Create<TAdapter>(string name = "mmbot") where TAdapter : Adapter
+        public static Robot Create<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
         {
-            var robot = new Robot(typeof(TAdapter), name);
+            var robot = new Robot(typeof(TAdapter), name, config);
             robot.LoadAdapter();
             return robot;
         }
 
-        private Robot(Type adapterType, string name)
+        private Robot(Type adapterType, string name, IDictionary<string, string> config)
         {
             _adapterType = adapterType;
             _name = name;
+            _config = config;
         }
 
         public void Hear(Regex regex, Action<Response<TextMessage>> action)
@@ -124,12 +127,7 @@ namespace MMBot
         {
             _adapter = Activator.CreateInstance(_adapterType, this) as Adapter;
         }
-
-        public void Configure(Dictionary<string, string> config)
-        {
-            Adapter.Configure(config);
-        }
-
+        
         public void LoadScripts(Assembly assembly)
         {
             assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach( s =>
@@ -144,6 +142,11 @@ namespace MMBot
         {
             var script = new TScript();
             RegisterScript(script);
+        }
+
+        public string GetConfigVariable(string name)
+        {
+            return _config.ContainsKey(name) ? _config[name] : Environment.GetEnvironmentVariable(name);
         }
 
         private void RegisterScript(IMMBotScript script)

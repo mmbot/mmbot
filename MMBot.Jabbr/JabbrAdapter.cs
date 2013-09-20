@@ -22,12 +22,12 @@ namespace MMBot.Jabbr
 
         private static bool _isConfigured = false;
 
-        public override void Configure(IDictionary<string, string> config)
+        private void Configure()
         {
-            _host = config.ContainsKey("HUBOT_JABBR_HOST") ? config["HUBOT_JABBR_HOST"] : Environment.GetEnvironmentVariable("HUBOT_JABBR_HOST");
-            _nick = config.ContainsKey("HUBOT_JABBR_NICK") ? config["HUBOT_JABBR_NICK"] : Environment.GetEnvironmentVariable("HUBOT_JABBR_NICK");
-            _password = config.ContainsKey("HUBOT_JABBR_PASSWORD") ? config["HUBOT_JABBR_PASSWORD"] : Environment.GetEnvironmentVariable("HUBOT_JABBR_PASSWORD");
-            _rooms = ((config.ContainsKey("HUBOT_JABBR_ROOMS") ? config["HUBOT_JABBR_ROOMS"] : Environment.GetEnvironmentVariable("HUBOT_JABBR_ROOMS")) ?? string.Empty)
+            _host = _robot.GetConfigVariable("HUBOT_JABBR_HOST");
+            _nick = _robot.GetConfigVariable("HUBOT_JABBR_NICK");
+            _password = _robot.GetConfigVariable("HUBOT_JABBR_PASSWORD");
+            _rooms = (_robot.GetConfigVariable("HUBOT_JABBR_ROOMS") ?? string.Empty)
                 .Trim()
                 .Split(',')
                 .Select(s => s.Trim())
@@ -38,7 +38,7 @@ namespace MMBot.Jabbr
 
         public JabbrAdapter(Robot robot) : base(robot)
         {
-            
+            Configure();
         }
 
         private void SetupJabbrClient()
@@ -72,7 +72,10 @@ namespace MMBot.Jabbr
             var user = new User(message.User.Name, message.User.Name, new string[0], room);
 
             //TODO: Filter out messages from mmbot itself using the current nick
-            _robot.Receive(new TextMessage(user, message.Content, message.Id));
+            if(user.Name != _nick)
+            {
+                _robot.Receive(new TextMessage(user, message.Content, message.Id));
+            }
         }
 
         public override async Task Run()
