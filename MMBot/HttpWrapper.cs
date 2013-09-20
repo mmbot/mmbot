@@ -39,6 +39,15 @@ namespace MMBot
             return this;
         }
 
+        public HttpWrapper Query(Dictionary<string, string> queryParameters)
+        {
+            foreach (var kvp in queryParameters)
+            {
+                Query(kvp.Key, kvp.Value);
+            }
+            return this;
+        }
+
         public HttpWrapper Headers(Dictionary<string, string> headers)
         {
             foreach(var header in headers)

@@ -12,16 +12,19 @@ namespace MMBot.Runner
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Please enter the password for mmbot in jabbr");
-            var password = ReadPassword();
-            
-            if (string.IsNullOrEmpty(password))
-            {
-                return;
-            }
+            var config = new Dictionary<string, string>();
 
-            // If not configured via dictionary then matching environment vars will be used
-            var robot = Robot.Create<JabbrAdapter>("mmbot", new Dictionary<string, string>
+            if (Environment.GetEnvironmentVariable("HUBOT_JABBR_HOST") == null)
+            {
+                Console.WriteLine("Please enter the password for mmbot in jabbr");
+                var password = ReadPassword();
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    return;
+                }
+
+                config = new Dictionary<string, string>
                 {
                     {"HUBOT_JABBR_HOST", "https://jabbr.net/"},
                     {"HUBOT_JABBR_NICK", "mmbot"},
@@ -30,7 +33,12 @@ namespace MMBot.Runner
                     //{"HUBOT_TEAMCITY_USERNAME", "buildadmin"},
                     //{"HUBOT_TEAMCITY_PASSWORD", "**********"},
                     //{"HUBOT_TEAMCITY_HOSTNAME", "buildserver"},
-                });
+                };
+            }
+
+            // If not configured via dictionary then matching environment vars will be used
+            
+            var robot = Robot.Create<JabbrAdapter>("mmbot", config);
             
             //TODO: Discover scripts
             

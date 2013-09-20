@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using MMBot.Adapters;
@@ -104,6 +105,7 @@ namespace MMBot
 
         public void Receive(Message message)
         {
+            SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
             foreach (var listener in _listeners)
             {
                 try
