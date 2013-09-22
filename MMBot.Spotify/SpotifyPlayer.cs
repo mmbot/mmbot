@@ -16,7 +16,7 @@ namespace MMBot.Spotify
     public class SpotifyPlayer : IMMBotScript
     {
         private const string CLIENT_NAME = "MMBotSpotifyPlayer";
-        private readonly Regex _spotifyLinkRegex = new Regex(@"spotify:(album|track|user:\d+:playlist):[a-zA-Z0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private readonly Regex _spotifyLinkRegex = new Regex(@"spotify:(album|track|user:[a-zA-Z0-9]+:playlist):[a-zA-Z0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private IPlayer _player = new NAudioPlayer();
         private static byte[] key = new byte[]
         {
