@@ -10,38 +10,55 @@ namespace MMBot.Scripts
 
     public class Giphy : IMMBotScript
     {
+        private static string _baseUri = "http://api.giphy.com/v1";
         public void Register(Robot robot)
         {
-            var apiKey = robot.GetConfigVariable("MMBOT_GIPHY_APIKEY") ?? "dc6zaTOxFJmzC";
+            var apiKey = GetApiKey(robot);
 
-            var baseUri = "http://api.giphy.com/v1";
+            
 
             robot.Respond(@"(gif|giphy)( me)? (.*)", async msg =>
             {
                 var query = msg.Match[3];
 
-                var res = await msg.Http(baseUri + "/gifs/search")
-                    .Query(new
-                    {
-                        q = query,
-                        api_key = apiKey
-                    })
-                    .GetJson();
-
-                try
-                {
-                    var images = res.data;
-                    if (images.Count > 0)
-                    {
-                        dynamic image = msg.Random(images);
-                        await msg.Send((string)image.images.original.url);
-                    }
-                }
-                catch (Exception)
-                {
-                    msg.Send("erm....issues, move along");
-                }
+                await GifMeCore(msg, query, apiKey);
             });
+        }
+
+        private static string GetApiKey(Robot robot)
+        {
+            return robot.GetConfigVariable("MMBOT_GIPHY_APIKEY") ?? "dc6zaTOxFJmzC";
+
+        }
+
+        public static async Task GifMe(Robot robot, string query, IResponse<TextMessage> msg )
+        {
+            await GifMeCore(msg, query, GetApiKey(robot));
+        }
+
+        private static async Task GifMeCore(IResponse<TextMessage> msg, string query, string apiKey)
+        {
+            var res = await msg.Http(_baseUri + "/gifs/search")
+                .Query(new
+                {
+                    q = query,
+                    api_key = apiKey
+                })
+                .GetJson();
+
+            try
+            {
+                var images = res.data;
+                if (images.Count > 0)
+                {
+                    dynamic image = msg.Random(images);
+                    await msg.Send((string)image.images.original.url);
+                }
+            }
+            catch (Exception)
+            {
+                msg.Send("erm....issues, move along");
+            }
         }
 
         public IEnumerable<string> GetHelp()

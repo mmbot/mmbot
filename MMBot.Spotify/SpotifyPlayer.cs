@@ -269,7 +269,7 @@ namespace MMBot.Spotify
                 await msg.Send(string.Join(Environment.NewLine, queue.ToArray()));
                 
             });
-
+            
             robot.Respond(@"spotify remove (.*) from( the)? queue", async msg =>
             {
                 if (!await Login(robot, msg)) return;
@@ -314,6 +314,15 @@ namespace MMBot.Spotify
                     _player.TurnDown(10);
                 }
                 
+            });
+
+            robot.Respond(@"spotify ship it", async msg =>
+            {
+                if (!await Login(robot, msg)) return;
+
+                Link link = _session.ParseLink("spotify:track:77NNZQSqzLNqh2A9JhLRkg");
+                await Play(link.AsTrack(), null);
+                await Giphy.GifMe(_robot, "winning", msg);
             });
 
         }
