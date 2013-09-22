@@ -128,10 +128,40 @@ namespace MMBot.Spotify
                 }
                 else
                 {
-                    var track = await Search(robot, msg, query);
-                    if (track != null)
+                    if (_spotifyLinkRegex.IsMatch(query))
                     {
-                        await Play(track, msg);
+                        // We have a link so process as such
+                        var link = _session.ParseLink(query);
+                        if (link.Type == LinkType.Album)
+                        {
+                            AlbumBrowse albumBrowse = link.AsAlbum().Browse();
+                            await Play(albumBrowse.Tracks[0], msg);
+                            await PrependToQueue(albumBrowse.Tracks.Skip(1));
+                            await
+                                msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
+                                    albumBrowse.Tracks.Count, albumBrowse.Album.Name, albumBrowse.Artist.Name));
+                        }
+                        else if (link.Type == LinkType.Playlist)
+                        {
+                            Playlist playlist = link.AsPlaylist();
+                            await Play(playlist.Tracks[0], msg);
+                            await PrependToQueue(playlist.Tracks.Skip(1));
+                            await
+                                msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
+                                    playlist.Name));
+                        }
+                        else if (link.Type == LinkType.Track)
+                        {
+                            await Play(link.AsTrack(), msg);
+                        }
+                    }
+                    else
+                    {
+                        var track = await Search(robot, msg, query);
+                        if (track != null)
+                        {
+                            await Play(track, msg);
+                        }
                     }
                 }
             });
@@ -224,8 +254,13 @@ namespace MMBot.Spotify
                     return;
                 }
 
-                
-                await msg.Send(string.Join(Environment.NewLine, _queue.Select(item => item.GetDisplayName()).ToArray()));
+
+                var queue = _queue.Take(20).Select(item => item.GetDisplayName());
+                if (_queue.Count > 20)
+                {
+                    queue = queue.Concat(new[] {string.Format("+ {0} not listed", _queue.Count - 20)});
+                }
+                await msg.Send(string.Join(Environment.NewLine, queue.ToArray()));
                 
             });
 
@@ -275,6 +310,12 @@ namespace MMBot.Spotify
                 
             });
 
+        }
+
+        private async Task PrependToQueue(IEnumerable<Track> tracks)
+        {
+            _queue = new Queue<Track>(tracks.Concat(_queue));
+            await SaveQueue();
         }
 
         private async Task QueueUpTrack(Track track, IResponse<TextMessage> msg, bool showMessage)
@@ -335,8 +376,10 @@ namespace MMBot.Spotify
             return new[]
             {
                 "mmbot spotify play <query> -  Plays the first matching track from spotify.",
+                "mmbot spotify play <spotifyUri> -  Plays the track(s) from the spotify URI (supports tracks, albums and playlists).",
                 "mmbot spotify pause - Pauses playback",
                 "mmbot spotify queue <query> -  Queues the first matching track from spotify.",
+                "mmbot spotify queue <spotifyUri> -  Queues the track(s) from the spotify URI (supports tracks, albums and playlists).",
                 "mmbot spotify show queue",
                 "mmbot spotify remove <query> from queue - Removes matching tracks from the queue",
                 "mmbot spotify clear queue - clears the play queue",
