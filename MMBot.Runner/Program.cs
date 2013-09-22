@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MMBot.Jabbr;
 using MMBot.Scripts;
+using MMBot.Spotify;
 
 namespace MMBot.Runner
 {
@@ -43,6 +44,7 @@ namespace MMBot.Runner
             //TODO: Discover scripts
             
             robot.LoadScripts(typeof (Robot).Assembly);
+            robot.LoadScripts(typeof(SpotifyPlayer).Assembly);
 
             robot.Run();
 

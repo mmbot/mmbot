@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.20827.3
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot", "MMBot\MMBot.csproj", "{0CF33652-B99B-4854-BC70-250B6C2F646A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Jabbr", "MMBot.Jabbr\MMBot.Jabbr.csproj", "{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}"
@@ -13,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{E502EF
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Spotify", "MMBot.Spotify\MMBot.Spotify.csproj", "{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +36,10 @@ Global
 		{C1A33745-2F1D-49BB-AB87-A6247B6C7F99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1A33745-2F1D-49BB-AB87-A6247B6C7F99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1A33745-2F1D-49BB-AB87-A6247B6C7F99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
