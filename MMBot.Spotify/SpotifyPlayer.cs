@@ -262,6 +262,7 @@ namespace MMBot.Spotify
             if (_queue.Any())
             {
                 _session.PlayerLoad(_queue.Dequeue());
+                _session.PlayerPlay();
             }
         }
     }
