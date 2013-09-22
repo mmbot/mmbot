@@ -38,15 +38,10 @@ namespace MMBot
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Run()
-        {
-            return TaskAsyncHelper.Empty;
-        }
+        public abstract Task Run();
 
-        public virtual Task Close()
-        {
-            return TaskAsyncHelper.Empty;
-        }
+        public abstract Task Close();
+        
 
         public virtual void Receive(Message message)
         {

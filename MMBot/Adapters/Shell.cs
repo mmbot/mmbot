@@ -35,7 +35,12 @@ namespace MMBot.Adapters
 
         public override Task Run()
         {
-            return base.Run();
+            return TaskAsyncHelper.Empty;
+        }
+
+        public override Task Close()
+        {
+            return TaskAsyncHelper.Empty;
         }
     }
 }

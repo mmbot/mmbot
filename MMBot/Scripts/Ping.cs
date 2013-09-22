@@ -16,6 +16,8 @@ namespace MMBot.Scripts
             robot.Respond(@"TIME$", msg => msg.Send(string.Format("Server time is: {0} {1}", DateTime.Now.ToString("U"), TimeZoneInfo.Local.DisplayName)));
 
             robot.Respond(@"DIE$", msg => Environment.Exit(0));
+
+            robot.Respond(@"RESPAWN$", msg => robot.Reset());
         }
 
         public IEnumerable<string> GetHelp()

@@ -110,6 +110,12 @@ namespace MMBot.Jabbr
             }
         }
 
+        public override Task Close()
+        {
+            _client.Disconnect();
+            return TaskAsyncHelper.Empty;
+        }
+
         public override async Task Send(Envelope envelope, params string[] messages)
         {
             await base.Send(envelope, messages);

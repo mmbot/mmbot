@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -83,6 +84,8 @@ namespace MMBot.Spotify
                     throw new Exception(string.Format("Could not login to Spotify - {0}", loginResult));
                 }
                 _session.PreferredBitrate = BitRate.Bitrate160k;
+
+                await LoadQueue();
             }
             catch (Exception e)
             {
@@ -129,6 +132,7 @@ namespace MMBot.Spotify
                     await msg.Send(string.Format("Queued up {0}. It is currently number #{1} in the queue",
                         track.GetDisplayName(), _queue.Count + 1));
                     _queue.Enqueue(track);
+                    await SaveQueue();
                 }
             });
 
@@ -137,6 +141,7 @@ namespace MMBot.Spotify
 
                 var count = _queue.Count;
                 _queue.Clear();
+                await SaveQueue();
 
                 await msg.Send(string.Format("{0} items have been cleared from the queue.", count));
             });
@@ -154,6 +159,7 @@ namespace MMBot.Spotify
 
                 _session.PlayerPause();
                 await Play(_queue.Dequeue(), msg);
+                await SaveQueue();
             });
 
             robot.Respond(@"(spotify )?(stop|pause)", async msg =>
@@ -174,17 +180,18 @@ namespace MMBot.Spotify
                 
                 string direction = msg.Match[2].Trim();
                 string amount = msg.Match[4].Trim();
-                if (string.IsNullOrWhiteSpace(amount))
+
+                if (!string.IsNullOrWhiteSpace(amount))
                 {
-                    amount = "10";
+                    _player.SetVolume(int.Parse(amount));
                 }
                 if (direction.ToLowerInvariant() == "up")
                 {
-                    _player.TurnUp(int.Parse(amount));
+                    _player.TurnUp(10);
                 }
                 else
                 {
-                    _player.TurnDown(int.Parse(amount));
+                    _player.TurnDown(10);
                 }
                 
             });
@@ -254,7 +261,6 @@ namespace MMBot.Spotify
             {
                 e.ConsumedFrames = 0;
             }
-
         }
         
         private void OnTrackEnded(Session sender, SessionEventArgs e)
@@ -263,7 +269,30 @@ namespace MMBot.Spotify
             {
                 _session.PlayerLoad(_queue.Dequeue());
                 _session.PlayerPlay();
+                SaveQueue();
             }
         }
+
+        private async Task SaveQueue()
+        {
+            await _robot.Brain.Set("SpotifyQueue", _queue.Select(t => t.GetLink().ToString()).ToArray());
+        }
+
+        private async Task LoadQueue()
+        {
+            var queue = await _robot.Brain.Get<string[]>("SpotifyQueue");
+            if (queue == null)
+            {
+                return;
+            }
+            _queue.Clear();
+            await Login(_robot, null);
+            foreach (var trackUrl in queue)
+            {
+                Link link = _session.ParseLink(trackUrl);
+                _queue.Enqueue(link.AsTrack());
+            }
+        }
+
     }
 }

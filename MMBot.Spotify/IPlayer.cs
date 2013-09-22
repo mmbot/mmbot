@@ -8,5 +8,6 @@
         void Unmute();
         void TurnDown(int amount);
         void TurnUp(int amount);
+        void SetVolume(int volume);
     }
 }

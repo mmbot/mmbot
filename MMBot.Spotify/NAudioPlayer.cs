@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using MMBot.Scripts;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 
 namespace MMBot.Spotify
 {
@@ -93,6 +91,12 @@ namespace MMBot.Spotify
                 return;
             }
             _currentVolume = System.Math.Min(1, _currentVolume + ((float)amount / 100));
+            _volumeWaveProvider.Volume = _currentVolume;
+        }
+
+        public void SetVolume(int volume)
+        {
+            _currentVolume = System.Math.Min(1, ((float)volume / 100));
             _volumeWaveProvider.Volume = _currentVolume;
         }
     }

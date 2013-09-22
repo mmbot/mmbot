@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Data;
-using System.Dynamic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Remoting.Messaging;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Win32;
 using MMBot.Adapters;
 using MMBot.Scripts;
 
@@ -25,6 +19,7 @@ namespace MMBot
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly List<string> _helpCommands = new List<string>();
         private IDictionary<string, string> _config;
+        private Brain _brain;
 
         public Adapter Adapter {
             get { return _adapter; }
@@ -40,6 +35,10 @@ namespace MMBot
             get { return _name; }
         }
 
+        public Brain Brain {
+            get { return _brain; }
+        }
+
         public static Robot Create<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
         {
             var robot = new Robot(typeof(TAdapter), name, config);
@@ -52,6 +51,7 @@ namespace MMBot
             _adapterType = adapterType;
             _name = name;
             _config = config;
+            _brain = new Brain(this);
         }
 
         public void Hear(Regex regex, Action<Response<TextMessage>> action)
@@ -98,9 +98,12 @@ namespace MMBot
 
         }
 
-        public void Run()
+        public async Task Run()
         {
-            _adapter.Run();
+            await _brain.Initialize();
+
+            await _adapter.Run();
+            
         }
 
         public void Receive(Message message)
@@ -154,7 +157,30 @@ namespace MMBot
         private void RegisterScript(IMMBotScript script)
         {
             script.Register(this);
+            
+
             HelpCommands.AddRange(script.GetHelp());
+        }
+
+        public async Task Shutdown()
+        {
+            if(_adapter != null)
+            {
+                await _adapter.Close();
+            }
+            if (_brain != null)
+            {
+                await _brain.Close();
+            }
+        }
+
+        public async Task Reset()
+        {
+            await Shutdown();
+            LoadAdapter();
+            
+            await Run();
+            await _brain.Initialize();
         }
     }
 
