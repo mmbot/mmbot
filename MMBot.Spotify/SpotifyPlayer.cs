@@ -245,6 +245,12 @@ namespace MMBot.Spotify
                 _player.Mute();
             });
 
+            robot.Respond(@"unmute", async msg =>
+            {
+                if (!await CheckForPlayingSession(msg)) return;
+                _player.Unmute();
+            });
+
             robot.Respond(@"spotify show queue", async msg =>
             {
                 if (!await Login(robot, msg)) return;
