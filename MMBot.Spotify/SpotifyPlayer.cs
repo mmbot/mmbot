@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MMBot.Adapters;
 using MMBot.Scripts;
 using SpotiFire;
 
@@ -15,6 +16,7 @@ namespace MMBot.Spotify
     public class SpotifyPlayer : IMMBotScript
     {
         private const string CLIENT_NAME = "MMBotSpotifyPlayer";
+        private readonly Regex _spotifyLinkRegex = new Regex(@"spotify:(album|track|user:\d+:playlist):[a-zA-Z0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private IPlayer _player = new NAudioPlayer();
         private static byte[] key = new byte[]
         {
@@ -51,6 +53,7 @@ namespace MMBot.Spotify
         private Session _session;
         private Robot _robot;
         private Queue<Track> _queue = new Queue<Track>();
+        private Track _currentTrack = null;
 
         private async Task<bool> Login(Robot robot, IResponse<TextMessage> msg)
         {
@@ -75,7 +78,7 @@ namespace MMBot.Spotify
 
                 _session.MusicDelivered += OnMusicDelivered;
                 _session.EndOfTrack += OnTrackEnded;
-
+                
                 var loginResult = await _session.Login(robot.GetConfigVariable("MMBOT_SPOTIFY_USERNAME"),
                     robot.GetConfigVariable("MMBOT_SPOTIFY_PASSWORD"), false);
 
@@ -110,7 +113,18 @@ namespace MMBot.Spotify
                 string query = msg.Match[1].Trim();
                 if (string.IsNullOrWhiteSpace(query))
                 {
-                    _session.PlayerPlay();
+                    if (_currentTrack != null)
+                    {
+                        _session.PlayerPlay();
+                    }
+                    else
+                    {
+                        var next = await PlayNextInQueue();
+                        if (next != null)
+                        {
+                            await msg.Send(string.Format("Playing {0}", next.GetDisplayName()));
+                        }
+                    }
                 }
                 else
                 {
@@ -126,13 +140,39 @@ namespace MMBot.Spotify
             {
                 if (!await Login(robot, msg)) return;
                 string query = msg.Match[2];
-                var track = await Search(robot, msg, query);
-                if (track != null)
+
+                if (_spotifyLinkRegex.IsMatch(query))
                 {
-                    await msg.Send(string.Format("Queued up {0}. It is currently number #{1} in the queue",
-                        track.GetDisplayName(), _queue.Count + 1));
-                    _queue.Enqueue(track);
-                    await SaveQueue();
+                    // We have a link so process as such
+                    var link = _session.ParseLink(query);
+                    if (link.Type == LinkType.Album)
+                    {
+                        AlbumBrowse albumBrowse = link.AsAlbum().Browse();
+                        albumBrowse.Tracks.ForEach(t => _queue.Enqueue(t));
+                        await
+                            msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
+                                albumBrowse.Tracks.Count, albumBrowse.Album.Name, albumBrowse.Artist.Name));
+                        await SaveQueue();
+                    }
+                    else if (link.Type == LinkType.Playlist)
+                    {
+                        Playlist playlist = link.AsPlaylist();
+                        playlist.Tracks.ForEach(t => _queue.Enqueue(t));
+                        await
+                            msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
+                                playlist.Name));
+                        await SaveQueue();
+                    }
+                    else if (link.Type == LinkType.Track)
+                    {
+                        await QueueUpTrack(link.AsTrack(), msg, true);
+                    }
+                }
+                else
+                {
+                    // We just have a query so search
+                    var track = await Search(robot, msg, query);
+                    await QueueUpTrack(track, msg, true);
                 }
             });
 
@@ -158,7 +198,8 @@ namespace MMBot.Spotify
                 }
 
                 _session.PlayerPause();
-                await Play(_queue.Dequeue(), msg);
+                var next = await PlayNextInQueue();
+                await msg.Send(string.Format("Playing {0}", next.GetDisplayName()));
                 await SaveQueue();
             });
 
@@ -172,6 +213,44 @@ namespace MMBot.Spotify
             {
                 if (!await CheckForPlayingSession(msg)) return;
                 _player.Mute();
+            });
+
+            robot.Respond(@"spotify show queue", async msg =>
+            {
+                if (!await Login(robot, msg)) return;
+                if (_queue == null || !_queue.Any())
+                {
+                    await msg.Send("There are no tracks in the queue");
+                    return;
+                }
+
+                
+                await msg.Send(string.Join(Environment.NewLine, _queue.Select(item => item.GetDisplayName()).ToArray()));
+                
+            });
+
+            robot.Respond(@"spotify remove (.*) from( the)? queue", async msg =>
+            {
+                if (!await Login(robot, msg)) return;
+                if (_queue == null || !_queue.Any())
+                {
+                    await msg.Send("There are no tracks in the queue");
+                    return;
+                }
+
+                int count = _queue.Count;
+                
+                _queue = new Queue<Track>(_queue.Where(i => i.GetDisplayName().ToLowerInvariant().Contains(msg.Match[1])));
+                await SaveQueue();
+
+                if (_queue.Count == count)
+                {
+                    await msg.Send("There were no matching tracks in the queue");
+                }
+                else
+                {
+                    await msg.Send(string.Format("{0} tracks were removed from the queue", _queue.Count - count));
+                }
             });
 
             robot.Respond(@"(turn|crank) it (up|down)( to (\d+))?", async msg =>
@@ -196,6 +275,20 @@ namespace MMBot.Spotify
                 
             });
 
+        }
+
+        private async Task QueueUpTrack(Track track, IResponse<TextMessage> msg, bool showMessage)
+        {
+            if (track != null)
+            {
+                if(showMessage)
+                {
+                    await msg.Send(string.Format("Queued up {0}. It is currently number #{1} in the queue",
+                        track.GetDisplayName(), _queue.Count + 1));
+                }
+                _queue.Enqueue(track);
+                await SaveQueue();
+            }
         }
 
         private async Task<bool> CheckForPlayingSession(IResponse<TextMessage> msg)
@@ -233,6 +326,8 @@ namespace MMBot.Spotify
             _session.PlayerUnload();
             _session.PlayerLoad(track);
             _session.PlayerPlay();
+
+            _currentTrack = track;
         }
 
         public IEnumerable<string> GetHelp()
@@ -242,11 +337,13 @@ namespace MMBot.Spotify
                 "mmbot spotify play <query> -  Plays the first matching track from spotify.",
                 "mmbot spotify pause - Pauses playback",
                 "mmbot spotify queue <query> -  Queues the first matching track from spotify.",
+                "mmbot spotify show queue",
+                "mmbot spotify remove <query> from queue - Removes matching tracks from the queue",
+                "mmbot spotify clear queue - clears the play queue",
                 "mmbot spotify next - Skips to the next track in the queue.",
                 "mmbot turn it up [to 66] - crank it baby, optionally provide the volume out of 100",
                 "mmbot turn it down [to 11] - shhhh I'm thinking, optionally provide the volume out of 100",
-                "mmbot mute/unmute - turn the volume on/off",
-                "mmbot spotify clear queue - clears the play queue"
+                "mmbot mute/unmute - turn the volume on/off"
             };
         }
 
@@ -265,12 +362,23 @@ namespace MMBot.Spotify
         
         private void OnTrackEnded(Session sender, SessionEventArgs e)
         {
+            _currentTrack = null;
+            PlayNextInQueue();
+        }
+
+        private async Task<Track> PlayNextInQueue()
+        {
             if (_queue.Any())
             {
-                _session.PlayerLoad(_queue.Dequeue());
+                Track next = _queue.Dequeue();
+                _session.PlayerLoad(next);
                 _session.PlayerPlay();
-                SaveQueue();
+                _currentTrack = next;
+                await SaveQueue();
+
+                return next;
             }
+            return null;
         }
 
         private async Task SaveQueue()
