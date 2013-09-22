@@ -51,17 +51,25 @@ namespace MMBot.Spotify
         private Robot _robot;
         private Queue<Track> _queue = new Queue<Track>();
 
-        private async Task Login(Robot robot, IResponse<TextMessage> msg)
+        private async Task<bool> Login(Robot robot, IResponse<TextMessage> msg)
         {
             if (_session != null && _session.ConnectionState != ConnectionState.Disconnected &&
                 _session.ConnectionState != ConnectionState.Undefined)
             {
-                return;
+                return true;
             }
 
             string errorMessage = null;
             try
             {
+                if (string.IsNullOrEmpty(robot.GetConfigVariable("MMBOT_SPOTIFY_USERNAME")))
+                {
+                    await
+                        msg.Send(
+                            "Spotify is not configured. You must supply the MMBOT_SPOTIFY_USERNAME and MMBOT_SPOTIFY_PASSWORD environment variables");
+                    return false;
+                }
+
                 _session = await SpotiFire.Spotify.CreateSession(key, cache, settings, userAgent);
 
                 _session.MusicDelivered += OnMusicDelivered;
@@ -84,7 +92,9 @@ namespace MMBot.Spotify
             if (!string.IsNullOrWhiteSpace(errorMessage))
             {
                 await msg.Send(string.Format("Could not login to Spotify: {0}", errorMessage));
+                return false;
             }
+            return true;
         }
 
 
@@ -93,7 +103,7 @@ namespace MMBot.Spotify
             _robot = robot;
             robot.Respond(@"spotify play( .*)?", async msg =>
             {
-                await Login(robot, msg);
+                if(!await Login(robot, msg)) return;
                 string query = msg.Match[1].Trim();
                 if (string.IsNullOrWhiteSpace(query))
                 {
@@ -111,7 +121,7 @@ namespace MMBot.Spotify
 
             robot.Respond(@"spotify (en)?queue (.*)", async msg =>
             {
-                await Login(robot, msg);
+                if (!await Login(robot, msg)) return;
                 string query = msg.Match[2];
                 var track = await Search(robot, msg, query);
                 if (track != null)
@@ -125,7 +135,7 @@ namespace MMBot.Spotify
 
             robot.Respond(@"spotify next", async msg =>
             {
-                if (await CheckForPlayingSession(msg)) return;
+                if (!await CheckForPlayingSession(msg)) return;
                 
                 if (!_queue.Any())
                 {
@@ -139,19 +149,20 @@ namespace MMBot.Spotify
 
             robot.Respond(@"(spotify )?(stop|pause)", async msg =>
             {
-                await CheckForPlayingSession(msg);
+                if (!await CheckForPlayingSession(msg)) return;
                 _session.PlayerPause();
             });
             
             robot.Respond(@"mute", async msg =>
             {
-                await CheckForPlayingSession(msg);
+                if (!await CheckForPlayingSession(msg)) return;
                 _player.Mute();
             });
 
             robot.Respond(@"(turn|crank) it (up|down)( to (\d+))?", async msg =>
             {
-                await CheckForPlayingSession(msg);
+                if (!await CheckForPlayingSession(msg)) return;
+                
                 string direction = msg.Match[2].Trim();
                 string amount = msg.Match[4].Trim();
                 if (string.IsNullOrWhiteSpace(amount))
@@ -176,9 +187,9 @@ namespace MMBot.Spotify
             if (_session == null)
             {
                 await msg.Send("Not playing anything right now");
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
 
         private async Task<Track> Search(Robot robot, IResponse<TextMessage> msg, string query)
