@@ -132,6 +132,15 @@ namespace MMBot.Spotify
                 }
             });
 
+            robot.Respond(@"spotify clear queue", async msg =>
+            {
+
+                var count = _queue.Count;
+                _queue.Clear();
+
+                await msg.Send(string.Format("{0} items have been cleared from the queue.", count));
+            });
+
 
             robot.Respond(@"spotify next", async msg =>
             {
@@ -229,7 +238,8 @@ namespace MMBot.Spotify
                 "mmbot spotify next - Skips to the next track in the queue.",
                 "mmbot turn it up [to 66] - crank it baby, optionally provide the volume out of 100",
                 "mmbot turn it down [to 11] - shhhh I'm thinking, optionally provide the volume out of 100",
-                "mmbot mute/unmute - turn the volume on/off"
+                "mmbot mute/unmute - turn the volume on/off",
+                "mmbot spotify clear queue - clears the play queue"
             };
         }
 
