@@ -122,7 +122,8 @@ namespace MMBot.Jabbr
             
             if (envelope != null && envelope.Room != null)
             {
-                await _client.Send(string.Format("/topic {0}", string.Join(" ", messages)), envelope.Room);
+                var message = string.Join(" ", messages);
+                await _client.Send(string.Format("/topic {0}", message.Substring(0, Math.Min(80, message.Length))), envelope.Room);
             }
         }
 
@@ -133,7 +134,8 @@ namespace MMBot.Jabbr
             var room = await _client.GetRoomInfo(roomName);
             if(room != null)
             {
-                await _client.Send(string.Format("/topic {0}", string.Join(" ", messages)), room.Name);
+                var message = string.Join(" ", messages);
+                await _client.Send(string.Format("/topic {0}", message.Substring(0, Math.Min(80, message.Length))), room.Name);
             }
         }
 

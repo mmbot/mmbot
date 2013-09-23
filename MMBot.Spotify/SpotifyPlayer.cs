@@ -1,10 +1,7 @@
 ﻿using System;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -19,6 +16,8 @@ namespace MMBot.Spotify
         private const string CLIENT_NAME = "MMBotSpotifyPlayer";
         private readonly Regex _spotifyLinkRegex = new Regex(@"spotify:(album|track|user:[a-zA-Z0-9]+:playlist):[a-zA-Z0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private IPlayer _player = new NAudioPlayer();
+        private bool _isShuffleOn;
+        private static Random _random = new Random(DateTime.Now.Millisecond);
         private static byte[] key = new byte[]
         {
             0x01, 0xAE, 0x58, 0xF9, 0xD6, 0xA5, 0x00, 0x8D, 0x43, 0xE3, 0x80, 0xB0, 0x6B, 0x9F, 0xC4, 0xFC,
@@ -53,7 +52,7 @@ namespace MMBot.Spotify
         private static string userAgent = CLIENT_NAME;
         private Session _session;
         private Robot _robot;
-        private Queue<Track> _queue = new Queue<Track>();
+        private List<Track> _queue = new List<Track>();
         private Track _currentTrack = null;
         private string _loungeRoom;
 
@@ -75,6 +74,8 @@ namespace MMBot.Spotify
                             "Spotify is not configured. You must supply the MMBOT_SPOTIFY_USERNAME and MMBOT_SPOTIFY_PASSWORD environment variables");
                     return false;
                 }
+
+                _isShuffleOn = await _robot.Brain.Get<bool>("SPOTIFY_SHUFFLE");
 
                 _session = await SpotiFire.Spotify.CreateSession(key, cache, settings, userAgent);
 
@@ -110,10 +111,24 @@ namespace MMBot.Spotify
         {
             _robot = robot;
             _loungeRoom = _robot.GetConfigVariable("MMBOT_SPOTIFY_LOUNGE");
-            robot.Respond(@"spotify play( .*)?", async msg =>
+            
+
+            robot.Respond(@"spotify shuffle( on| off)?", async msg =>
+            {
+                var off = msg.Match[1].ToLowerInvariant().Trim() == "off";
+                _isShuffleOn = !off;
+                await msg.Send(string.Format("Shuffle is {0}", off ? "OFF" : "ON"));
+
+                await _robot.Brain.Set("SPOTIFY_SHUFFLE", true);
+            });
+
+            robot.Respond(@"spotify play( album)?( .*)?", async msg =>
             {
                 if(!await Login(robot, msg)) return;
-                string query = msg.Match[1].Trim();
+
+                bool isAlbum = !string.IsNullOrEmpty(msg.Match[1]);
+                string query = msg.Match[2].Trim();
+
                 if (string.IsNullOrWhiteSpace(query))
                 {
                     if (_currentTrack != null)
@@ -138,21 +153,11 @@ namespace MMBot.Spotify
                         var link = _session.ParseLink(query);
                         if (link.Type == LinkType.Album)
                         {
-                            AlbumBrowse albumBrowse = await link.AsAlbum().Browse();
-                            await Play(albumBrowse.Tracks[0], msg);
-                            await PrependToQueue(albumBrowse.Tracks.Skip(1));
-                            await
-                                msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
-                                    albumBrowse.Tracks.Count, albumBrowse.Album.Name, albumBrowse.Artist.Name));
+                            await PlayAlbum(await link.AsAlbum(), msg);
                         }
                         else if (link.Type == LinkType.Playlist)
                         {
-                            Playlist playlist = await link.AsPlaylist();
-                            await Play(playlist.Tracks[0], msg);
-                            await PrependToQueue(playlist.Tracks.Skip(1));
-                            await
-                                msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
-                                    playlist.Name));
+                            await PlayPlaylist(await link.AsPlaylist(), msg);
                         }
                         else if (link.Type == LinkType.Track)
                         {
@@ -161,18 +166,30 @@ namespace MMBot.Spotify
                     }
                     else
                     {
-                        var track = await Search(robot, msg, query);
-                        if (track != null)
+                        if (isAlbum)
                         {
-                            await Play(track, msg);
+                            var album = await SearchForAlbum(robot, msg, query);
+                            if (album != null)
+                            {
+                                await PlayAlbum(album, msg);
+                            }
+                        }
+                        else
+                        {
+                            var track = await SearchForTrack(robot, msg, query);
+                            if (track != null)
+                            {
+                                await Play(track, msg);
+                            }
                         }
                     }
                 }
             });
 
-            robot.Respond(@"spotify (en)?queue (.*)", async msg =>
+            robot.Respond(@"spotify (en)?queue( album)? (.*)", async msg =>
             {
                 if (!await Login(robot, msg)) return;
+                bool isAlbum = !string.IsNullOrEmpty(msg.Match[1]);
                 string query = msg.Match[2];
 
                 if (_spotifyLinkRegex.IsMatch(query))
@@ -181,21 +198,13 @@ namespace MMBot.Spotify
                     var link = _session.ParseLink(query);
                     if (link.Type == LinkType.Album)
                     {
-                        AlbumBrowse albumBrowse = await link.AsAlbum().Browse();
-                        albumBrowse.Tracks.ForEach(t => _queue.Enqueue(t));
-                        await
-                            msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
-                                albumBrowse.Tracks.Count, albumBrowse.Album.Name, albumBrowse.Artist.Name));
-                        await SaveQueue();
+                        var album = await link.AsAlbum();
+                        await QueueUpAlbum(album, msg);
                     }
                     else if (link.Type == LinkType.Playlist)
                     {
                         Playlist playlist = await link.AsPlaylist();
-                        playlist.Tracks.ForEach(t => _queue.Enqueue(t));
-                        await
-                            msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
-                                playlist.Name));
-                        await SaveQueue();
+                        await QueueUpPlaylist(playlist, msg);
                     }
                     else if (link.Type == LinkType.Track)
                     {
@@ -205,8 +214,82 @@ namespace MMBot.Spotify
                 else
                 {
                     // We just have a query so search
-                    var track = await Search(robot, msg, query);
-                    await QueueUpTrack(track, msg, true);
+                    if (isAlbum)
+                    {
+                        var album = await SearchForAlbum(robot, msg, query);
+                        if (album != null)
+                        {
+                            await QueueUpAlbum(album, msg);
+                        }
+                    }
+                    else
+                    {
+                        var track = await SearchForTrack(robot, msg, query);
+                        await QueueUpTrack(track, msg, true);
+                    }
+                }
+            });
+
+            robot.Respond(@"spotify show( album| artist| playlist)? (.*)", async msg =>
+            {
+                if (!await Login(robot, msg)) return;
+
+                bool isAlbum = msg.Match[1].Trim().ToLowerInvariant() == "album";
+                bool isArtist = msg.Match[1].Trim().ToLowerInvariant() == "artist";
+                bool isPlaylist = msg.Match[1].Trim().ToLowerInvariant() == "playlist";
+
+                string query = msg.Match[2].Trim();
+
+
+                if (_spotifyLinkRegex.IsMatch(query))
+                {
+                    // We have a link so process as such
+                    var link = _session.ParseLink(query);
+                    if (link.Type == LinkType.Album)
+                    {
+                        await ListAlbumTracks(await link.AsAlbum(), msg);
+                    }
+                    else if (link.Type == LinkType.Playlist)
+                    {
+                        await ListPlaylistTracks(await link.AsPlaylist(), msg);
+                    }
+                    else if (link.Type == LinkType.Track)
+                    {
+                        await msg.Send("Track: " + (await link.AsTrack()).GetDisplayName());
+                    }
+                }
+                else
+                {
+                    if (isAlbum)
+                    {
+                        var album = await SearchForAlbum(robot, msg, query);
+                        if (album != null)
+                        {
+                            await ListAlbumTracks(album, msg);
+                        }
+                    }
+                    else if(isArtist)
+                    {
+                        var artist = await SearchForArtist(robot, msg, query);
+                        if (artist != null)
+                        {
+                            await ListArtistAlbums(artist, msg);
+                        }
+
+                    }
+                    else if (isPlaylist)
+                    {
+                        var playList = await SearchForPlaylist(robot, msg, query);
+                        if (playList != null)
+                        {
+                            await ListPlaylistTracks(playList, msg);
+                        }
+                    }
+                    else
+                    {
+                        await msg.Send("Please specify album/artist/playlist. e.g. spotify show artist Journey");
+                    }
+
                 }
             });
 
@@ -265,7 +348,7 @@ namespace MMBot.Spotify
                 }
 
 
-                var queue = _queue.Take(20).Select(item => item.GetDisplayName());
+                IEnumerable<string> queue = _queue.Take(20).Select(item => item.GetDisplayName()).ToArray();
                 if (_queue.Count > 20)
                 {
                     queue = queue.Concat(new[] {string.Format("+ {0} not listed", _queue.Count - 20)});
@@ -285,7 +368,7 @@ namespace MMBot.Spotify
 
                 int count = _queue.Count;
                 
-                _queue = new Queue<Track>(_queue.Where(i => i.GetDisplayName().ToLowerInvariant().Contains(msg.Match[1])));
+                _queue.RemoveAll(i => i.GetDisplayName().ToLowerInvariant().Contains(msg.Match[1]));
                 await SaveQueue();
 
                 if (_queue.Count == count)
@@ -331,9 +414,51 @@ namespace MMBot.Spotify
 
         }
 
+
+
+        private async Task QueueUpAlbum(Album album, IResponse<TextMessage> msg)
+        {
+            AlbumBrowse albumBrowse = album.Browse();
+            albumBrowse.Tracks.ForEach(t => _queue.Add(t));
+            await
+                msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
+                    albumBrowse.Tracks.Count, albumBrowse.Album.Name, albumBrowse.Artist.Name));
+            await SaveQueue();
+        }
+
+        private async Task QueueUpPlaylist(Playlist playlist, IResponse<TextMessage> msg)
+        {
+            playlist.Tracks.ForEach(t => _queue.Add(t));
+            await
+                msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
+                    playlist.Name));
+            await SaveQueue();
+        }
+
+        private async Task PlayAlbum(Album album, IResponse<TextMessage> msg)
+        {
+            AlbumBrowse albumBrowse = await album.Browse();
+            await Play(albumBrowse.Tracks[0], msg);
+            await PrependToQueue(albumBrowse.Tracks.Skip(1));
+            await
+                msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
+                    albumBrowse.Tracks.Count, albumBrowse.Album.Name, albumBrowse.Artist.Name));
+            await SaveQueue();
+        }
+
+        private async Task PlayPlaylist(Playlist playlist, IResponse<TextMessage> msg)
+        {
+            await Play(playlist.Tracks[0], msg);
+            await PrependToQueue(playlist.Tracks.Skip(1));
+            await
+                msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
+                    playlist.Name));
+            await SaveQueue();
+        }
+
         private async Task PrependToQueue(IEnumerable<Track> tracks)
         {
-            _queue = new Queue<Track>(tracks.Concat(_queue));
+            _queue.InsertRange(0, tracks);
             await SaveQueue();
         }
 
@@ -346,7 +471,7 @@ namespace MMBot.Spotify
                     await msg.Send(string.Format("Queued up {0}. It is currently number #{1} in the queue",
                         track.GetDisplayName(), _queue.Count + 1));
                 }
-                _queue.Enqueue(track);
+                _queue.Add(track);
                 await SaveQueue();
             }
         }
@@ -361,7 +486,7 @@ namespace MMBot.Spotify
             return true;
         }
 
-        private async Task<Track> Search(Robot robot, IResponse<TextMessage> msg, string query)
+        private async Task<Track> SearchForTrack(Robot robot, IResponse<TextMessage> msg, string query)
         {
             var tracks = await _session.SearchTracks(query, 0, 1);
             
@@ -373,6 +498,48 @@ namespace MMBot.Spotify
             }
 
             return tracks.Tracks[0];
+        }
+
+        private async Task<Album> SearchForAlbum(Robot robot, IResponse<TextMessage> msg, string query)
+        {
+            var albums = await _session.SearchAlbums(query, 0, 1);
+
+            if (!albums.Albums.Any())
+            {
+                await msg.Send(string.Format("Could not find any tracks matching '{0}'", query));
+                msg.Message.Done = true;
+                return null;
+            }
+
+            return albums.Albums[0];
+        }
+
+        private async Task<Playlist> SearchForPlaylist(Robot robot, IResponse<TextMessage> msg, string query)
+        {
+            var playlists = await _session.SearchPlaylist(query, 0, 1);
+
+            if (!playlists.Albums.Any())
+            {
+                await msg.Send(string.Format("Could not find any playlists matching '{0}'", query));
+                msg.Message.Done = true;
+                return null;
+            }
+
+            return playlists.Playlists[0];
+        }
+
+        private async Task<Artist> SearchForArtist(Robot robot, IResponse<TextMessage> msg, string query)
+        {
+            var artists = await _session.SearchArtists(query, 0, 1);
+
+            if (!artists.Artists.Any())
+            {
+                await msg.Send(string.Format("Could not find any artists matching '{0}'", query));
+                msg.Message.Done = true;
+                return null;
+            }
+
+            return artists.Artists[0];
         }
 
         private async Task Play(Track track, IResponse<TextMessage> msg)
@@ -432,7 +599,8 @@ namespace MMBot.Spotify
         {
             if (_queue.Any())
             {
-                Track next = _queue.Dequeue();
+                Track next = _isShuffleOn ? _queue[_random.Next(0, _queue.Count - 1)] : _queue.First();
+                _queue.Remove(next);
                 _session.PlayerLoad(next);
                 _session.PlayerPlay();
                 await SetCurrentTrack(next);
@@ -460,7 +628,7 @@ namespace MMBot.Spotify
             foreach (var trackUrl in queue)
             {
                 Link link = _session.ParseLink(trackUrl);
-                _queue.Enqueue(await link.AsTrack());
+                _queue.Add(await link.AsTrack());
             }
         }
 
@@ -472,7 +640,40 @@ namespace MMBot.Spotify
                 await _robot.Adapter.Topic(_loungeRoom, string.Concat("Now playing - ", _currentTrack.GetDisplayName()));
             }
         }
+        
+        private async Task ListAlbumTracks(Album album, IResponse<TextMessage> msg)
+        {
+            var browse = await album.Browse();
+            var sb = new StringBuilder();
+            sb.AppendFormat("Artist - {0}", album.Artist.Name);
+            sb.AppendFormat("Album - {0}", album.Name);
+            foreach (var track in browse.Tracks)
+            {
+                sb.AppendFormat("#{0}: {1}", track.Index, track.Name);
+            }
+        }
+
+        private async Task ListPlaylistTracks(Playlist playlist, IResponse<TextMessage> msg)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Playlist Owner - {0}", playlist.Owner.DisplayName);
+            sb.AppendFormat("Playlist Name - {0}", playlist.Name);
+            foreach (var track in playlist.Tracks)
+            {
+                sb.AppendFormat("#{0}: {1}", track.Index, track.GetDisplayName());
+            }
+        }
 
 
+        private async Task ListArtistAlbums(Artist artist, IResponse<TextMessage> msg)
+        {
+            var sb = new StringBuilder();
+            sb.AppendFormat("Artist - {0}", artist.Name);
+            var browse = await artist.Browse(ArtistBrowseType.NoTracks);
+            foreach (var album in browse.Albums)
+            {
+                sb.AppendFormat("{0} ({1})", album.Name, album.Year);
+            }
+        }
     }
 }
