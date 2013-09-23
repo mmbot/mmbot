@@ -33,6 +33,11 @@ namespace MMBot
             return TaskAsyncHelper.Empty;
         }
 
+        public virtual Task Topic(string roomName, params string[] messages)
+        {
+            return TaskAsyncHelper.Empty;
+        }
+
         public virtual Task Play(Envelope envelope, params string[] messages)
         {
             return TaskAsyncHelper.Empty;

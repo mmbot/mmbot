@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.IO;
@@ -54,6 +55,7 @@ namespace MMBot.Spotify
         private Robot _robot;
         private Queue<Track> _queue = new Queue<Track>();
         private Track _currentTrack = null;
+        private string _loungeRoom;
 
         private async Task<bool> Login(Robot robot, IResponse<TextMessage> msg)
         {
@@ -107,6 +109,7 @@ namespace MMBot.Spotify
         public void Register(Robot robot)
         {
             _robot = robot;
+            _loungeRoom = _robot.GetConfigVariable("MMBOT_SPOTIFY_LOUNGE");
             robot.Respond(@"spotify play( .*)?", async msg =>
             {
                 if(!await Login(robot, msg)) return;
@@ -116,6 +119,7 @@ namespace MMBot.Spotify
                     if (_currentTrack != null)
                     {
                         _session.PlayerPlay();
+                        await SetCurrentTrack(_currentTrack);
                     }
                     else
                     {
@@ -383,7 +387,7 @@ namespace MMBot.Spotify
             _session.PlayerLoad(track);
             _session.PlayerPlay();
 
-            _currentTrack = track;
+            await SetCurrentTrack(track);
         }
 
         public IEnumerable<string> GetHelp()
@@ -431,7 +435,7 @@ namespace MMBot.Spotify
                 Track next = _queue.Dequeue();
                 _session.PlayerLoad(next);
                 _session.PlayerPlay();
-                _currentTrack = next;
+                await SetCurrentTrack(next);
                 await SaveQueue();
 
                 return next;
@@ -459,6 +463,16 @@ namespace MMBot.Spotify
                 _queue.Enqueue(await link.AsTrack());
             }
         }
+
+        private async Task SetCurrentTrack(Track track)
+        {
+            _currentTrack = track;
+            if (_loungeRoom != null)
+            {
+                await _robot.Adapter.Topic(_loungeRoom, string.Concat("Now playing - ", _currentTrack.GetDisplayName()));
+            }
+        }
+
 
     }
 }

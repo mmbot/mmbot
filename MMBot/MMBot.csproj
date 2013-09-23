@@ -74,6 +74,9 @@
     <Compile Include="Adapter.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="HttpWrapper.cs" />
+    <Compile Include="IListener.cs" />
+    <Compile Include="Listener.cs" />
+    <Compile Include="MatchResult.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Response.cs" />
     <Compile Include="MMBot.cs" />
@@ -96,6 +99,7 @@
     <Compile Include="Scripts\Xkcd.cs" />
     <Compile Include="Scripts\Youtube.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
+    <Compile Include="TextListener.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>

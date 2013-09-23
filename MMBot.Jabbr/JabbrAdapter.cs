@@ -116,6 +116,27 @@ namespace MMBot.Jabbr
             return TaskAsyncHelper.Empty;
         }
 
+        public override async Task Topic(Envelope envelope, params string[] messages)
+        {
+            await base.Topic(envelope, messages);
+            
+            if (envelope != null && envelope.Room != null)
+            {
+                await _client.Send(string.Format("/topic {0}", string.Join(" ", messages)), envelope.Room);
+            }
+        }
+
+        public override async Task Topic(string roomName, params string[] messages)
+        {
+            await base.Topic(roomName, messages);
+
+            var room = await _client.GetRoomInfo(roomName);
+            if(room != null)
+            {
+                await _client.Send(string.Format("/topic {0}", string.Join(" ", messages)), room.Name);
+            }
+        }
+
         public override async Task Send(Envelope envelope, params string[] messages)
         {
             await base.Send(envelope, messages);
