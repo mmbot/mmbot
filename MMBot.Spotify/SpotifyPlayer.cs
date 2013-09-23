@@ -562,11 +562,15 @@ namespace MMBot.Spotify
             return new[]
             {
                 "mmbot spotify play <query> -  Plays the first matching track from spotify.",
+                "mmbot spotify play album <query> -  Plays the first matching album from spotify.",
                 "mmbot spotify play <spotifyUri> -  Plays the track(s) from the spotify URI (supports tracks, albums and playlists).",
                 "mmbot spotify pause - Pauses playback",
                 "mmbot spotify queue <query> -  Queues the first matching track from spotify.",
+                "mmbot spotify queue album <query> -  Queues the first matching album from spotify.",
                 "mmbot spotify queue <spotifyUri> -  Queues the track(s) from the spotify URI (supports tracks, albums and playlists).",
                 "mmbot spotify show queue",
+                "mmbot spotify show artist|album|playlist <name> - Shows the details of the first matching artist, album or playlist",
+                "mmbot spotify shuffle on|off - turn on or off shuffle mode",
                 "mmbot spotify remove <query> from queue - Removes matching tracks from the queue",
                 "mmbot spotify clear queue - clears the play queue",
                 "mmbot spotify next - Skips to the next track in the queue.",
