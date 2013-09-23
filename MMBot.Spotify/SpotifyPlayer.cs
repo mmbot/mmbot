@@ -134,7 +134,7 @@ namespace MMBot.Spotify
                         var link = _session.ParseLink(query);
                         if (link.Type == LinkType.Album)
                         {
-                            AlbumBrowse albumBrowse = link.AsAlbum().Browse();
+                            AlbumBrowse albumBrowse = await link.AsAlbum().Browse();
                             await Play(albumBrowse.Tracks[0], msg);
                             await PrependToQueue(albumBrowse.Tracks.Skip(1));
                             await
@@ -143,7 +143,7 @@ namespace MMBot.Spotify
                         }
                         else if (link.Type == LinkType.Playlist)
                         {
-                            Playlist playlist = link.AsPlaylist();
+                            Playlist playlist = await link.AsPlaylist();
                             await Play(playlist.Tracks[0], msg);
                             await PrependToQueue(playlist.Tracks.Skip(1));
                             await
@@ -152,7 +152,7 @@ namespace MMBot.Spotify
                         }
                         else if (link.Type == LinkType.Track)
                         {
-                            await Play(link.AsTrack(), msg);
+                            await Play(await link.AsTrack(), msg);
                         }
                     }
                     else
@@ -177,7 +177,7 @@ namespace MMBot.Spotify
                     var link = _session.ParseLink(query);
                     if (link.Type == LinkType.Album)
                     {
-                        AlbumBrowse albumBrowse = link.AsAlbum().Browse();
+                        AlbumBrowse albumBrowse = await link.AsAlbum().Browse();
                         albumBrowse.Tracks.ForEach(t => _queue.Enqueue(t));
                         await
                             msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
@@ -186,7 +186,7 @@ namespace MMBot.Spotify
                     }
                     else if (link.Type == LinkType.Playlist)
                     {
-                        Playlist playlist = link.AsPlaylist();
+                        Playlist playlist = await link.AsPlaylist();
                         playlist.Tracks.ForEach(t => _queue.Enqueue(t));
                         await
                             msg.Send(string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
@@ -195,7 +195,7 @@ namespace MMBot.Spotify
                     }
                     else if (link.Type == LinkType.Track)
                     {
-                        await QueueUpTrack(link.AsTrack(), msg, true);
+                        await QueueUpTrack(await link.AsTrack(), msg, true);
                     }
                 }
                 else
@@ -321,7 +321,7 @@ namespace MMBot.Spotify
                 if (!await Login(robot, msg)) return;
 
                 Link link = _session.ParseLink("spotify:track:77NNZQSqzLNqh2A9JhLRkg");
-                await Play(link.AsTrack(), null);
+                await Play(await link.AsTrack(), null);
                 await Giphy.GifMe(_robot, "winning", msg);
             });
 
@@ -456,7 +456,7 @@ namespace MMBot.Spotify
             foreach (var trackUrl in queue)
             {
                 Link link = _session.ParseLink(trackUrl);
-                _queue.Enqueue(link.AsTrack());
+                _queue.Enqueue(await link.AsTrack());
             }
         }
 
