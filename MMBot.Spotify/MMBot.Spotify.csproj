@@ -57,6 +57,7 @@
     <Compile Include="NAudioPlayer.cs" />
     <Compile Include="SpotiFireExtensions.cs" />
     <Compile Include="SpotifyPlayer.cs" />
+    <Compile Include="SpotifyPlayerScripts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

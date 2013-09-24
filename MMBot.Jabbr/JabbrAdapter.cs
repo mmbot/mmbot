@@ -74,7 +74,8 @@ namespace MMBot.Jabbr
             //TODO: Filter out messages from mmbot itself using the current nick
             if(user.Name != _nick)
             {
-                _robot.Receive(new TextMessage(user, message.Content, message.Id));
+                Task.Run(() => 
+                _robot.Receive(new TextMessage(user, message.Content, message.Id)));
             }
         }
 

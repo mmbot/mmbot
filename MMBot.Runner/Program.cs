@@ -44,7 +44,7 @@ namespace MMBot.Runner
             //TODO: Discover scripts
             
             robot.LoadScripts(typeof (Robot).Assembly);
-            robot.LoadScripts(typeof(SpotifyPlayer).Assembly);
+            robot.LoadScripts(typeof(SpotifyPlayerScripts).Assembly);
 
             robot.Run();
 
