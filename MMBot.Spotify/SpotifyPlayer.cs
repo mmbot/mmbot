@@ -166,6 +166,12 @@ namespace MMBot.Spotify
                     }
                     else
                     {
+                        if (string.IsNullOrEmpty(query))
+                        {
+                            await msg.Send("Nothing to search for");
+                            return;
+                        }
+
                         if (isAlbum)
                         {
                             var album = await SearchForAlbum(robot, msg, query);
@@ -189,8 +195,8 @@ namespace MMBot.Spotify
             robot.Respond(@"spotify (en)?queue( album)? (.*)", async msg =>
             {
                 if (!await Login(robot, msg)) return;
-                bool isAlbum = !string.IsNullOrEmpty(msg.Match[1]);
-                string query = msg.Match[2];
+                bool isAlbum = !string.IsNullOrEmpty(msg.Match[2]);
+                string query = msg.Match[3];
 
                 if (_spotifyLinkRegex.IsMatch(query))
                 {
@@ -213,6 +219,12 @@ namespace MMBot.Spotify
                 }
                 else
                 {
+                    if (string.IsNullOrEmpty(query))
+                    {
+                        await msg.Send("Nothing to search for");
+                        return;
+                    }
+
                     // We just have a query so search
                     if (isAlbum)
                     {
@@ -260,6 +272,11 @@ namespace MMBot.Spotify
                 }
                 else
                 {
+                    if (string.IsNullOrEmpty(query))
+                    {
+                        await msg.Send("Nothing to search for");
+                        return;
+                    }
                     if (isAlbum)
                     {
                         var album = await SearchForAlbum(robot, msg, query);
@@ -418,7 +435,7 @@ namespace MMBot.Spotify
 
         private async Task QueueUpAlbum(Album album, IResponse<TextMessage> msg)
         {
-            AlbumBrowse albumBrowse = album.Browse();
+            AlbumBrowse albumBrowse = await album.Browse();
             albumBrowse.Tracks.ForEach(t => _queue.Add(t));
             await
                 msg.Send(string.Format("Queued up {0} tracks from album {1} by {2}",
