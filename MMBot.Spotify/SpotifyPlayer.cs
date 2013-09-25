@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -56,12 +57,23 @@ namespace MMBot.Spotify
         private string _loungeRoom;
 
         public event EventHandler<Track> TrackChanged;
+        public event EventHandler<PlayerState> StateChanged;
+
+        public enum PlayerState
+        {
+            Disconnected,
+            Stopped,
+            Paused,
+            Playing,
+        }
 
 
         public SpotifyPlayer(Robot robot)
         {
             _robot = robot;
         }
+
+        public PlayerState State { get; private set; }
 
         public string LoungeRoom
         {
@@ -134,6 +146,8 @@ namespace MMBot.Spotify
             {
                 throw new Exception(string.Format("Could not login to Spotify - {0}", errorMessage));
             }
+
+            OnStateChanged(PlayerState.Stopped);
         }
 
         public async Task<string> QueueUpAlbum(Album album)
@@ -163,7 +177,7 @@ namespace MMBot.Spotify
                 }
                 else
                 {
-                    AddToQueue(track);
+                    _queue.Add(track);
                 }
             }
         }
@@ -265,6 +279,7 @@ namespace MMBot.Spotify
         {
             _session.PlayerUnload();
             _session.PlayerLoad(track);
+            await SetCurrentTrack(track);
             await Play();
         }
 
@@ -305,6 +320,7 @@ namespace MMBot.Spotify
                 _queue.Remove(next);
                 _session.PlayerLoad(next);
                 await Play();
+                await SetCurrentTrack(next);
                 await SaveQueue();
 
                 return next;
@@ -364,6 +380,7 @@ namespace MMBot.Spotify
             if (CurrentTrack != null)
             {
                 _session.PlayerPlay();
+                OnStateChanged(PlayerState.Playing);
                 OnTrackChanged(CurrentTrack);
             }
             else
@@ -416,7 +433,7 @@ namespace MMBot.Spotify
             _session.PlayerPause();
             if (CurrentTrack != null)
             {
-                await _robot.Adapter.Topic(LoungeRoom, string.Concat("Paused - ", CurrentTrack.GetDisplayName()));
+                OnStateChanged(PlayerState.Paused);
             }
         }
 
@@ -427,11 +444,7 @@ namespace MMBot.Spotify
             {
                 if (CurrentTrack == null)
                 {
-                    await _robot.Adapter.Topic(LoungeRoom, string.Concat("Stopped - {0} items in queue", _queue.Count));
-                }
-                else
-                {
-                    await _robot.Adapter.Topic(LoungeRoom, string.Concat("Now playing - ", CurrentTrack.GetDisplayName()));
+                    OnStateChanged(PlayerState.Stopped);
                 }
             }
         }
@@ -464,6 +477,19 @@ namespace MMBot.Spotify
             EventHandler<Track> handler = TrackChanged;
             if (handler != null) handler(this, e);
         }
+
+        protected virtual void OnStateChanged(PlayerState e)
+        {
+            if (e == State)
+            {
+                return;
+            }
+            var handler = StateChanged;
+            if (handler != null) handler(this, e);
+            State = e;
+        }
+
+        
     }
 
 }

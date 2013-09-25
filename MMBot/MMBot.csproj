@@ -75,6 +75,7 @@
     <Compile Include="Envelope.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
+    <Compile Include="GenericEqualityComparer.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="MatchResult.cs" />
     <Compile Include="Message.cs" />

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -23,7 +26,14 @@ namespace MMBot.Spotify
         {
             _robot = robot;
             _player = new SpotifyPlayer(robot);
-            _player.TrackChanged += PlayerOnTrackChanged;
+
+            Observable.FromEventPattern<Track>(e => _player.TrackChanged += e, e => _player.TrackChanged -= e)
+                .Select(s => Unit.Default)
+                .Merge(
+                    Observable.FromEventPattern<SpotifyPlayer.PlayerState>(e => _player.StateChanged += e,
+                        e => _player.StateChanged -= e).Select(s => Unit.Default))
+                        .Throttle(TimeSpan.FromMilliseconds(300))
+                .Subscribe(a => UpdateLoungeTopic());
 
             _player.LoungeRoom = robot.GetConfigVariable("MMBOT_SPOTIFY_LOUNGE");
             
@@ -365,12 +375,31 @@ namespace MMBot.Spotify
 
         }
 
-        private async void PlayerOnTrackChanged(object sender, Track track)
+        private async Task UpdateLoungeTopic()
         {
-            string message = _player.CurrentTrack != null ? string.Concat("Now playing - ", _player.CurrentTrack.GetDisplayName()) : "Not Playing";
-                
+            var stateDisplayText = "Disconnected";
+            switch (_player.State)
+            {
+                case SpotifyPlayer.PlayerState.Disconnected:
+                    break;
+                case SpotifyPlayer.PlayerState.Stopped:
+                    stateDisplayText = "Stopped";
+                    break;
+                case SpotifyPlayer.PlayerState.Paused:
+                    stateDisplayText = "Paused";
+                    break;
+                case SpotifyPlayer.PlayerState.Playing:
+                    stateDisplayText = "Now Playing";
+                    break;
+            }
+            string message = _player.CurrentTrack != null && (_player.State == SpotifyPlayer.PlayerState.Playing || _player.State == SpotifyPlayer.PlayerState.Paused)
+                ? string.Concat(stateDisplayText, " - ", _player.CurrentTrack.GetDisplayName())
+                : stateDisplayText;
+
             await _robot.Adapter.Topic(_player.LoungeRoom, message);
         }
+
+        
 
 
         public IEnumerable<string> GetHelp()
@@ -421,35 +450,45 @@ namespace MMBot.Spotify
         {
             var browse = await album.Browse();
             var sb = new StringBuilder();
-            sb.AppendFormat("Artist - {0}", album.Artist.Name);
-            sb.AppendFormat("Album - {0}", album.Name);
+            sb.AppendFormat("Artist - {0}\r\n", album.Artist.Name);
+            sb.AppendFormat("Album - {0}\r\n", album.Name);
             foreach (var track in browse.Tracks)
             {
-                sb.AppendFormat("#{0}: {1}", track.Index, track.Name);
+                sb.AppendFormat("#{0}: {1}\r\n", track.Index, track.Name);
             }
+            await msg.Send(sb.ToString());
         }
 
         private async Task ListPlaylistTracks(Playlist playlist, IResponse<TextMessage> msg)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("Playlist Owner - {0}", playlist.Owner.DisplayName);
-            sb.AppendFormat("Playlist Name - {0}", playlist.Name);
+            sb.AppendFormat("Playlist Owner - {0}\r\n", playlist.Owner.DisplayName);
+            sb.AppendFormat("Playlist Name - {0}\r\n", playlist.Name);
             foreach (var track in playlist.Tracks)
             {
-                sb.AppendFormat("#{0}: {1}", track.Index, track.GetDisplayName());
+                sb.AppendFormat(" #{0}: {1}\r\n", track.Index, track.GetDisplayName());
             }
+            await msg.Send(sb.ToString());
         }
 
 
         private async Task ListArtistAlbums(Artist artist, IResponse<TextMessage> msg)
         {
             var sb = new StringBuilder();
-            sb.AppendFormat("Artist - {0}", artist.Name);
+            sb.AppendFormat("Artist - {0}\r\n", artist.Name);
             var browse = await artist.Browse(ArtistBrowseType.NoTracks);
-            foreach (var album in browse.Albums)
+            sb.AppendFormat("Albums: \r\n");
+            var albums = browse.Albums.Where(a => a.Type == AlbumType.Album && a.IsAvailable ).Distinct(new GenericEqualityComparer<Album>((x, y) => x.Name == y.Name && x.Year == y.Year, x => x.Name.GetHashCode())).ToArray();
+            foreach (var album in albums.Take(30))
             {
-                sb.AppendFormat("{0} ({1})", album.Name, album.Year);
+                sb.AppendFormat("  {0} ({1})\r\n", album.Name, album.Year);
             }
+            int totalAlbums = albums.Count();
+            if(totalAlbums > 30)
+            { 
+                sb.AppendFormat(" (+{0} unlisted) \r\n", totalAlbums - 10);
+            }
+            await msg.Send(sb.ToString());
         }
 
         private async Task<bool> CheckForPlayingSession(IResponse<TextMessage> msg)
