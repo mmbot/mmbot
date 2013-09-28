@@ -48,3 +48,36 @@ The main goal of mmbot is to provide a chat bot written in C# with all the funct
     mmbot xkcd <num> - XKCD comic <num>
     mmbot xkcd random - fetch a random XKCD comic
     mmbot youtube me <query> - Searches YouTube for the query and returns the video embed link.
+
+
+## Using from scriptcs
+You can use mmbot directly from [scriptcs](http://scriptcs.net). For example, create the following script in a folder and name the file mmbot.csx:
+
+```C#
+using MMBot;
+using MMBot.Jabbr;
+
+var config = new Dictionary<string, string> {
+  {"MMBOT_JABBR_HOST", "https://jabbr.net"},
+  {"MMBOT_JABBR_NICK", "mmbot"},
+  {"MMBOT_JABBR_PASSWORD", "mysuperawesomepassword"},
+  {"MBOT_JABBR_ROOMS", "mmbottest"},
+};
+
+var robot = Robot.Create<JabbrAdapter>("mmbot", config);
+
+robot.LoadScripts(typeof (Robot).Assembly);
+
+robot.Run().Wait();
+
+Console.WriteLine("Press any key to exit");
+
+Console.ReadKey();
+```
+
+You can now just type the following to run your script
+
+    scriptcs -install MMBot.Jabbr -pre
+    scriptcs .\mmbot.csx
+
+
