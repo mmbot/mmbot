@@ -64,8 +64,10 @@ var config = new Dictionary<string, string> {
   {"MBOT_JABBR_ROOMS", "mmbottest"},
 };
 
+// Create a robot connected to Jabbr
 var robot = Robot.Create<JabbrAdapter>("mmbot", config);
 
+// Load the default scripts library, you can add your own too
 robot.LoadScripts(typeof (Robot).Assembly);
 
 robot.Run().Wait();
