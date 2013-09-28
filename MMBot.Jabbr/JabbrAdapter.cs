@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JabbR.Client;
+using MMBot.Jabbr.JabbrClient;
 
 namespace MMBot.Jabbr
 {
@@ -24,10 +24,10 @@ namespace MMBot.Jabbr
 
         private void Configure()
         {
-            _host = _robot.GetConfigVariable("HUBOT_JABBR_HOST");
-            _nick = _robot.GetConfigVariable("HUBOT_JABBR_NICK");
-            _password = _robot.GetConfigVariable("HUBOT_JABBR_PASSWORD");
-            _rooms = (_robot.GetConfigVariable("HUBOT_JABBR_ROOMS") ?? string.Empty)
+            _host = _robot.GetConfigVariable("MMBOT_JABBR_HOST");
+            _nick = _robot.GetConfigVariable("MMBOT_JABBR_NICK");
+            _password = _robot.GetConfigVariable("MMBOT_JABBR_PASSWORD");
+            _rooms = (_robot.GetConfigVariable("MMBOT_JABBR_ROOMS") ?? string.Empty)
                 .Trim()
                 .Split(',')
                 .Select(s => s.Trim())
@@ -58,7 +58,7 @@ namespace MMBot.Jabbr
             _client.PrivateMessage += (from, to, message) => { Console.WriteLine("*PRIVATE* {0} -> {1} ", @from, message); };
         }
 
-        private void ClientOnMessageReceived(JabbR.Client.Models.Message message, string room)
+        private void ClientOnMessageReceived(JabbrClient.Models.Message message, string room)
         {
             Console.WriteLine("[{0}] {1}: {2}", message.When, message.User.Name, message.Content);
 

@@ -15,7 +15,7 @@ namespace MMBot.Runner
         {
             var config = new Dictionary<string, string>();
 
-            if (Environment.GetEnvironmentVariable("HUBOT_JABBR_HOST") == null)
+            if (Environment.GetEnvironmentVariable("MMBOT_JABBR_HOST") == null)
             {
                 Console.WriteLine("Please enter the password for mmbot in jabbr");
                 var password = ReadPassword();
@@ -27,13 +27,13 @@ namespace MMBot.Runner
 
                 config = new Dictionary<string, string>
                 {
-                    {"HUBOT_JABBR_HOST", "https://jabbr.net/"},
-                    {"HUBOT_JABBR_NICK", "mmbot"},
-                    {"HUBOT_JABBR_PASSWORD", password},
-                    {"HUBOT_JABBR_ROOMS", "mmbottest,markermetro"},
-                    //{"HUBOT_TEAMCITY_USERNAME", "buildadmin"},
-                    //{"HUBOT_TEAMCITY_PASSWORD", "**********"},
-                    //{"HUBOT_TEAMCITY_HOSTNAME", "buildserver"},
+                    {"MMBOT_JABBR_HOST", "https://jabbr.net/"},
+                    {"MMBOT_JABBR_NICK", "mmbot"},
+                    {"MMBOT_JABBR_PASSWORD", password},
+                    {"MMBOT_JABBR_ROOMS", "mmbottest,markermetro"},
+                    //{"MMBOT_TEAMCITY_USERNAME", "buildadmin"},
+                    //{"MMBOT_TEAMCITY_PASSWORD", "**********"},
+                    //{"MMBOT_TEAMCITY_HOSTNAME", "buildserver"},
                 };
             }
 

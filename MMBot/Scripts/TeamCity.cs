@@ -22,10 +22,10 @@ namespace MMBot.Scripts
 
         public void Register(Robot robot)
         {
-            _username = robot.GetConfigVariable("HUBOT_TEAMCITY_USERNAME");
-            _password = robot.GetConfigVariable("HUBOT_TEAMCITY_PASSWORD");
-            _hostname = robot.GetConfigVariable("HUBOT_TEAMCITY_HOSTNAME");
-            _scheme = robot.GetConfigVariable("HUBOT_TEAMCITY_SCHEME") ?? "http";
+            _username = robot.GetConfigVariable("MMBOT_TEAMCITY_USERNAME");
+            _password = robot.GetConfigVariable("MMBOT_TEAMCITY_PASSWORD");
+            _hostname = robot.GetConfigVariable("MMBOT_TEAMCITY_HOSTNAME");
+            _scheme = robot.GetConfigVariable("MMBOT_TEAMCITY_SCHEME") ?? "http";
             _baseUrl = string.Format("{0}://{1}", _scheme, _hostname);
 
             if (_hostname == null)
@@ -56,15 +56,15 @@ namespace MMBot.Scripts
             return new[]
             {
                 ""
-                //"hubot what is building - Show status of currently running builds",
-                //"hubot tc list projects - Show all available projects",
-                //"hubot tc list buildTypes - Show all available build types",
-                //"hubot tc list buildTypes of <project> - Show all available build types for the specified project",
-                //"hubot tc list builds <buildType> <number> - Show the status of the last <number> builds.  Number defaults to five.",
-                //"hubot tc list builds of <buildType> of <project> <number>- Show the status of the last <number> builds of the specified build type of the specified project. Number can only follow the last variable, so if project is not passed, number must follow buildType directly. <number> Defaults to 5",
-                //"hubot tc build start <buildType> - Adds a build to the queue for the specified build type",
-                //"hubot tc build start <buildType> of <project> - Adds a build to the queue for the specified build type of the specified project",
-                //"hubot tc build stop all <buildType> id <buildId> of <project> - Stops all currently running builds of a given buildType. Project parameter is optional. Please note that the special 'all' keyword will kill all currently running builds ignoring all further parameters. hubot tc build stop all all",
+                //"mmbot what is building - Show status of currently running builds",
+                //"mmbot tc list projects - Show all available projects",
+                //"mmbot tc list buildTypes - Show all available build types",
+                //"mmbot tc list buildTypes of <project> - Show all available build types for the specified project",
+                //"mmbot tc list builds <buildType> <number> - Show the status of the last <number> builds.  Number defaults to five.",
+                //"mmbot tc list builds of <buildType> of <project> <number>- Show the status of the last <number> builds of the specified build type of the specified project. Number can only follow the last variable, so if project is not passed, number must follow buildType directly. <number> Defaults to 5",
+                //"mmbot tc build start <buildType> - Adds a build to the queue for the specified build type",
+                //"mmbot tc build start <buildType> of <project> - Adds a build to the queue for the specified build type of the specified project",
+                //"mmbot tc build stop all <buildType> id <buildId> of <project> - Stops all currently running builds of a given buildType. Project parameter is optional. Please note that the special 'all' keyword will kill all currently running builds ignoring all further parameters. hubot tc build stop all all",
             };
         }
     }

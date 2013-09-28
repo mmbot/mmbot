@@ -70,10 +70,10 @@ namespace MMBot.Scripts
         {
             return new[]
             {
-                "hubot what is <term>?         - Searches Urban Dictionary and returns definition",
-                "hubot urban me <term>         - Searches Urban Dictionary and returns definition",
-                "hubot urban define me <term>  - Searches Urban Dictionary and returns definition",
-                "hubot urban example me <term> - Searches Urban Dictionary and returns example"
+                "mmbot what is <term>?         - Searches Urban Dictionary and returns definition",
+                "mmbot urban me <term>         - Searches Urban Dictionary and returns definition",
+                "mmbot urban define me <term>  - Searches Urban Dictionary and returns definition",
+                "mmbot urban example me <term> - Searches Urban Dictionary and returns example"
             };
         }
     }

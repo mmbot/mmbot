@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MMBot</id>
+    <version>0.1.0</version>
+    <authors>Peter Goodman</authors>
+    <owners>Peter Goodman</owners>
+    <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A C# port of Github's Hubot chat bot</description>
+    <releaseNotes>Initial pre-release version.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>hubot mmbot petegoo chat robot bot</tags>
+    <dependencies>
+      <dependency id="akavache" version="3.0.2" />
+      <dependency id="Newtonsoft.Json" version="5.0.6" />
+    </dependencies>
+  </metadata>
+</package>

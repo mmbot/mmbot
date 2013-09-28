@@ -42,8 +42,8 @@ namespace MMBot.Scripts
         {
             return new[]
             {
-                "hubot math me <expression> - Calculate the given expression.",
-                "hubot convert me <expression> to <units> - Convert expression to given units."
+                "mmbot math me <expression> - Calculate the given expression.",
+                "mmbot convert me <expression> to <units> - Convert expression to given units."
             };
         }
     }

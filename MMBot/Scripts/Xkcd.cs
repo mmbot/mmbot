@@ -71,9 +71,9 @@ namespace MMBot.Scripts
         {
             return new[]
             {
-                "hubot xkcd [latest]- The latest XKCD comic",
-                "hubot xkcd <num> - XKCD comic <num>",
-                "hubot xkcd random - fetch a random XKCD comic"
+                "mmbot xkcd [latest]- The latest XKCD comic",
+                "mmbot xkcd <num> - XKCD comic <num>",
+                "mmbot xkcd random - fetch a random XKCD comic"
             };
         }
     }

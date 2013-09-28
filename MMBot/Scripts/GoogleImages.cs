@@ -42,10 +42,10 @@ namespace MMBot.Scripts
         {
             return new[]
             {
-                "hubot image me <query> - The Original. Queries Google Images for <query> and returns a random top result.",
-                "hubot animate me <query> - The same thing as `image me`, except adds a few parameters to try to return an animated GIF instead.",
-                "hubot mustache me <url> - Adds a mustache to the specified URL.",
-                "hubot mustache me <query> - Searches Google Images for the specified query and mustaches it."
+                "mmbot image me <query> - The Original. Queries Google Images for <query> and returns a random top result.",
+                "mmbot animate me <query> - The same thing as `image me`, except adds a few parameters to try to return an animated GIF instead.",
+                "mmbot mustache me <url> - Adds a mustache to the specified URL.",
+                "mmbot mustache me <query> - Searches Google Images for the specified query and mustaches it."
             };
         }
 

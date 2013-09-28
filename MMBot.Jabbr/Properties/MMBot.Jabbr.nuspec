@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.Jabbr</id>
+        <version>0.1.0</version>
+        <authors>Peter Goodman</authors>
+        <owners>Peter Goodman</owners>
+        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A Jabbr Adapter for mmbot, a C# port of Github's Hubot chat bot</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot petegoo chat robot bot jabbr</tags>
+        <dependencies>
+            <dependency id="Newtonsoft.Json" version="5.0.6" />
+            <dependency id="MMBot" version="0.1.0-beta" />
+            <dependency id="Microsoft.AspNet.SignalR.Client" version="2.0.1-pre-130912-b205" />
+        </dependencies>
+    </metadata>
+</package>

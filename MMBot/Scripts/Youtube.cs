@@ -44,7 +44,7 @@ namespace MMBot.Scripts
 
         public IEnumerable<string> GetHelp()
         {
-            return new[] {"hubot youtube me <query> - Searches YouTube for the query and returns the video embed link."};
+            return new[] {"mmbot youtube me <query> - Searches YouTube for the query and returns the video embed link."};
         }
     }
 }

@@ -63,7 +63,7 @@ namespace MMBot.Scripts
 
         public IEnumerable<string> GetHelp()
         {
-            return new[] {"hubot gif me <query> - Returns an animated gif matching the requested search term."};
+            return new[] {"mmbot gif me <query> - Returns an animated gif matching the requested search term."};
         }
     }
 }
