@@ -51,6 +51,12 @@ The main goal of mmbot is to provide a chat bot written in C# with all the funct
 
 
 ## Using from scriptcs
+
+**Note the following is not quite working right now due to 
+a bug in either scriptcs / akavache relating to target framework resolution in NuGet. A workaround is to remove all the 
+packages except mmbot ones from the packages.config after running the scriptcs -install command**
+
+
 You can use mmbot directly from [scriptcs](http://scriptcs.net). For example, create the following script in a folder and name the file mmbot.csx:
 
 ```C#
@@ -77,7 +83,8 @@ Console.WriteLine("Press any key to exit");
 Console.ReadKey();
 ```
 
-You can now just type the following to run your script
+You can now just type the following to run your script. Note the following is not quite working right now due to 
+a bug in wither scriptcs / akavache relating to target framework resolution in NuGet.
 
     scriptcs -install MMBot.Jabbr -pre
     scriptcs .\mmbot.csx
