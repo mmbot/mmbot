@@ -319,8 +319,8 @@ namespace MMBot.Spotify
                 Track next = _isShuffleOn ? _queue[_random.Next(0, _queue.Count - 1)] : Queue.First();
                 _queue.Remove(next);
                 _session.PlayerLoad(next);
-                await Play();
                 await SetCurrentTrack(next);
+                await Play();
                 await SaveQueue();
 
                 return next;
