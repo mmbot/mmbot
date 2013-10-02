@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -20,6 +21,7 @@ namespace MMBot
         private readonly List<string> _helpCommands = new List<string>();
         private IDictionary<string, string> _config;
         private Brain _brain;
+        protected bool _isConfigured = false;
 
         public Adapter Adapter {
             get { return _adapter; }
@@ -41,17 +43,26 @@ namespace MMBot
 
         public static Robot Create<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
         {
-            var robot = new Robot(typeof(TAdapter), name, config);
+            var robot = new Robot();
+
+            robot.Configure<TAdapter>(name, config);
+
             robot.LoadAdapter();
+
             return robot;
         }
 
-        private Robot(Type adapterType, string name, IDictionary<string, string> config)
+        protected Robot()
         {
-            _adapterType = adapterType;
+            _brain = new Brain(this);
+        }
+
+        public void Configure<TAdapter>(string name =  "mmbot", IDictionary<string, string> config = null ) where TAdapter : Adapter
+        {
+            _adapterType = typeof (TAdapter);
             _name = name;
             _config = config;
-            _brain = new Brain(this);
+            _isConfigured = true;
         }
 
         public void Hear(Regex regex, Action<Response<TextMessage>> action)
@@ -98,8 +109,12 @@ namespace MMBot
 
         }
 
-        public async Task Run()
+        public virtual async Task Run()
         {
+            if (!_isConfigured)
+            {
+                throw new RobotNotConfiguredException();
+            }
             await _brain.Initialize();
 
             await _adapter.Run();
