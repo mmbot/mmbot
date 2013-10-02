@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\ScriptCs.MMBot.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MMBot\MMBot.csproj">
