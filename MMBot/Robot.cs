@@ -54,15 +54,16 @@ namespace MMBot
 
         protected Robot()
         {
-            _brain = new Brain(this);
         }
 
         public void Configure<TAdapter>(string name =  "mmbot", IDictionary<string, string> config = null ) where TAdapter : Adapter
         {
+            
             _adapterType = typeof (TAdapter);
             _name = name;
             _config = config;
             _isConfigured = true;
+            _brain = new Brain(this);
         }
 
         public void Hear(Regex regex, Action<Response<TextMessage>> action)
@@ -118,7 +119,6 @@ namespace MMBot
             await _brain.Initialize();
 
             await _adapter.Run();
-            
         }
 
         public void Receive(Message message)
@@ -166,6 +166,10 @@ namespace MMBot
 
         public string GetConfigVariable(string name)
         {
+            if (!_isConfigured)
+            {
+                throw new RobotNotConfiguredException();
+            }
             return _config.ContainsKey(name) ? _config[name] : Environment.GetEnvironmentVariable(name);
         }
 
