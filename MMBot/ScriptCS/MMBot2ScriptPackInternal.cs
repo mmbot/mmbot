@@ -1,8 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using ScriptCs.Contracts;
 
 namespace MMBot.ScriptCS
 {
+    [PartNotDiscoverable]
     public class MMBot2ScriptPackInternal : IScriptPack<Robot>
     {
         private Robot _robot;
