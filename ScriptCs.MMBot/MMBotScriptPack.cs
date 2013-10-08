@@ -1,4 +1,9 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using ScriptCs.Contracts;
+
 
 namespace ScriptCs.MMBot
 {
@@ -7,6 +12,9 @@ namespace ScriptCs.MMBot
         public void Initialize(IScriptPackSession session)
         {
             Context = new MMBotScriptPackContext();
+            session.AddReference("MMBot");
+            session.AddReference("ScriptCs.Contracts");
+            session.ImportNamespace("MMBot");
         }
 
         public IScriptPackContext GetContext()
@@ -20,6 +28,6 @@ namespace ScriptCs.MMBot
         }
 
         public MMBotScriptPackContext Context { get; set; }
-
     }
 }
+

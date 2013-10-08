@@ -20,14 +20,12 @@ namespace MMBot
         {
             _robot = robot;
             BlobCache.ApplicationName = "MMBotBrain";
-            
-            string configVariable = _robot.GetConfigVariable("MMBOT_BRAIN_PATH");
-            _cache = string.IsNullOrWhiteSpace(configVariable) ? BlobCache.LocalMachine : new BrainPersistentBlobCache(configVariable);
         }
 
-        public async Task Initialize()
+        public void Initialize()
         {
-            
+            var configVariable = _robot.GetConfigVariable("MMBOT_BRAIN_PATH");
+            _cache = string.IsNullOrWhiteSpace(configVariable) ? BlobCache.LocalMachine : new BrainPersistentBlobCache(configVariable);
         }
 
         public async Task Close()

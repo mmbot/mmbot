@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -8,10 +9,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using MMBot.Adapters;
 using MMBot.Scripts;
+using ScriptCs.Contracts;
 
 namespace MMBot
 {
-    public class Robot
+    public class Robot : IScriptPackContext
     {
         private string _name = "mmbot";
         private Adapter _adapter;
@@ -22,8 +24,10 @@ namespace MMBot
         private IDictionary<string, string> _config;
         private Brain _brain;
         protected bool _isConfigured = false;
+        private readonly ScriptRunner _scriptRunner;
 
-        public Adapter Adapter {
+        public Adapter Adapter
+        {
             get { return _adapter; }
         }
 
@@ -33,11 +37,16 @@ namespace MMBot
         }
 
         public string Alias { get; set; }
-        public string Name {
+
+        public string ScriptPath { get; set; }
+
+        public string Name
+        {
             get { return _name; }
         }
 
-        public Brain Brain {
+        public Brain Brain
+        {
             get { return _brain; }
         }
 
@@ -54,16 +63,20 @@ namespace MMBot
 
         protected Robot()
         {
+            _scriptRunner = new ScriptRunner(this);
+            _brain = new Brain(this);
         }
 
-        public void Configure<TAdapter>(string name =  "mmbot", IDictionary<string, string> config = null ) where TAdapter : Adapter
+        public void Configure<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
         {
-            
-            _adapterType = typeof (TAdapter);
+
+            _adapterType = typeof(TAdapter);
             _name = name;
             _config = config;
             _isConfigured = true;
-            _brain = new Brain(this);
+
+            _brain.Initialize();
+            _scriptRunner.Initialize();
         }
 
         public void Hear(Regex regex, Action<Response<TextMessage>> action)
@@ -116,8 +129,7 @@ namespace MMBot
             {
                 throw new RobotNotConfiguredException();
             }
-            await _brain.Initialize();
-
+            LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
             await _adapter.Run();
         }
 
@@ -139,7 +151,7 @@ namespace MMBot
                     Console.WriteLine(e);
                     // TODO: Logging exception in listener
                 }
-                
+
             }
         }
 
@@ -147,15 +159,38 @@ namespace MMBot
         {
             _adapter = Activator.CreateInstance(_adapterType, this) as Adapter;
         }
-        
+
         public void LoadScripts(Assembly assembly)
         {
-            assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach( s =>
+            assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach(s =>
             {
                 Console.WriteLine("Loading script {0}", s.Name);
                 var script = (Activator.CreateInstance(s) as IMMBotScript);
                 RegisterScript(script);
             });
+        }
+
+        public void LoadScripts(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Console.WriteLine("Script directory '{0}' does not exist", path);
+                return;
+            }
+
+            foreach (var scriptFile in Directory.GetFiles(path, "*.csx"))
+            {
+                try
+                {
+                    Console.WriteLine("Loading script '{0}'", Path.GetFileName(scriptFile));
+                    _scriptRunner.RunScriptFile(scriptFile);
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
         }
 
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()
@@ -176,14 +211,14 @@ namespace MMBot
         private void RegisterScript(IMMBotScript script)
         {
             script.Register(this);
-            
+
 
             HelpCommands.AddRange(script.GetHelp());
         }
 
         public async Task Shutdown()
         {
-            if(_adapter != null)
+            if (_adapter != null)
             {
                 await _adapter.Close();
             }
@@ -197,9 +232,9 @@ namespace MMBot
         {
             await Shutdown();
             LoadAdapter();
-            
+
             await Run();
-            await _brain.Initialize();
+            _brain.Initialize();
         }
     }
 }
