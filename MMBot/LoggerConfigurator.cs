@@ -24,7 +24,7 @@ namespace MMBot
 
         public static Common.Logging.ILog GetConsoleLogger(LogLevel logLevel)
         {
-            LoggerConfigurator configurator = new LoggerConfigurator(logLevel);
+            var configurator = new LoggerConfigurator(logLevel);
             configurator.ConfigureForConsole();
             return configurator.GetLogger();
         }

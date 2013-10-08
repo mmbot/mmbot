@@ -194,7 +194,7 @@ namespace MMBot
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Logger.Error("Error receiving message", e);
                     // TODO: Logging exception in listener
                 }
 
@@ -210,7 +210,7 @@ namespace MMBot
         {
             assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach(s =>
             {
-                Console.WriteLine("Loading script {0}", s.Name);
+                Logger.Info(string.Format("Loading script {0}", s.Name));
                 var script = (Activator.CreateInstance(s) as IMMBotScript);
                 RegisterScript(script);
             });
@@ -220,7 +220,7 @@ namespace MMBot
         {
             if (!Directory.Exists(path))
             {
-                Console.WriteLine("Script directory '{0}' does not exist", path);
+                Logger.Warn(string.Format("Script directory '{0}' does not exist", path));
                 return;
             }
 
@@ -228,7 +228,7 @@ namespace MMBot
             {
                 try
                 {
-                    Console.WriteLine("Loading script '{0}'", Path.GetFileName(scriptFile));
+                    Logger.Info(string.Format("Loading script '{0}'", Path.GetFileName(scriptFile)));
                     _scriptRunner.RunScriptFile(scriptFile);
                 }
                 catch (Exception)

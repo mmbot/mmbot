@@ -53,12 +53,27 @@ namespace MMBot.Jabbr
 
             _client.MessageReceived += ClientOnMessageReceived;
 
-            _client.UserJoined += (user, room, isOwner) => { Console.WriteLine("{0} joined {1}", user.Name, room); };
+            _client.UserJoined += OnUserJoined;
 
-            _client.UserLeft += (user, room) => { Console.WriteLine("{0} left {1}", user.Name, room); };
+            _client.UserLeft += OnUserLeft;
 
-            _client.PrivateMessage += (from, to, message) => { Console.WriteLine("*PRIVATE* {0} -> {1} ", @from, message); };
+            _client.PrivateMessage += OnPrivateMessage;
             
+        }
+
+        private void OnPrivateMessage(string @from, string to, string message)
+        {
+            Logger.Info(string.Format("*PRIVATE* {0} -> {1} ", @from, message));
+        }
+
+        private void OnUserLeft(User user, string room)
+        {
+            Logger.Info(string.Format("{0} left {1}", user.Name, room));
+        }
+
+        private void OnUserJoined(User user, string room, bool isOwner)
+        {
+            Logger.Info(string.Format("{0} joined {1}", user.Name, room));
         }
 
         private void OnClientStateChanged(StateChange state)
@@ -75,7 +90,7 @@ namespace MMBot.Jabbr
 
         private void ClientOnMessageReceived(JabbrClient.Models.Message message, string room)
         {
-            Console.WriteLine("[{0}] {1}: {2}", message.When, message.User.Name, message.Content);
+            Logger.Info(string.Format("[{0}] {1}: {2}", message.When, message.User.Name, message.Content));
 
             // TODO: implement user lookup
             //user = self.robot.brain.userForName msg.name
@@ -100,7 +115,7 @@ namespace MMBot.Jabbr
             {
                 throw new AdapterNotConfiguredException();
             }
-            Console.WriteLine("Logging into JabbR...");
+            Logger.Info(string.Format("Logging into JabbR..."));
 
             SetupJabbrClient();
 
@@ -108,10 +123,10 @@ namespace MMBot.Jabbr
 
             _client.StateChanged += OnClientStateChanged;
 
-            Console.WriteLine("Logged on successfully. {0} is currently in the following rooms:", _nick);
+            Logger.Info(string.Format("Logged on successfully. {0} is currently in the following rooms:", _nick));
             foreach (var room in result.Rooms)
             {
-                Console.WriteLine(" - " + room.Name + (room.Private ? " (private)" : string.Empty));
+                Logger.Info(string.Format(" - " + room.Name + (room.Private ? " (private)" : string.Empty)));
             }
 
             foreach (var room in _rooms.Where(room => !result.Rooms.Select(r => r.Name).Contains(room)))
@@ -119,11 +134,11 @@ namespace MMBot.Jabbr
                 try
                 {
                     await _client.JoinRoom(room);
-                    Console.WriteLine("Successfully joined room {0}", room);
+                    Logger.Info(string.Format("Successfully joined room {0}", room));
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Could not join room {0}: {1}", room, e.Message);
+                    Logger.Info(string.Format("Could not join room {0}: {1}", room, e.Message));
                 }
             }
         }
@@ -132,6 +147,9 @@ namespace MMBot.Jabbr
         {
             _client.Disconnect();
             _client.MessageReceived -= ClientOnMessageReceived;
+            _client.UserJoined -= OnUserJoined;
+            _client.UserLeft -= OnUserLeft;
+            _client.PrivateMessage -= OnPrivateMessage;
             return TaskAsyncHelper.Empty;
         }
 
