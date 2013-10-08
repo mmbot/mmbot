@@ -38,11 +38,9 @@
     <Reference Include="Akavache.Portable">
       <HintPath>..\packages\akavache.portable.3.0.2\lib\net45\Akavache.Portable.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac">
-      <HintPath>..\packages\Autofac.3.0.2\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Configuration">
-      <HintPath>..\packages\Autofac.3.0.2\lib\net40\Autofac.Configuration.dll</HintPath>
+    <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.3.1.1\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Autofac.Integration.Mef">
       <HintPath>..\packages\Autofac.Mef.3.0.1\lib\net40\Autofac.Integration.Mef.dll</HintPath>
@@ -126,6 +124,7 @@
     <Compile Include="IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
     <Compile Include="Listener.cs" />
+    <Compile Include="LoggerConfigurator.cs" />
     <Compile Include="MatchResult.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Response.cs" />

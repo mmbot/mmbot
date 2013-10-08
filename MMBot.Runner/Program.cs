@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Logging;
 using MMBot.Jabbr;
 using MMBot.Scripts;
 using MMBot.Spotify;
@@ -39,7 +40,7 @@ namespace MMBot.Runner
 
             // If not configured via dictionary then matching environment vars will be used
             
-            var robot = Robot.Create<JabbrAdapter>("mmbot", config);
+            var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
             
             //TODO: Discover scripts
             

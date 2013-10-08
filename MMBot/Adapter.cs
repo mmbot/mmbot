@@ -1,16 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Common.Logging;
 
 namespace MMBot
 {
     public abstract class Adapter
     {
-        protected readonly Robot _robot;
+        protected Robot Robot { get; private set; }
 
-        protected Adapter(Robot robot)
+        protected ILog Logger { get; private set; }
+
+        protected Adapter(Robot robot, ILog logger)
         {
-            _robot = robot;
+            Robot = robot;
+            Logger = logger;
         }
 
         public virtual Task Send(Envelope envelope, params string[] messages)
@@ -50,7 +54,7 @@ namespace MMBot
 
         public virtual void Receive(Message message)
         {
-            _robot.Receive(message);
+            Robot.Receive(message);
         }
 
 

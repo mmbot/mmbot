@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Logging;
 
 namespace MMBot.Adapters
 {
@@ -9,7 +10,7 @@ namespace MMBot.Adapters
     {
         private readonly Robot _robot;
 
-        public Shell(Robot robot) : base(robot)
+        public Shell(Robot robot, ILog logger) : base(robot, logger)
         {
             _robot = robot;
         }

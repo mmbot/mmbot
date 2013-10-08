@@ -15,18 +15,15 @@ namespace MMBot
         private ScriptServices _scriptServiceRoot;
         private ILog _logger;
 
-        public ScriptRunner(Robot robot)
+        public ScriptRunner(Robot robot, ILog logger)
         {
             _robot = robot;
+            _logger = logger;
         }
 
         public void Initialize()
         {
             var console = new ScriptConsole();
-
-            var configurator = new LoggerConfigurator(LogLevel.Error);
-            configurator.Configure(console);
-            _logger = configurator.GetLogger();
 
             var scriptServicesBuilder = new ScriptServicesBuilder(console, _logger);
 

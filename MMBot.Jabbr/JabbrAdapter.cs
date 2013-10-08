@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
+using Common.Logging;
+using Microsoft.AspNet.SignalR.Client;
 using MMBot.Jabbr.JabbrClient;
 
 namespace MMBot.Jabbr
@@ -24,10 +22,10 @@ namespace MMBot.Jabbr
 
         private void Configure()
         {
-            _host = _robot.GetConfigVariable("MMBOT_JABBR_HOST");
-            _nick = _robot.GetConfigVariable("MMBOT_JABBR_NICK");
-            _password = _robot.GetConfigVariable("MMBOT_JABBR_PASSWORD");
-            _rooms = (_robot.GetConfigVariable("MMBOT_JABBR_ROOMS") ?? string.Empty)
+            _host = Robot.GetConfigVariable("MMBOT_JABBR_HOST");
+            _nick = Robot.GetConfigVariable("MMBOT_JABBR_NICK");
+            _password = Robot.GetConfigVariable("MMBOT_JABBR_PASSWORD");
+            _rooms = (Robot.GetConfigVariable("MMBOT_JABBR_ROOMS") ?? string.Empty)
                 .Trim()
                 .Split(',')
                 .Select(s => s.Trim())
@@ -36,7 +34,7 @@ namespace MMBot.Jabbr
             _isConfigured = _host != null;
         }
 
-        public JabbrAdapter(Robot robot) : base(robot)
+        public JabbrAdapter(Robot robot, ILog logger) : base(robot, logger)
         {
             Configure();
         }
@@ -48,7 +46,11 @@ namespace MMBot.Jabbr
                 return;
             }
 
-            _client = new JabbRClient(_host);
+            _client = new JabbRClient(_host)
+            {
+                AutoReconnect = true
+            };
+
             _client.MessageReceived += ClientOnMessageReceived;
 
             _client.UserJoined += (user, room, isOwner) => { Console.WriteLine("{0} joined {1}", user.Name, room); };
@@ -56,6 +58,19 @@ namespace MMBot.Jabbr
             _client.UserLeft += (user, room) => { Console.WriteLine("{0} left {1}", user.Name, room); };
 
             _client.PrivateMessage += (from, to, message) => { Console.WriteLine("*PRIVATE* {0} -> {1} ", @from, message); };
+            
+        }
+
+        private void OnClientStateChanged(StateChange state)
+        {
+            if (state.NewState == ConnectionState.Disconnected)
+            {
+                Logger.Warn("Jabbr client is disconnected");
+            }
+            else
+            {
+                Logger.Info(string.Format("Jabbr client is {0}", state.NewState));
+            }
         }
 
         private void ClientOnMessageReceived(JabbrClient.Models.Message message, string room)
@@ -75,7 +90,7 @@ namespace MMBot.Jabbr
             if(user.Name != _nick)
             {
                 Task.Run(() => 
-                _robot.Receive(new TextMessage(user, message.Content, message.Id)));
+                Robot.Receive(new TextMessage(user, message.Content, message.Id)));
             }
         }
 
@@ -90,6 +105,8 @@ namespace MMBot.Jabbr
             SetupJabbrClient();
 
             var result = await _client.Connect(_nick, _password);
+
+            _client.StateChanged += OnClientStateChanged;
 
             Console.WriteLine("Logged on successfully. {0} is currently in the following rooms:", _nick);
             foreach (var room in result.Rooms)
@@ -114,6 +131,7 @@ namespace MMBot.Jabbr
         public override Task Close()
         {
             _client.Disconnect();
+            _client.MessageReceived -= ClientOnMessageReceived;
             return TaskAsyncHelper.Empty;
         }
 

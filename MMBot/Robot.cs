@@ -7,9 +7,13 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
+using Common.Logging;
+using Common.Logging.Simple;
 using MMBot.Adapters;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
+using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
 {
@@ -24,7 +28,9 @@ namespace MMBot
         private IDictionary<string, string> _config;
         private Brain _brain;
         protected bool _isConfigured = false;
-        private readonly ScriptRunner _scriptRunner;
+        private ScriptRunner _scriptRunner;
+        private IContainer _container;
+        protected ILog Logger { get; private set; }
 
         public Adapter Adapter
         {
@@ -50,9 +56,19 @@ namespace MMBot
             get { return _brain; }
         }
 
-        public static Robot Create<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
+        public static Robot Create<TAdapter>() where TAdapter : Adapter
         {
-            var robot = new Robot();
+            return Create<TAdapter>("mmbot", null, null);
+        }
+
+        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config) where TAdapter : Adapter
+        {
+            return Create<TAdapter>(name, config, null);
+        }
+        
+        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, ILog logger) where TAdapter : Adapter
+        {
+            var robot = new Robot(logger ?? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F"));
 
             robot.Configure<TAdapter>(name, config);
 
@@ -61,18 +77,24 @@ namespace MMBot
             return robot;
         }
 
-        protected Robot()
+        protected Robot() : this(new TraceLogger(false, "default", LogLevel.Error, true, false, false, "F"))
         {
-            _scriptRunner = new ScriptRunner(this);
-            _brain = new Brain(this);
+        }
+
+        protected Robot(ILog logger)
+        {
+            Logger = logger;
+
         }
 
         public void Configure<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
         {
-
             _adapterType = typeof(TAdapter);
+            _scriptRunner = Container.Resolve<ScriptRunner>();
+            _brain = Container.Resolve<Brain>();
             _name = name;
             _config = config;
+            
             _isConfigured = true;
 
             _brain.Initialize();
@@ -102,6 +124,30 @@ namespace MMBot
 
         //    _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), a => action(a)));
         //}
+
+        public IContainer Container
+        {
+            get
+            {
+                if (_container == null)
+                {
+                    _container = CreateContainer();
+                }
+
+                return _container;
+            }
+        }
+
+        protected IContainer CreateContainer()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterInstance<ILog>(Logger);
+            builder.RegisterInstance<Robot>(this);
+            builder.RegisterType<ScriptRunner>();
+            builder.RegisterType<Brain>();
+            builder.RegisterType(_adapterType);
+            return builder.Build();
+        }
 
         public void Enter(Action<Response<EnterMessage>> action)
         {
@@ -157,7 +203,7 @@ namespace MMBot
 
         public void LoadAdapter()
         {
-            _adapter = Activator.CreateInstance(_adapterType, this) as Adapter;
+            _adapter = Container.Resolve(_adapterType) as Adapter;
         }
 
         public void LoadScripts(Assembly assembly)
