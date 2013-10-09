@@ -118,6 +118,11 @@ namespace MMBot
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action));
         }
 
+        public void AddHelp(params string[] helpMessages)
+        {
+            _helpCommands.AddRange(helpMessages);
+        }
+
         //public void Respond(string regex, Func<IResponse<TextMessage>, Task> action)
         //{
         //    regex = string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);

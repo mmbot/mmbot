@@ -4,8 +4,10 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using log4net.Core;
 using MMBot.Adapters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MMBot
 {
@@ -82,6 +84,29 @@ namespace MMBot
 
             var result = await client.GetStringAsync(uri);
             return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
+        }
+
+        public async Task GetJson(Action<Exception, HttpResponseMessage, JObject> callback)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                var uri = BuildUri();
+                var client = new HttpClient();
+                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+
+                response = await client.GetAsync(uri);
+
+                string result = await response.Content.ReadAsStringAsync();
+            
+                var body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
+
+                callback(null, response, body);
+            }
+            catch (Exception e)
+            {
+                callback(e, response, null);
+            }
         }
 
         public async Task<HttpResponseMessage> Get()
