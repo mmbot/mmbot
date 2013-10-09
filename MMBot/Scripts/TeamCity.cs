@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MMBot.Scripts
 {
@@ -33,18 +34,34 @@ namespace MMBot.Scripts
                 return;
             }
 
-            robot.Respond(@"what('?s| is) building$", async msg =>
+            robot.Respond(@"tc what('?s| is) building$", async msg =>
             {
-                var res = await msg.Http(string.Format("http://{0}/httpAuth/app/rest/builds/?locator=running:true", _hostname))
+                dynamic res = await msg.Http(string.Format("http://{0}/httpAuth/app/rest/builds/?locator=running:true", _hostname))
                           .Headers(GetHeaders())
                           .GetJson();
-                if (res.count == 0)
+                if (res.count == 0 || res.build == null)
                 {
                     await msg.Send("No builds are currently running");
                 }
                 else
                 {
-                    
+                    var buildsDescription = new StringBuilder();
+                    foreach (var build in res.build)
+                    {
+                        if (build.percentageComplete < 100)
+                        {
+                            buildsDescription.AppendLine(
+                                string.Format("{0} is currently at {1}% and is so far looking like a {2} - {3}",
+                                    build.buildTypeId, build.percentageComplete, build.status, build.webUrl));
+                        }
+                        else
+                        {
+                            buildsDescription.AppendLine(
+                                string.Format("{0} completed with a status of {1} - {2}", build.buildTypeId, build.status, build.webUrl));
+                        }
+                    }
+
+                    await msg.Send(buildsDescription.ToString());
                 }
 
             });
@@ -55,8 +72,7 @@ namespace MMBot.Scripts
         {
             return new[]
             {
-                ""
-                //"mmbot what is building - Show status of currently running builds",
+                "mmbot what is building - Show status of currently running builds",
                 //"mmbot tc list projects - Show all available projects",
                 //"mmbot tc list buildTypes - Show all available build types",
                 //"mmbot tc list buildTypes of <project> - Show all available build types for the specified project",
