@@ -36,7 +36,7 @@ namespace MMBot.Scripts
 
             robot.Respond(@"tc what('?s| is) building$", async msg =>
             {
-                dynamic res = await msg.Http(string.Format("http://{0}/httpAuth/app/rest/builds/?locator=running:true", _hostname))
+                dynamic res = await msg.Http(string.Format("{0}/httpAuth/app/rest/builds/?locator=running:true", _baseUrl))
                           .Headers(GetHeaders())
                           .GetJson();
                 if (res.count == 0 || res.build == null)
@@ -51,8 +51,8 @@ namespace MMBot.Scripts
                         if (build.percentageComplete < 100)
                         {
                             buildsDescription.AppendLine(
-                                string.Format("{0} is currently at {1}% and is so far looking like a {2} - {3}",
-                                    build.buildTypeId, build.percentageComplete, build.status, build.webUrl));
+                                string.Format("{0} is currently at {1}% and is so far looking like a {2}",
+                                    build.buildTypeId, build.percentageComplete, build.status));
                         }
                         else
                         {
@@ -66,6 +66,28 @@ namespace MMBot.Scripts
 
             });
 
+            robot.Respond(@"tc list projects", async msg =>
+            {
+                
+                dynamic res = await msg.Http(string.Format("{0}/httpAuth/app/rest/projects", _baseUrl))
+                                 .Headers(GetHeaders())
+                                 .GetJson();
+
+                if (res.count == 0 || res.project == null)
+                {
+                    await msg.Send("No projects are defined");
+                }
+                else
+                {
+                    var projectsDescription = new StringBuilder();
+                    foreach (var project in res.project)
+                    {
+                        projectsDescription.AppendLine((string)project.name);
+                    }
+                    await msg.Send(projectsDescription.ToString());
+                }
+            });
+
         }
 
         public IEnumerable<string> GetHelp()
@@ -73,7 +95,7 @@ namespace MMBot.Scripts
             return new[]
             {
                 "mmbot what is building - Show status of currently running builds",
-                //"mmbot tc list projects - Show all available projects",
+                "mmbot tc list projects - Show all available projects",
                 //"mmbot tc list buildTypes - Show all available build types",
                 //"mmbot tc list buildTypes of <project> - Show all available build types for the specified project",
                 //"mmbot tc list builds <buildType> <number> - Show the status of the last <number> builds.  Number defaults to five.",
