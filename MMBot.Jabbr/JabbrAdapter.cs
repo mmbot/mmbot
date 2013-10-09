@@ -64,6 +64,14 @@ namespace MMBot.Jabbr
         private void OnPrivateMessage(string @from, string to, string message)
         {
             Logger.Info(string.Format("*PRIVATE* {0} -> {1} ", @from, message));
+
+            var user = new User(@from, @from, new string[0], null);
+
+            if (user.Name != _nick)
+            {
+                Task.Run(() =>
+                Robot.Receive(new TextMessage(user, string.Format("{0} {1}", to, message), null)));
+            }
         }
 
         private void OnUserLeft(User user, string room)
