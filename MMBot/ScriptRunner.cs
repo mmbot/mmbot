@@ -1,8 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Net.Http;
 using Common.Logging;
 using log4net.Repository.Hierarchy;
 using MMBot.ScriptCS;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ScriptCs;
 using ScriptCs.Contracts;
 using LogLevel = ScriptCs.Contracts.LogLevel;
@@ -31,8 +34,10 @@ namespace MMBot
             _scriptServiceRoot = scriptServicesBuilder.Build();
 
             _scriptServiceRoot.Executor.AddReferences(ScriptExecutor.DefaultReferences.ToArray());
-            _scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot" }).ToArray());
+            _scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq" }).ToArray());
             _scriptServiceRoot.Executor.AddReference<Robot>();
+            _scriptServiceRoot.Executor.AddReference<JArray>();
+            _scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
             _scriptServiceRoot.Executor.AddReference<IScriptPackContext>();
 
             _scriptServiceRoot.Executor.Initialize(new string[0], new IScriptPack[]
