@@ -133,6 +133,7 @@
     <Compile Include="RobotNotConfiguredException.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
     <Compile Include="ScriptRunner.cs" />
+    <Compile Include="Scripts\Cats.cs" />
     <Compile Include="Scripts\Ascii.cs" />
     <Compile Include="Scripts\Giphy.cs" />
     <Compile Include="Scripts\Translate.cs" />

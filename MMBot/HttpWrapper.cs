@@ -4,17 +4,19 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using log4net.Core;
 using MMBot.Adapters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Xml;
 
 namespace MMBot
 {
     public class HttpWrapper
     {
         private Uri _baseUrl;
-        Dictionary<string, string> _headers= new Dictionary<string, string>();
+        Dictionary<string, string> _headers = new Dictionary<string, string>();
         NameValueCollection _queries = new NameValueCollection();
 
         public HttpWrapper(string baseUrl)
@@ -33,7 +35,7 @@ namespace MMBot
             foreach (var prop in queryConfig.GetType().GetProperties())
             {
                 var value = prop.GetValue(queryConfig, null);
-                if(value != null)
+                if (value != null)
                 {
                     Query(prop.Name, value.ToString());
                 }
@@ -52,7 +54,7 @@ namespace MMBot
 
         public HttpWrapper Headers(Dictionary<string, string> headers)
         {
-            foreach(var header in headers)
+            foreach (var header in headers)
             {
                 _headers.Add(header.Key, header.Value);
             }
@@ -61,18 +63,18 @@ namespace MMBot
 
         private Uri BuildUri()
         {
-            if (_queries.Count ==0)
+            if (_queries.Count == 0)
             {
                 return _baseUrl;
             }
             var array = (from key in _queries.AllKeys
-                from value in _queries.GetValues(key)
-                select string.Format("{0}={1}", System.Net.WebUtility.UrlEncode(key), System.Net.WebUtility.UrlEncode(value))).ToArray();
+                         from value in _queries.GetValues(key)
+                         select string.Format("{0}={1}", System.Net.WebUtility.UrlEncode(key), System.Net.WebUtility.UrlEncode(value))).ToArray();
 
             string newUri = _baseUrl.ToString();
 
             newUri = newUri + (string.IsNullOrWhiteSpace(_baseUrl.Query) ? "?" : "&");
-            
+
             return new Uri(newUri + string.Join("&", array));
         }
 
@@ -98,10 +100,51 @@ namespace MMBot
                 response = await client.GetAsync(uri);
 
                 string result = await response.Content.ReadAsStringAsync();
-            
+
                 var body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
 
                 callback(null, response, body);
+            }
+            catch (Exception e)
+            {
+                callback(e, response, null);
+            }
+        }
+
+        public async Task<XmlDocument> GetXml()
+        {
+            HttpResponseMessage response = null;
+
+            var uri = BuildUri();
+            var client = new HttpClient();
+            _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+
+            response = await client.GetAsync(uri);
+
+            string result = await response.Content.ReadAsStringAsync();
+
+            var xDoc = new XmlDocument();
+            xDoc.LoadXml(result);
+            return xDoc;
+        }
+
+        public async Task GetXml(Action<Exception, HttpResponseMessage, XmlDocument> callback)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                var uri = BuildUri();
+                var client = new HttpClient();
+                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+
+                response = await client.GetAsync(uri);
+
+                string result = await response.Content.ReadAsStringAsync();
+
+                var xDoc = new XmlDocument();
+                xDoc.LoadXml(result);
+
+                callback(null, response, xDoc);
             }
             catch (Exception e)
             {
