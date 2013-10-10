@@ -30,7 +30,7 @@ namespace MMBot
         protected bool _isConfigured = false;
         private ScriptRunner _scriptRunner;
         private IContainer _container;
-        protected ILog Logger { get; private set; }
+        public ILog Logger { get; private set; }
 
         public Adapter Adapter
         {

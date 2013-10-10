@@ -32,6 +32,10 @@ namespace MMBot
 
         public HttpWrapper Query(object queryConfig)
         {
+            if (queryConfig == null)
+            {
+                return this;
+            }
             foreach (var prop in queryConfig.GetType().GetProperties())
             {
                 var value = prop.GetValue(queryConfig, null);
