@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Common.Logging;
 using log4net.Core;
 using MMBot.Adapters;
 using Newtonsoft.Json;
@@ -15,12 +16,16 @@ namespace MMBot
 {
     public class HttpWrapper
     {
+        private readonly ILog _logger;
+        private readonly Envelope _envelope;
         private Uri _baseUrl;
         Dictionary<string, string> _headers = new Dictionary<string, string>();
         NameValueCollection _queries = new NameValueCollection();
 
-        public HttpWrapper(string baseUrl)
+        public HttpWrapper(string baseUrl, ILog logger, Envelope envelope)
         {
+            _logger = logger;
+            _envelope = envelope;
             _baseUrl = new Uri(baseUrl);
         }
 
@@ -84,12 +89,20 @@ namespace MMBot
 
         public async Task<dynamic> GetJson()
         {
-            var uri = BuildUri();
-            var client = new HttpClient();
-            _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+            try
+            {
+                var uri = BuildUri();
+                var client = new HttpClient();
+                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
 
-            var result = await client.GetStringAsync(uri);
-            return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
+                var result = await client.GetStringAsync(uri);
+                return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http GetJson error", e);
+                throw;
+            }
         }
 
         public async Task GetJson(Action<Exception, HttpResponseMessage, JObject> callback)
@@ -103,6 +116,8 @@ namespace MMBot
 
                 response = await client.GetAsync(uri);
 
+                response.EnsureSuccessStatusCode();
+
                 string result = await response.Content.ReadAsStringAsync();
 
                 var body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
@@ -111,6 +126,7 @@ namespace MMBot
             }
             catch (Exception e)
             {
+                _logger.Error("Http GetJson error", e);
                 callback(e, response, null);
             }
         }
@@ -158,11 +174,39 @@ namespace MMBot
 
         public async Task<HttpResponseMessage> Get()
         {
-            var uri = BuildUri();
-            var client = new HttpClient();
-            _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+            try
+            {
+                var uri = BuildUri();
+                var client = new HttpClient();
+                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
 
-            return await client.GetAsync(uri);
+                return await client.GetAsync(uri);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http Get error", e);
+                throw;
+            }
+        }
+
+        public async Task Get(Action<Exception, HttpResponseMessage> callback)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                var uri = BuildUri();
+                var client = new HttpClient();
+                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+                response = await client.GetAsync(uri);
+                response.EnsureSuccessStatusCode();
+                callback(null, response);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http Get error", e);
+                callback(e, response);
+            }
+            
         }
     }
 
