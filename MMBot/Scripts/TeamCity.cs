@@ -14,6 +14,9 @@ using Newtonsoft.Json.Bson;
 using Newtonsoft.Json.Linq;
 using ReactiveUI;
 
+using System.Text;
+
+
 namespace MMBot.Scripts
 {
     public class TeamCity : IMMBotScript
@@ -124,6 +127,7 @@ namespace MMBot.Scripts
                 string project = null;
                 if(_buildTypeRegex.IsMatch(buildName))
                 {
+
                     var buildTypeMatches = _buildTypeRegex.Matches(buildName);
                     configuration = buildTypeMatches[0].Groups[2].Value;
                     project = buildTypeMatches[0].Groups[3].Value;
@@ -157,7 +161,6 @@ namespace MMBot.Scripts
                 });
                 
             });
-
 
             robot.Respond(@"tc list (projects|buildTypes|builds) ?(.*)?", msg =>
             {
