@@ -15,7 +15,7 @@ namespace MMBot.Scripts
 
         public void Register(Robot robot)
         {
-            robot.Respond(@"(cat|cats)( me)? (.*)?", async msg =>
+            robot.Respond(@"(cat|cats)( me)?( \d+)?$", async msg =>
             {
                 int number = 1;
                 try
