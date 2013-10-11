@@ -56,7 +56,7 @@ namespace MMBot.Scripts
             return new[]
             {
                 "mmbot cat me <number> - Returns a number of cat pictures.",
-                "mmbot cat - Returns a cat picture."
+                "mmbot cat me - Returns a cat picture."
             };
         }
     }
