@@ -142,6 +142,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MMBot.HipChat\MMBot.HipChat.csproj">
+      <Project>{4584C7B7-91F4-4F05-8188-4ECBDF9944CC}</Project>
+      <Name>MMBot.HipChat</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.Jabbr\MMBot.Jabbr.csproj">
       <Project>{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}</Project>
       <Name>MMBot.Jabbr</Name>
