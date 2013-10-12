@@ -9,7 +9,6 @@ using agsXMPP.protocol.iq.roster;
 using agsXMPP.protocol.x.muc;
 using agsXMPP.Xml.Dom;
 using Common.Logging;
-using HipChat;
 
 namespace MMBot.HipChat
 {
@@ -121,7 +120,6 @@ namespace MMBot.HipChat
 
                 var userObj = new User(message.Id, user, new string[0], message.From.Bare);
 
-                //TODO: Filter out messages from mmbot itself using the current nick
                 if (userObj.Name != _nick)
                 {
                     Task.Run(() =>
@@ -138,9 +136,9 @@ namespace MMBot.HipChat
 
             foreach (var message in messages)
             {
-                _client.Send(new agsXMPP.protocol.client.Message(new Jid(envelope.User.Room), MessageType.groupchat, message));
+                var to = new Jid(envelope.User.Room);
+                _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
             }
-            
         }
 
         private void OnClientLogin(object sender)
@@ -172,6 +170,7 @@ namespace MMBot.HipChat
         public override async Task Close()
         {
             _client.Close();
+            _client = null;
         }
 
 
