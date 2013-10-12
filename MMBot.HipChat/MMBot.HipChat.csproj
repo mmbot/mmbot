@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\MMBot.HipChat.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MMBot\MMBot.csproj">
