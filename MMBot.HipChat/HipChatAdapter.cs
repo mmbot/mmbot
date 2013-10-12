@@ -167,6 +167,21 @@ namespace MMBot.HipChat
 
         }
 
+        public override async Task Topic(Envelope envelope, params string[] messages)
+        {
+            if(envelope != null && envelope.User != null)
+            {
+                await Topic(envelope.User.Room, messages);
+            }
+        }
+
+        public override async Task Topic(string roomName, params string[] messages)
+        {
+            var mucManager = new MucManager(_client);
+            mucManager.ChangeSubject(new Jid(roomName), string.Join(" ", messages));
+        }
+        
+
         public override async Task Close()
         {
             _client.Close();
