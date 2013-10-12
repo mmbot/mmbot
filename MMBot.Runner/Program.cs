@@ -49,8 +49,8 @@ namespace MMBot.Runner
             // If not configured via dictionary then matching environment vars will be used
 
             // Uncomment the appropriate line below to use Jabbr or HipChat
-            //var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
-            var robot = Robot.Create<HipChatAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
+            var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
+            //var robot = Robot.Create<HipChatAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
             
             //TODO: Discover scripts
             
