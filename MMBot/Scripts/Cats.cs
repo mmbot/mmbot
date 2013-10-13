@@ -15,6 +15,22 @@ namespace MMBot.Scripts
 
         public void Register(Robot robot)
         {
+            robot.Respond(@"(cat|cats)( gif)( \d+)?$", async msg =>
+            {
+                int number = 1;
+                try
+                {
+                    number = Int32.Parse(msg.Match[3]);
+                }
+                catch (Exception) { }
+                if (number == 0)
+                {
+                    number = 1;
+                }
+
+                await CatMeGifCore(msg, number);
+            });
+            
             robot.Respond(@"(cat|cats)( me)?( \d+)?$", async msg =>
             {
                 int number = 1;
@@ -29,22 +45,6 @@ namespace MMBot.Scripts
                 }
 
                 await CatMeCore(msg, number);
-            });
-
-            robot.Respond(@"(cat|cats)( gif) (.*)?", async msg =>
-            {
-                int number = 1;
-                try
-                {
-                    number = Int32.Parse(msg.Match[3]);
-                }
-                catch (Exception) { }
-                if (number == 0)
-                {
-                    number = 1;
-                }
-
-                await CatMeGifCore(msg, number);
             });
         }
 
