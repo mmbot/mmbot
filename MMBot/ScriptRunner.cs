@@ -15,7 +15,6 @@ namespace MMBot
     public class ScriptRunner
     {
         private readonly Robot _robot;
-        private ScriptServices _scriptServiceRoot;
         private ILog _logger;
 
         public ScriptRunner(Robot robot, ILog logger)
@@ -26,29 +25,35 @@ namespace MMBot
 
         public void Initialize()
         {
+
+        }
+
+        
+        public bool RunScriptFile(string path)
+        {
             var console = new ScriptConsole();
 
             var scriptServicesBuilder = new ScriptServicesBuilder(console, _logger);
 
+            scriptServicesBuilder.InMemory(true);
+
             scriptServicesBuilder.LoadModules("csx", new string[0]);
-            _scriptServiceRoot = scriptServicesBuilder.Build();
+            var scriptServiceRoot = scriptServicesBuilder.Build();
+            
 
-            _scriptServiceRoot.Executor.AddReferences(ScriptExecutor.DefaultReferences.ToArray());
-            _scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq" }).ToArray());
-            _scriptServiceRoot.Executor.AddReference<Robot>();
-            _scriptServiceRoot.Executor.AddReference<JArray>();
-            _scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
-            _scriptServiceRoot.Executor.AddReference<IScriptPackContext>();
+            scriptServiceRoot.Executor.AddReferences(ScriptExecutor.DefaultReferences.ToArray());
+            scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq" }).ToArray());
+            scriptServiceRoot.Executor.AddReference<Robot>();
+            scriptServiceRoot.Executor.AddReference<JArray>();
+            scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
+            scriptServiceRoot.Executor.AddReference<IScriptPackContext>();
 
-            _scriptServiceRoot.Executor.Initialize(new string[0], new IScriptPack[]
+            scriptServiceRoot.Executor.Initialize(new string[0], new IScriptPack[]
             {
                 new MMBot2ScriptPackInternal(_robot), 
             });
-        }
 
-        public bool RunScriptFile(string path)
-        {
-            var result = _scriptServiceRoot.Executor.Execute(path);
+            var result = scriptServiceRoot.Executor.Execute(path);
             if (result.CompileExceptionInfo != null)
             {
                 _logger.Error(result.CompileExceptionInfo.SourceException.Message);

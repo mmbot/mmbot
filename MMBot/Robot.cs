@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,6 +14,7 @@ using Common.Logging.Simple;
 using MMBot.Adapters;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
+using ScriptCs.Exceptions;
 using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
@@ -84,7 +86,6 @@ namespace MMBot
         protected Robot(ILog logger)
         {
             Logger = logger;
-
         }
 
         public void Configure<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
@@ -115,12 +116,15 @@ namespace MMBot
         {
             regex = string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
 
-            _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action));
+            _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
+            {
+                Source = _currentScriptSource
+            });
         }
 
         public void AddHelp(params string[] helpMessages)
         {
-            _helpCommands.AddRange(helpMessages);
+            _helpCommands.AddRange(helpMessages.Except(_helpCommands).ToArray());
         }
 
         //public void Respond(string regex, Func<IResponse<TextMessage>, Task> action)
@@ -174,6 +178,25 @@ namespace MMBot
 
         }
 
+        private ScriptSource _currentScriptSource = null;
+
+        public IDisposable StartScriptProcessingSession(ScriptSource scriptSource)
+        {
+            if (scriptSource == null)
+            {
+                throw new ArgumentNullException("scriptSource");
+            }
+
+            if (_currentScriptSource != null)
+            {
+                throw new ScriptProcessingException("Cannot process multiple script sources at the same time");
+            }
+            _currentScriptSource = scriptSource;
+            _listeners.RemoveAll(l => l.Source != null && l.Source.Name == scriptSource.Name);
+
+            return Disposable.Create(() => _currentScriptSource = null);
+        }
+
         public virtual async Task Run()
         {
             if (!_isConfigured)
@@ -216,8 +239,11 @@ namespace MMBot
             assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach(s =>
             {
                 Logger.Info(string.Format("Loading script {0}", s.Name));
-                var script = (Activator.CreateInstance(s) as IMMBotScript);
-                RegisterScript(script);
+                using (StartScriptProcessingSession(new ScriptSource(s.Name, s.AssemblyQualifiedName)))
+                {
+                    var script = (Activator.CreateInstance(s) as IMMBotScript);
+                    RegisterScript(script);
+                }
             });
         }
 
@@ -233,8 +259,14 @@ namespace MMBot
             {
                 try
                 {
-                    Logger.Info(string.Format("Loading script '{0}'", Path.GetFileName(scriptFile)));
-                    _scriptRunner.RunScriptFile(scriptFile);
+                    string scriptFileName = Path.GetFileName(scriptFile);
+                    string scriptName = Path.GetFileNameWithoutExtension(scriptFile);
+
+                    Logger.Info(string.Format("Loading script '{0}'", scriptFileName));
+                    using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
+                    {
+                        _scriptRunner.RunScriptFile(scriptFile);
+                    }
                 }
                 catch (Exception)
                 {
@@ -246,8 +278,11 @@ namespace MMBot
 
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()
         {
-            var script = new TScript();
-            RegisterScript(script);
+            using(StartScriptProcessingSession(new ScriptSource(typeof(TScript).Name, typeof(TScript).AssemblyQualifiedName)))
+            {
+                var script = new TScript();
+                RegisterScript(script);
+            }
         }
 
         public string GetConfigVariable(string name)
@@ -287,5 +322,32 @@ namespace MMBot
             await Run();
             _brain.Initialize();
         }
+    }
+
+    public class ScriptProcessingException : Exception
+    {
+        public ScriptProcessingException(string message) : base(message)
+        {
+        }
+
+        public ScriptProcessingException(string message, Exception inner) : base(message, inner)
+        {
+        }
+    }
+
+    public class ScriptSource
+    {
+        public ScriptSource(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
+
+        /// <summary>
+        /// This is the unique name for the script source. Scripts will overwrite previous entries with the same name.
+        /// </summary>
+        public string Name { get; set; }
+        
+        public string Description { get; set; }
     }
 }

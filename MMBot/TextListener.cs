@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace MMBot
 {
+    [DebuggerDisplay("{Source.Name} - {_regex}")]
     public class TextListener : IListener
     {
         private readonly Robot _robot;
@@ -28,6 +30,8 @@ namespace MMBot
                 ? new MatchResult(true, match) 
                 : new MatchResult(false);
         }
+
+        public ScriptSource Source { get; set; }
 
         public bool Call(Message message)
         {
