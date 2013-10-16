@@ -1,23 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.Remoting;
-using System.Security.Policy;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using log4net.Core;
-using Newtonsoft.Json.Bson;
+using MMBot.Scripts;
 using Newtonsoft.Json.Linq;
-using ReactiveUI;
 
-using System.Text;
-
-
-namespace MMBot.Scripts
+namespace MMBot.CompiledScripts
 {
     public class TeamCity : IMMBotScript
     {
@@ -177,7 +167,7 @@ namespace MMBot.Scripts
                                 msg.Send("Ooops! Something went wrong");
                                 return;
                             }
-                            msg.Send(string.Join(Environment.NewLine, body["project"].Select(p => p["name"].Value<string>())));
+                            msg.Send(string.Join(Environment.NewLine, body["project"].Select(p => Extensions.Value<string>(p["name"]))));
                         });
                         break;
                     case "buildTypes":
@@ -276,7 +266,7 @@ namespace MMBot.Scripts
 
 
         private void GetBuildType(Robot robot, IResponse<TextMessage> msg, string type,
-            Action<Exception, HttpResponseMessage, JObject> callback)
+            Action<Exception, HttpResponseMessage, JToken> callback)
         {
             var url = string.Format("{0}/httpAuth/app/rest/buildTypes/{1}", _baseUrl, type);
 
@@ -287,7 +277,7 @@ namespace MMBot.Scripts
 
 
         private void GetCurrentBuilds(Robot robot, IResponse<TextMessage> msg, string type,
-            Action<Exception, HttpResponseMessage, JObject> callback)
+            Action<Exception, HttpResponseMessage, JToken> callback)
         {
             var url = string.IsNullOrEmpty(type)
                 ? string.Format("{0}/httpAuth/app/rest/builds/?locator=running:true", _baseUrl)
@@ -297,7 +287,7 @@ namespace MMBot.Scripts
         }
 
         private void GetBuildTypes(Robot robot, IResponse<TextMessage> msg, string project,
-            Action<Exception, HttpResponseMessage, JObject> callback)
+            Action<Exception, HttpResponseMessage, JToken> callback)
         {
             var projectSegment = string.IsNullOrWhiteSpace(project) ? string.Empty : string.Format("/projects/name:{0}", WebUtility.UrlEncode(project));
             var url = string.Format("{0}/httpAuth/app/rest{1}/buildTypes", _baseUrl, projectSegment);
@@ -313,14 +303,14 @@ namespace MMBot.Scripts
         }
 
         private void GetBuilds(Robot robot, IResponse<TextMessage> msg, string project, string configuration, int amount,
-            Action<Exception, HttpResponseMessage, JObject> callback)
+            Action<Exception, HttpResponseMessage, JToken> callback)
         {
             var projectSegment = string.IsNullOrWhiteSpace(project) ? string.Empty : string.Format("/projects/name:{0}", WebUtility.UrlEncode(project));
             var url = string.Format("{0}/httpAuth/app/rest{1}/buildTypes/name:{2}/builds", _baseUrl, projectSegment, WebUtility.UrlEncode(configuration));
             InvokeApiCallWithCallback(msg, callback, url, new{ locator= string.Format("count:{0},running:any", amount)});
         }
 
-        private void GetProjects(Robot robot, IResponse<TextMessage> msg, Action<Exception, HttpResponseMessage, JObject> callback)
+        private void GetProjects(Robot robot, IResponse<TextMessage> msg, Action<Exception, HttpResponseMessage, JToken> callback)
         {
             var url = string.Format("{0}/httpAuth/app/rest/projects", _baseUrl);
             InvokeApiCallWithCallback(msg, callback, url);
@@ -424,7 +414,7 @@ namespace MMBot.Scripts
         private JToken[] _buildTypes = new JToken[0];
         private Regex _buildTypeRegex = new Regex("(.*?) of (.*)");
 
-        private void InvokeApiCallWithCallback(IResponse<TextMessage> msg, Action<Exception, HttpResponseMessage, JObject> callback, string url, object query = null)
+        private void InvokeApiCallWithCallback(IResponse<TextMessage> msg, Action<Exception, HttpResponseMessage, JToken> callback, string url, object query = null)
         {
             msg.Http(url).Headers(GetHeaders())
                 .Query(query)

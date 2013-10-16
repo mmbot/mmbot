@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using MMBot.Scripts;
 
-namespace MMBot.Scripts
+namespace MMBot.CompiledScripts
 {
     public class Help : IMMBotScript
     {

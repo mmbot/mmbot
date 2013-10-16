@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using MMBot.Scripts;
 
-namespace MMBot.Scripts
+namespace MMBot.CompiledScripts
 {
     // Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/giphy.coffee
 

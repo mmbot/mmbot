@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MMBot.Adapters;
+using MMBot.CompiledScripts;
 using MMBot.Scripts;
 using SpotiFire;
 

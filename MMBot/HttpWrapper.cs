@@ -105,7 +105,7 @@ namespace MMBot
             }
         }
 
-        public async Task GetJson(Action<Exception, HttpResponseMessage, JObject> callback)
+        public async Task GetJson(Action<Exception, HttpResponseMessage, JToken> callback)
         {
             HttpResponseMessage response = null;
             try
@@ -120,8 +120,17 @@ namespace MMBot
 
                 string result = await response.Content.ReadAsStringAsync();
 
-                var body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
+                JToken body;
 
+                if (result != null && result.StartsWith("["))
+                {
+                    body = await JsonConvert.DeserializeObjectAsync<JArray>(result);
+                }
+                else
+                {
+                    body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
+                }
+                
                 callback(null, response, body);
             }
             catch (Exception e)
@@ -215,6 +224,12 @@ namespace MMBot
         public static async Task<dynamic> Json(this HttpResponseMessage response)
         {
             return await JsonConvert.DeserializeObjectAsync<dynamic>(await response.Content.ReadAsStringAsync());
+        }
+
+        public static async Task Json(this HttpResponseMessage response, Action<JToken> callback)
+        {
+            var result = await JsonConvert.DeserializeObjectAsync<JToken>(await response.Content.ReadAsStringAsync());
+            callback(result);
         }
     }
 

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MMBot.Scripts;
-using Newtonsoft.Json;
 
-namespace MMBot.Scripts
+namespace MMBot.CompiledScripts
 {
     public class GoogleImages : IMMBotScript
     {

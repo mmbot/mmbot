@@ -42,8 +42,9 @@ namespace MMBot
             
 
             scriptServiceRoot.Executor.AddReferences(ScriptExecutor.DefaultReferences.ToArray());
-            scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq" }).ToArray());
+            scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq", "System.Xml", "System.Net", "System.Net.Http" }).ToArray());
             scriptServiceRoot.Executor.AddReference<Robot>();
+            scriptServiceRoot.Executor.AddReference<ILog>();
             scriptServiceRoot.Executor.AddReference<JArray>();
             scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
             scriptServiceRoot.Executor.AddReference<IScriptPackContext>();

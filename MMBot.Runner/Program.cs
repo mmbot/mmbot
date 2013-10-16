@@ -52,7 +52,6 @@ namespace MMBot.Runner
             var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
             //var robot = Robot.Create<HipChatAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
 
-            robot.LoadScripts(typeof(Robot).Assembly);
             robot.LoadScripts(typeof(SpotifyPlayerScripts).Assembly);
 
             robot.Run();
