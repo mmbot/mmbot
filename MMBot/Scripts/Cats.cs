@@ -50,7 +50,7 @@ namespace MMBot.Scripts
 
         private static async Task CatMeCore(IResponse<TextMessage> msg, int number)
         {
-            var xDoc = await msg.Http(string.Format(Url, number) + "&type=gif").GetXml();
+            var xDoc = await msg.Http(string.Format(Url, number)).GetXml();
 
             try
             {
@@ -68,7 +68,7 @@ namespace MMBot.Scripts
 
         private static async Task CatMeGifCore(IResponse<TextMessage> msg, int number)
         {
-            var xDoc = await msg.Http(string.Format(Url, number)).GetXml();
+            var xDoc = await msg.Http(string.Format(Url, number) + "&type=gif").GetXml();
 
             try
             {
