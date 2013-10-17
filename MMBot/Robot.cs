@@ -26,10 +26,13 @@ namespace MMBot
         private Type _adapterType;
         private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
+        private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
         private readonly List<string> _helpCommands = new List<string>();
+        private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private IDictionary<string, string> _config;
         private Brain _brain;
         protected bool _isConfigured = false;
+        private bool _isReady = false;
         private ScriptRunner _scriptRunner;
         private IContainer _container;
         public ILog Logger { get; private set; }
@@ -192,9 +195,30 @@ namespace MMBot
                 throw new ScriptProcessingException("Cannot process multiple script sources at the same time");
             }
             _currentScriptSource = scriptSource;
+
+            CleanupScript(scriptSource.Name);
+
             _listeners.RemoveAll(l => l.Source != null && l.Source.Name == scriptSource.Name);
 
             return Disposable.Create(() => _currentScriptSource = null);
+        }
+
+        private void CleanupScript(string name)
+        {
+            if (_cleanup.ContainsKey(name))
+            {
+                try
+                {
+                    _cleanup[name]();
+                }
+                catch (Exception)
+                {
+                }
+                finally
+                {
+                    _cleanup.Remove(name);
+                }
+            }
         }
 
         public virtual async Task Run()
@@ -205,10 +229,15 @@ namespace MMBot
             }
             LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
             await _adapter.Run();
+            _isReady = true;
         }
 
         public void Receive(Message message)
         {
+            if (!_isReady)
+            {
+                return;
+            }
             SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
             foreach (var listener in _listeners)
             {
@@ -239,11 +268,9 @@ namespace MMBot
             assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach(s =>
             {
                 Logger.Info(string.Format("Loading script {0}", s.Name));
-                using (StartScriptProcessingSession(new ScriptSource(s.Name, s.AssemblyQualifiedName)))
-                {
-                    var script = (Activator.CreateInstance(s) as IMMBotScript);
-                    RegisterScript(script);
-                }
+
+                LoadScript(s);
+
             });
         }
 
@@ -282,6 +309,23 @@ namespace MMBot
             {
                 var script = new TScript();
                 RegisterScript(script);
+                if (!_loadedScriptTypes.Contains(typeof(TScript)))
+                {
+                    _loadedScriptTypes.Add(typeof(TScript));
+                }
+            }
+        }
+
+        private void LoadScript(Type scriptType)
+        {
+            using (StartScriptProcessingSession(new ScriptSource(scriptType.Name, scriptType.AssemblyQualifiedName)))
+            {
+                var script = (Activator.CreateInstance(scriptType) as IMMBotScript);
+                RegisterScript(script);
+                if (!_loadedScriptTypes.Contains(scriptType))
+                {
+                    _loadedScriptTypes.Add(scriptType);
+                }
             }
         }
 
@@ -304,6 +348,8 @@ namespace MMBot
 
         public async Task Shutdown()
         {
+            _isReady = false;
+            _cleanup.Keys.ToList().ForEach(CleanupScript);
             if (_adapter != null)
             {
                 await _adapter.Close();
@@ -319,8 +365,19 @@ namespace MMBot
             await Shutdown();
             LoadAdapter();
 
+            _loadedScriptTypes.ForEach(LoadScript);
             await Run();
             _brain.Initialize();
+        }
+
+        
+
+        public void RegisterCleanup(Action cleanup)
+        {
+            if(_currentScriptSource != null)
+            {
+                _cleanup[_currentScriptSource.Name] =  cleanup;
+            }
         }
     }
 

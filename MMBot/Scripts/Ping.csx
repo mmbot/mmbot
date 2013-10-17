@@ -8,7 +8,7 @@ robot.Respond(@"TIME$", msg => msg.Send(string.Format("Server time is: {0} {1}",
 
 robot.Respond(@"DIE$", msg => Environment.Exit(0));
 
-robot.Respond(@"RESPAWN$", msg => robot.Reset());
+robot.Respond(@"RESPAWN$", msg => {msg.Finish(); robot.Reset(); });
 
 robot.AddHelp(
     "mmbot ping -  Reply with pong",

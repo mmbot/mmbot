@@ -11,7 +11,7 @@ using SpotiFire;
 
 namespace MMBot.Spotify
 {
-    public class SpotifyPlayer
+    public class SpotifyPlayer : IDisposable
     {
         private const string CLIENT_NAME = "MMBotSpotifyPlayer";
         private readonly Regex _spotifyLinkRegex = new Regex(@"spotify:(album|track|user:[a-zA-Z0-9]+:playlist):[a-zA-Z0-9]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -489,7 +489,21 @@ namespace MMBot.Spotify
             State = e;
         }
 
-        
+
+        public void Dispose()
+        {
+            _session.Logout().Wait();
+            _player.Reset();
+            
+            _session.PlayerUnload();
+            _session.ForgetMe();
+            
+            
+            _session.Dispose();
+            _currentTrack = null;
+            _session = null;
+            _player = null;
+        }
     }
 
 }

@@ -116,6 +116,7 @@ namespace MMBot.Spotify
                     }
                 }
 
+                
             });
 
             robot.Respond(@"spotify (en)?queue( album)? (.*)", async msg =>
@@ -374,6 +375,7 @@ namespace MMBot.Spotify
                 await Giphy.GifMe(_robot, "winning", msg);
             });
 
+            robot.RegisterCleanup(Cleanup);
         }
 
         private async Task UpdateLoungeTopic()
@@ -500,6 +502,14 @@ namespace MMBot.Spotify
                 return false;
             }
             return true;
+        }
+
+        public void Cleanup()
+        {
+            
+            _player.Pause();
+            _player.Dispose();
+            _player = null;
         }
     }
 }
