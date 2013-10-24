@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.HipChat</id>
+        <version>0.1.0</version>
+        <authors>Peter Goodman</authors>
+        <owners>Peter Goodman</owners>
+        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A HipChat Adapter for mmbot, a C# port of Github's Hubot chat bot</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot petegoo chat robot bot hipchat</tags>
+        <dependencies>
+            <dependency id="agsXMPP" version="1.1.1.0" />
+            <dependency id="Common.Logging" version="2.1.2" />
+            <dependency id="ScriptCs.Contracts" version="0.8.0" />
+        </dependencies>
+    </metadata>
+</package>

@@ -78,8 +78,9 @@
     <Reference Include="ScriptCs.Contracts">
       <HintPath>..\packages\ScriptCs.Contracts.0.8.0\lib\net45\ScriptCs.Contracts.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptCs.Core">
-      <HintPath>..\packages\ScriptCs.Core.0.8.0\lib\net45\ScriptCs.Core.dll</HintPath>
+    <Reference Include="ScriptCs.Core, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\scriptcs\src\ScriptCs.Core\bin\Debug\ScriptCs.Core.dll</HintPath>
     </Reference>
     <Reference Include="ScriptCs.Engine.Roslyn">
       <HintPath>..\packages\ScriptCs.Engine.Roslyn.0.8.0\lib\net45\ScriptCs.Engine.Roslyn.dll</HintPath>
@@ -119,6 +120,22 @@
     <Compile Include="AsyncSynchronizationContext.cs" />
     <Compile Include="Brain.cs" />
     <Compile Include="Adapter.cs" />
+    <Compile Include="CompiledScripts\Ascii.cs" />
+    <Compile Include="CompiledScripts\Cats.cs" />
+    <Compile Include="CompiledScripts\Giphy.cs" />
+    <Compile Include="CompiledScripts\GoogleImages.cs" />
+    <Compile Include="CompiledScripts\Help.cs" />
+    <Compile Include="CompiledScripts\Map.cs" />
+    <Compile Include="CompiledScripts\Math.cs" />
+    <Compile Include="CompiledScripts\Ping.cs" />
+    <Compile Include="CompiledScripts\Pug.cs" />
+    <Compile Include="CompiledScripts\Rules.cs" />
+    <Compile Include="CompiledScripts\Spot.cs" />
+    <Compile Include="CompiledScripts\TeamCity.cs" />
+    <Compile Include="CompiledScripts\Translate.cs" />
+    <Compile Include="CompiledScripts\Urban.cs" />
+    <Compile Include="CompiledScripts\Xkcd.cs" />
+    <Compile Include="CompiledScripts\Youtube.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
@@ -140,18 +157,53 @@
     <Compile Include="Scripts\Translate.cs" />
     <Compile Include="Scripts\GoogleImages.cs" />
     <Compile Include="Scripts\Help.cs" />
+    <None Include="Scripts\Ascii.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Cats.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Giphy.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Help.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Ping.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\GoogleImages.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Map.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Pug.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Rules.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Spot.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\TeamCity.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Translate.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="Scripts\IConfigurableScript.cs" />
     <Compile Include="Scripts\IMMBotScript.cs" />
-    <Compile Include="Scripts\Map.cs" />
-    <Compile Include="Scripts\Math.cs" />
-    <Compile Include="Scripts\Ping.cs" />
-    <Compile Include="Scripts\Pug.cs" />
-    <Compile Include="Scripts\Rules.cs" />
-    <Compile Include="Scripts\Spot.cs" />
-    <Compile Include="Scripts\TeamCity.cs" />
-    <Compile Include="Scripts\Urban.cs" />
-    <Compile Include="Scripts\Xkcd.cs" />
-    <Compile Include="Scripts\Youtube.cs" />
+    <None Include="Scripts\Urban.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Xkcd.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\Youtube.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="TextListener.cs" />
     <Compile Include="User.cs" />
@@ -159,6 +211,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Properties\MMBot.nuspec" />
+    <None Include="Scripts\Math.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

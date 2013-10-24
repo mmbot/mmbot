@@ -20,6 +20,8 @@ namespace MMBot
             _callback = callback;
         }
 
+        public virtual ScriptSource Source { get; set; }
+
         public virtual bool Call(Message message)
         {
             MatchResult matchResult = _matcher(message);

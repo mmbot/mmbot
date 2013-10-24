@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using MMBot.Scripts;
 
-namespace MMBot.Scripts
+namespace MMBot.CompiledScripts
 {
     public class Ping : IMMBotScript
     {

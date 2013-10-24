@@ -19,10 +19,5 @@ namespace MMBot
         public string Room { get; set; }
 
         public string Message { get; set; }
-
-        public HttpWrapper Http(string url)
-        {
-            return new HttpWrapper(url);
-        }
     }
 }

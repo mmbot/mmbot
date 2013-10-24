@@ -107,7 +107,7 @@ namespace MMBot
 
         public HttpWrapper Http(string url)
         {
-            return new HttpWrapper(url);
+            return new HttpWrapper(url, _robot.Logger, _envelope);
         }
         
     }

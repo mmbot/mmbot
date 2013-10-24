@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
+using MMBot.HipChat;
 using MMBot.Jabbr;
 using MMBot.Scripts;
 using MMBot.Spotify;
@@ -16,9 +17,9 @@ namespace MMBot.Runner
         {
             var config = new Dictionary<string, string>();
 
-            if (Environment.GetEnvironmentVariable("MMBOT_JABBR_HOST") == null)
+            if (Environment.GetEnvironmentVariable("MMBOT_JABBR_HOST") == null && Environment.GetEnvironmentVariable("MMBOT_HIPCHAT_HOST") == null)
             {
-                Console.WriteLine("Please enter the password for mmbot in jabbr");
+                Console.WriteLine("Please enter the password for mmbot");
                 var password = ReadPassword();
 
                 if (string.IsNullOrEmpty(password))
@@ -35,16 +36,22 @@ namespace MMBot.Runner
                     //{"MMBOT_TEAMCITY_USERNAME", "buildadmin"},
                     //{"MMBOT_TEAMCITY_PASSWORD", "**********"},
                     //{"MMBOT_TEAMCITY_HOSTNAME", "buildserver"},
+                    {"MMBOT_HIPCHAT_HOST", "chat.hipchat.com"},
+                    {"MMBOT_HIPCHAT_CONFHOST", "conf.hipchat.com"},
+                    {"MMBOT_HIPCHAT_NICK", "mmbot"},
+                    {"MMBOT_HIPCHAT_ROOMNICK", "mmbot Bot"},
+                    {"MMBOT_HIPCHAT_USERNAME", "70126_494082"},
+                    {"MMBOT_HIPCHAT_PASSWORD", password},
+                    {"MMBOT_HIPCHAT_ROOMS", "70126_mmbot"},
                 };
             }
 
             // If not configured via dictionary then matching environment vars will be used
-            
+
+            // Uncomment the appropriate line below to use Jabbr or HipChat
             var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
-            
-            //TODO: Discover scripts
-            
-            robot.LoadScripts(typeof (Robot).Assembly);
+            //var robot = Robot.Create<HipChatAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
+
             robot.LoadScripts(typeof(SpotifyPlayerScripts).Assembly);
 
             robot.Run();
