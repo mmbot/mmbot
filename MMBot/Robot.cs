@@ -14,7 +14,6 @@ using Common.Logging.Simple;
 using MMBot.Adapters;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
-using ScriptCs.Exceptions;
 using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
@@ -295,9 +294,9 @@ namespace MMBot
                         _scriptRunner.RunScriptFile(scriptFile);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    Logger.Error(ex.Message);
                 }
             }
 
