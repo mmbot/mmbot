@@ -2,35 +2,23 @@
 
 var robot = Require<Robot>();
 
-private const string Url = "http://achievement-unlocked.heroku.com/xbox/#{0}.png";
+private const string Url = "http://achievement-unlocked.heroku.com/xbox/{0}.png";
 
-robot.Respond(@"achievement (.+?)(\s*[^@\s]+@[^@\s]+)?\s*$/i", async msg =>
+robot.Respond(@"(achievement|award) (.+?)(\s*[^@\s]+@[^@\s]+)?$", msg =>
 {
     var caption = msg.Match[2];
     var email = msg.Match[3];
 
-    await AchievementCore(msg, caption, email);
+    AchievementCore(msg, caption, email);
 });
 
-robot.Respond(@"award (.+?)(\s*[^@\s]+@[^@\s]+)?\s*$/i", async msg =>
-{
-    var caption = msg.Match[2];
-    var email = msg.Match[3];
-
-    await AchievementCore(msg, caption, email);
-});
-
-private static async Task AchievementCore(IResponse<TextMessage> msg, string caption, string email)
+private static void AchievementCore(IResponse<TextMessage> msg, string caption, string email)
 {
     var url = String.Format(Url, caption);
 
     if (!string.IsNullOrWhiteSpace(email))
     {
-        url += string.Format("?email=#{0}.png", email);
-    }
-    else
-    {
-                
+        url += string.Format("?email={0}.png", email.Trim());
     }
 
     msg.Send(url);
