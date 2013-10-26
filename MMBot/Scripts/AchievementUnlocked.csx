@@ -14,7 +14,7 @@ robot.Respond(@"(achievement|award) (.+?)(\s*[^@\s]+@[^@\s]+)?$", msg =>
 
 private static void AchievementCore(IResponse<TextMessage> msg, string caption, string email)
 {
-    var url = String.Format(Url, caption);
+    var url = String.Format(Url, Uri.EscapeUriString(caption));
 
     if (!string.IsNullOrWhiteSpace(email))
     {

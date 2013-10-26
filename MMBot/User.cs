@@ -4,6 +4,11 @@ namespace MMBot
 {
     public class User
     {
+        internal User()
+        {
+
+        }
+
         public User(string name)
         {
             Name = name;
