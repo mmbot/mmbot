@@ -4,6 +4,10 @@ namespace MMBot
 {
     public class User
     {
+        public User(string name)
+        {
+            Name = name;
+        }
         
         public User(string id, string name, IEnumerable<string> roles, string room)
         {

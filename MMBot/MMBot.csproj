@@ -140,6 +140,9 @@
     <Compile Include="RobotNotConfiguredException.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
     <Compile Include="ScriptRunner.cs" />
+    <None Include="Scripts\AchievementUnlocked.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\Ascii.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
