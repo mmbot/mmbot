@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -85,6 +87,28 @@ namespace MMBot.Tests
 
 
             Assert.IsTrue(new JTokenEqualityComparer().Equals((JToken)expected, (JToken)actual));
+        }
+
+        [TestMethod]
+        public async Task WhenGetXmlIsCalled_ResponseContentIsDeserialized()
+        {
+
+            var expectedString = "<root><foo>Foo</foo><bar>Bar</bar></root>";
+            var expected = new XmlDocument();
+            expected.LoadXml(expectedString);
+
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(expectedString)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            var actual = await http.GetXml();
+
+            Assert.AreEqual(expected.ToString(), actual.ToString());
         }
 
     }
