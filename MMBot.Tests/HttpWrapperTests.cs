@@ -89,10 +89,82 @@ namespace MMBot.Tests
             Assert.IsTrue(new JTokenEqualityComparer().Equals((JToken)expected, (JToken)actual));
         }
 
+
+        [TestMethod]
+        public async Task WhenGetJsonWithCallbackReturnsErrorHttpStatusCode_CodeIsAccessibleViaResponseParameter()
+        {
+            var expectedString = JsonConvert.SerializeObject(new { Id = 4, Foo = "Foo", Bar = "Bar", Date = DateTime.Now });
+            var expected = JsonConvert.DeserializeObject(expectedString);
+
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(expectedString)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            var callback = false;
+            await http.GetJson((err, res, body) =>
+            {
+                callback = true;
+                Assert.AreEqual(HttpStatusCode.NotFound, res.StatusCode);
+            });
+            Assert.IsTrue(callback);
+
+        }
+
+        [ExpectedException(typeof(JsonReaderException))]
+        [TestMethod]
+        public async Task WhenGetJson_AndContentContainsGarbage_ThrowsException()
+        {
+            var expected = "dfsgsdf%#@$%^&*()";
+
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(expected)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            await http.GetJson();
+            Assert.Fail("Should have thrown");
+            
+        }
+
+        [TestMethod]
+        public async Task WhenGetJsonWithCallback_AndContentContainsGarbage_ThrowsException()
+        {
+            var expected = "dfsgsdf%#@$%^&*()";
+
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(expected)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            var callback = false;
+            await http.GetJson((err, res, body) =>
+            {
+                callback = true;
+                Assert.IsNotNull(err);
+                Assert.IsInstanceOfType(err, typeof(Exception));
+                
+            });
+
+            Assert.IsTrue(callback);
+        }
+
+
         [TestMethod]
         public async Task WhenGetXmlIsCalled_ResponseContentIsDeserialized()
         {
-
             var expectedString = "<root><foo>Foo</foo><bar>Bar</bar></root>";
             var expected = new XmlDocument();
             expected.LoadXml(expectedString);
@@ -111,5 +183,75 @@ namespace MMBot.Tests
             Assert.AreEqual(expected.ToString(), actual.ToString());
         }
 
+        [TestMethod]
+        public async Task WhenGetXmlWithCallbackReturnsErrorHttpStatusCode_CodeIsAccessibleViaResponseParameter()
+        {
+            var expectedString = "<root><foo>Foo</foo><bar>Bar</bar></root>";
+            var expected = new XmlDocument();
+            expected.LoadXml(expectedString);
+
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(expectedString)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            var callback = false;
+            await http.GetXml((err, res, body) =>
+            {
+                callback = true;
+                Assert.AreEqual(HttpStatusCode.NotFound, res.StatusCode);
+            });
+            Assert.IsTrue(callback);
+
+        }
+
+        [ExpectedException(typeof(XmlException))]
+        [TestMethod]
+        public async Task WhenGetXmlIsCalled_AndContentIsGarbage_ExceptionIsThrown()
+        {
+            var expectedString = "!@#$%^&*()_+<root><foo@#$%^&*()_>$%^&*(OP)_Foo</foo><bar>Bar</bar></root>";
+            
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(expectedString)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            await http.GetXml();
+
+            Assert.Fail("Should have thrown");
+        }
+
+        [TestMethod]
+        public async Task WhenGetXmlWithCallback_AndContentIsGarbage_ErrContainsException()
+        {
+            var expectedString = "!@#$%^&*()_+<root><foo@#$%^&*()_>$%^&*(OP)_Foo</foo><bar>Bar</bar></root>";
+
+            var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                Content = new StringContent(expectedString)
+            });
+            var http = new HttpWrapper("http://foo.com/",
+                new TestLogger(),
+                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                stubHandler);
+
+            var callback = false;
+            await http.GetXml((err, res, body) =>
+            {
+                callback = true;
+                Assert.IsNotNull(err);
+                Assert.IsInstanceOfType(err, typeof(Exception));
+            });
+            Assert.IsTrue(callback);
+
+        }
     }
 }
