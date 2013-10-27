@@ -21,12 +21,16 @@ namespace MMBot
         private Uri _baseUrl;
         Dictionary<string, string> _headers = new Dictionary<string, string>();
         NameValueCollection _queries = new NameValueCollection();
+        private HttpMessageHandler _httpMessageHandler;
 
-        public HttpWrapper(string baseUrl, ILog logger, Envelope envelope)
+        public HttpWrapper(string baseUrl, ILog logger, Envelope envelope) : this(baseUrl, logger, envelope, null){}
+
+        public HttpWrapper(string baseUrl, ILog logger, Envelope envelope, HttpMessageHandler httpMessageHandler)
         {
             _logger = logger;
             _envelope = envelope;
             _baseUrl = new Uri(baseUrl);
+            _httpMessageHandler = httpMessageHandler ?? new HttpClientHandler();
         }
 
         public HttpWrapper Query(string name, string value)
@@ -91,11 +95,8 @@ namespace MMBot
         {
             try
             {
-                var uri = BuildUri();
-                var client = new HttpClient();
-                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
-
-                var result = await client.GetStringAsync(uri);
+                var response = await GetResponseMessage();
+                var result = await response.Content.ReadAsStringAsync();
                 return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
             }
             catch (Exception e)
@@ -110,13 +111,7 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                var uri = BuildUri();
-                var client = new HttpClient();
-                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
-
-                response = await client.GetAsync(uri);
-
-                response.EnsureSuccessStatusCode();
+                response = await GetResponseMessage();
 
                 string result = await response.Content.ReadAsStringAsync();
 
@@ -140,15 +135,22 @@ namespace MMBot
             }
         }
 
-        public async Task<XmlDocument> GetXml()
+        private async Task<HttpResponseMessage> GetResponseMessage()
         {
-            HttpResponseMessage response = null;
-
             var uri = BuildUri();
-            var client = new HttpClient();
+            var client = new HttpClient(_httpMessageHandler);
             _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
 
-            response = await client.GetAsync(uri);
+            var response = await client.GetAsync(uri);
+
+            response.EnsureSuccessStatusCode();
+
+            return response;
+        }
+
+        public async Task<XmlDocument> GetXml()
+        {
+            var response = await GetResponseMessage();
 
             string result = await response.Content.ReadAsStringAsync();
 
@@ -162,11 +164,7 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                var uri = BuildUri();
-                var client = new HttpClient();
-                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
-
-                response = await client.GetAsync(uri);
+                response = await GetResponseMessage();
 
                 string result = await response.Content.ReadAsStringAsync();
 
@@ -185,11 +183,7 @@ namespace MMBot
         {
             try
             {
-                var uri = BuildUri();
-                var client = new HttpClient();
-                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
-
-                return await client.GetAsync(uri);
+                return await GetResponseMessage();
             }
             catch (Exception e)
             {
@@ -203,10 +197,7 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                var uri = BuildUri();
-                var client = new HttpClient();
-                _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
-                response = await client.GetAsync(uri);
+                response = await GetResponseMessage();
                 response.EnsureSuccessStatusCode();
                 callback(null, response);
             }

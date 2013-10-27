@@ -139,6 +139,7 @@
     <Compile Include="Robot.cs" />
     <Compile Include="RobotNotConfiguredException.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
+    <Compile Include="ScriptProcessingException.cs" />
     <Compile Include="ScriptRunner.cs" />
     <None Include="Scripts\AchievementUnlocked.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -179,6 +180,7 @@
     <None Include="Scripts\Translate.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Compile Include="ScriptSource.cs" />
     <Compile Include="Scripts\IConfigurableScript.cs" />
     <Compile Include="Scripts\IMMBotScript.cs" />
     <None Include="Scripts\Urban.csx">

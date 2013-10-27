@@ -541,7 +541,14 @@ namespace MMBot.Jabbr.JabbrClient
             }
             catch (Exception ex)
             {
-                _connection.Trace(TraceLevels.Events, ex.Message);
+                try
+                {
+                    _connection.Trace(TraceLevels.Events, ex.Message);
+                }
+                catch (Exception)
+                {
+                    // For some reason the Trace method can throw :(
+                }
             }
         }
 

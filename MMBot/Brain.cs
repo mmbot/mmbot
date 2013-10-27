@@ -50,9 +50,9 @@ namespace MMBot
             _cache.InsertObject(GetKey(key), value);
         }
 
-        public async Task Remove(string key)
+        public async Task Remove<T>(string key)
         {
-            await _cache.Invalidate(GetKey(key));
+            await _cache.InvalidateObject<T>(GetKey(key));
         }
 
     }
