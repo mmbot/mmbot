@@ -96,6 +96,7 @@ namespace MMBot
             try
             {
                 var response = await GetResponseMessage();
+                response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
                 return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
             }
@@ -112,6 +113,8 @@ namespace MMBot
             try
             {
                 response = await GetResponseMessage();
+
+                response.EnsureSuccessStatusCode();
 
                 string result = await response.Content.ReadAsStringAsync();
 
@@ -143,14 +146,14 @@ namespace MMBot
 
             var response = await client.GetAsync(uri);
 
-            response.EnsureSuccessStatusCode();
-
             return response;
         }
 
         public async Task<XmlDocument> GetXml()
         {
             var response = await GetResponseMessage();
+
+            response.EnsureSuccessStatusCode();
 
             string result = await response.Content.ReadAsStringAsync();
 
@@ -165,6 +168,8 @@ namespace MMBot
             try
             {
                 response = await GetResponseMessage();
+
+                response.EnsureSuccessStatusCode();
 
                 string result = await response.Content.ReadAsStringAsync();
 
