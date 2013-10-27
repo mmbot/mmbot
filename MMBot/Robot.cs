@@ -96,7 +96,7 @@ namespace MMBot
             _scriptRunner = Container.Resolve<ScriptRunner>();
             _brain = Container.Resolve<Brain>();
             _name = name;
-            _config = config;
+            _config = config ?? new Dictionary<string, string>();
             
             _isConfigured = true;
 
@@ -348,7 +348,9 @@ namespace MMBot
         public async Task Shutdown()
         {
             _isReady = false;
-            _cleanup.Keys.ToList().ForEach(CleanupScript);
+            _cleanup.Keys.ToList().ForEach(CleanupScript);       
+            _cleanup.Clear();
+            _listeners.Clear();
             if (_adapter != null)
             {
                 await _adapter.Close();
@@ -378,32 +380,5 @@ namespace MMBot
                 _cleanup[_currentScriptSource.Name] =  cleanup;
             }
         }
-    }
-
-    public class ScriptProcessingException : Exception
-    {
-        public ScriptProcessingException(string message) : base(message)
-        {
-        }
-
-        public ScriptProcessingException(string message, Exception inner) : base(message, inner)
-        {
-        }
-    }
-
-    public class ScriptSource
-    {
-        public ScriptSource(string name, string description)
-        {
-            Name = name;
-            Description = description;
-        }
-
-        /// <summary>
-        /// This is the unique name for the script source. Scripts will overwrite previous entries with the same name.
-        /// </summary>
-        public string Name { get; set; }
-        
-        public string Description { get; set; }
     }
 }
