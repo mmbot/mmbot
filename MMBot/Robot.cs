@@ -210,8 +210,9 @@ namespace MMBot
                 {
                     _cleanup[name]();
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Logger.Error("Error during cleanup", e);
                 }
                 finally
                 {
