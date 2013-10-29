@@ -19,7 +19,7 @@ namespace MMBot.Tests
         public async Task WhenPing_ReceivePong()
         {
             var robot = Robot.Create<StubAdapter>();
-            var adapter = robot.Adapter as StubAdapter;
+            var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
 
             await robot.Run();

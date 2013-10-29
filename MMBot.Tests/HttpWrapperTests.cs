@@ -20,7 +20,7 @@ namespace MMBot.Tests
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(), 
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             http.Query(new
@@ -34,13 +34,18 @@ namespace MMBot.Tests
             Assert.AreEqual("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
         }
 
+        private static User CreateTestUser()
+        {
+            return new User("foo", "foo", new string[0], "testRoom", "stubAdapter");
+        }
+
         [TestMethod]
         public async Task WhenQueryParametersAreAddedindividually_UrlIsCorrectlyConstructed()
         {
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             http.Query("foo", "Foo");
@@ -57,7 +62,7 @@ namespace MMBot.Tests
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             http.Query(new Dictionary<string, string>{{"foo", "Foo"}, {"bar", "Bar"}});
@@ -80,7 +85,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             var actual = await http.GetJson();
@@ -102,7 +107,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             var callback = false;
@@ -127,7 +132,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             await http.GetJson();
@@ -146,7 +151,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             var callback = false;
@@ -175,7 +180,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             var actual = await http.GetXml();
@@ -196,7 +201,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             var callback = false;
@@ -221,7 +226,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             await http.GetXml();
@@ -240,7 +245,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(new User("foo"), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
             var callback = false;

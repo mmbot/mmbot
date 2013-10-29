@@ -13,12 +13,12 @@ namespace MMBot.Jabbr
         private JabbRClient _client;
 
         // TODO: Move to environment variables / config
-        private static string _host;
-        private static string[] _rooms;
-        private static string _nick;
-        private static string _password;
-
-        private static bool _isConfigured = false;
+        private string _host;
+        private string _nick;
+        private string _password;
+        private string[] _rooms;
+        private bool _isConfigured = false;
+        
 
         private void Configure()
         {
@@ -34,7 +34,8 @@ namespace MMBot.Jabbr
             _isConfigured = _host != null;
         }
 
-        public JabbrAdapter(Robot robot, ILog logger) : base(robot, logger)
+        public JabbrAdapter(Robot robot, ILog logger, string adapterId)
+            : base(robot, logger, adapterId)
         {
             Configure();
         }
@@ -65,7 +66,7 @@ namespace MMBot.Jabbr
         {
             Logger.Info(string.Format("*PRIVATE* {0} -> {1} ", @from, message));
 
-            var user = new User(@from, @from, new string[0], null);
+            var user = new User(@from, @from, new string[0], null, Id);
 
             if (user.Name != _nick)
             {
@@ -107,7 +108,7 @@ namespace MMBot.Jabbr
             //    user = self.robot.brain.userForId id
             //    user.name = msg.name
 
-            var user = new User(message.User.Name, message.User.Name, new string[0], room);
+            var user = new User(message.User.Name, message.User.Name, new string[0], room, Id);
 
             //TODO: Filter out messages from mmbot itself using the current nick
             if(user.Name != _nick)
@@ -135,6 +136,7 @@ namespace MMBot.Jabbr
             foreach (var room in result.Rooms)
             {
                 Logger.Info(string.Format(" - " + room.Name + (room.Private ? " (private)" : string.Empty)));
+                Rooms.Add(room.Name);
             }
 
             foreach (var room in _rooms.Where(room => !result.Rooms.Select(r => r.Name).Contains(room)))
@@ -142,6 +144,7 @@ namespace MMBot.Jabbr
                 try
                 {
                     await _client.JoinRoom(room);
+                    Rooms.Add(room);
                     Logger.Info(string.Format("Successfully joined room {0}", room));
                 }
                 catch (Exception e)

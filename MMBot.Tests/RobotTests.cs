@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MMBot.Adapters;
-using MMBot.Scripts;
 
 namespace MMBot.Tests
 {
@@ -61,7 +60,7 @@ namespace MMBot.Tests
         public async Task WhenMessageIsSentFromScript_AdapterSendIsInvoked()
         {
             var robot = Robot.Create<StubAdapter>();
-            var adapter = robot.Adapter as StubAdapter;
+            var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<StubEchoScript>();
             
             var expectedMessages = new[]
@@ -99,54 +98,58 @@ namespace MMBot.Tests
 
             Assert.IsTrue(isCleanedUp);
         }
-    }
 
-    public class StubAdapter : Adapter
-    {
-        private readonly List<Tuple<Envelope, string[]>> _messages = new List<Tuple<Envelope, string[]>>();
-
-        public StubAdapter(Robot robot, ILog logger) : base(robot, logger)
+        [TestMethod]
+        public async Task WhenMultipleAdaptersAreConfigured_ResponsesAreOnlySentToTheOriginatingAdapter()
         {
-        }
+            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), new TestLogger(), new[]{typeof(StubAdapter), typeof(StubAdapter2)});
+            robot.AutoLoadScripts = false;
 
-        public IEnumerable<Tuple<Envelope, string[]>> Messages
-        {
-            get { return _messages; }
-        }
+            var adapter1 = robot.Adapters.First().Value as StubAdapter;
+            var adapter2 = robot.Adapters.Last().Value as StubAdapter2;
 
-        public override async Task Run()
-        {
+            robot.LoadScript<StubEchoScript>();
+
+            var expectedMessages = new[]
+            {
+                Tuple.Create("test1", "Hello Test 1"),
+                Tuple.Create("test2", "Hello Test 2"),
+                Tuple.Create("test3", "Hello Test 3")
+            };
+            await robot.Run();
+
+            Console.WriteLine("Testing Adapter 1");
+            expectedMessages.ForEach(t => adapter1.SimulateMessage(t.Item1, "mmbot " + t.Item2));
+
+            var expectedMessagesValues = expectedMessages.Select(t => string.Concat(t.Item1, t.Item2));
+            Console.WriteLine("Expected:");
+            Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
+            var actualMessagesValues = adapter1.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
+            Console.WriteLine("Actual:");
+            Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
+
+            Assert.IsTrue(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+            Assert.AreEqual(0, adapter2.Messages.Count());
+
+            Console.WriteLine("Testing Adapter 2");
+            expectedMessages.ForEach(t => adapter2.SimulateMessage(t.Item1, "mmbot " + t.Item2));
+
             
+            Console.WriteLine("Expected:");
+            Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
+            actualMessagesValues = adapter2.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
+            Console.WriteLine("Actual:");
+            Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
+
+            Assert.IsTrue(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+            Assert.AreEqual(3, adapter1.Messages.Count());
         }
 
-        public override async Task Close()
+        public class StubAdapter2 : StubAdapter
         {
-            
-        }
-
-        public void SimulateMessage(string user, string message)
-        {
-            Robot.Receive(new TextMessage(new User(user), message, null));
-        }
-
-        public override Task Send(Envelope envelope, params string[] messages)
-        {
-            _messages.Add(Tuple.Create(envelope, messages));
-            return base.Send(envelope, messages);
-        }
-    }
-
-    public class StubEchoScript : IMMBotScript
-    {
-
-        public void Register(Robot robot)
-        {
-            robot.Respond("(.*)", msg => msg.Send(msg.Match[1]));
-        }
-
-        public IEnumerable<string> GetHelp()
-        {
-            return new[] {"type anything"};
+            public StubAdapter2(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
+            {
+            }
         }
     }
 }

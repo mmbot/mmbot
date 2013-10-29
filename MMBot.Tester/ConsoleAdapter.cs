@@ -11,10 +11,10 @@ namespace MMBot.Tester
     {
         private User _user;
 
-        public ConsoleAdapter(Robot robot, ILog logger)
-            : base(robot, logger)
+        public ConsoleAdapter(Robot robot, ILog logger, string adapterId)
+            : base(robot, logger, adapterId)
         {
-            _user = new User("test");
+            _user = new User("test", "test", new string[0], "testRoom", Id);
         }
 
         public async override Task Run()
