@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Core;
 using Common.Logging;
 using Common.Logging.Simple;
 using MMBot.Adapters;
@@ -21,8 +23,8 @@ namespace MMBot
     public class Robot : IScriptPackContext
     {
         private string _name = "mmbot";
-        private Adapter _adapter;
-        private Type _adapterType;
+        private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();
+        
         private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
@@ -36,9 +38,9 @@ namespace MMBot
         private IContainer _container;
         public ILog Logger { get; private set; }
 
-        public Adapter Adapter
+        public Dictionary<string, Adapter> Adapters
         {
-            get { return _adapter; }
+            get { return _adapters; }
         }
 
         public List<string> HelpCommands
@@ -49,6 +51,8 @@ namespace MMBot
         public string Alias { get; set; }
 
         public string ScriptPath { get; set; }
+
+        public bool AutoLoadScripts { get; set; }
 
         public string Name
         {
@@ -74,7 +78,18 @@ namespace MMBot
         {
             var robot = new Robot(logger ?? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F"));
 
-            robot.Configure<TAdapter>(name, config);
+            robot.Configure(name, config, typeof(TAdapter));
+
+            robot.LoadAdapter();
+
+            return robot;
+        }
+
+        public static Robot Create(string name, IDictionary<string, string> config, ILog logger, params Type[] adapterTypes)
+        {
+            var robot = new Robot(logger ?? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F"));
+
+            robot.Configure(name, config, adapterTypes);
 
             robot.LoadAdapter();
 
@@ -88,11 +103,12 @@ namespace MMBot
         protected Robot(ILog logger)
         {
             Logger = logger;
+            AutoLoadScripts = true;
         }
 
-        public void Configure<TAdapter>(string name = "mmbot", IDictionary<string, string> config = null) where TAdapter : Adapter
+        public void Configure(string name = "mmbot", IDictionary<string, string> config = null, params Type[] adapterTypes)
         {
-            _adapterType = typeof(TAdapter);
+            _adapterTypes = adapterTypes;
             _scriptRunner = Container.Resolve<ScriptRunner>();
             _brain = Container.Resolve<Brain>();
             _name = name;
@@ -156,7 +172,7 @@ namespace MMBot
             builder.RegisterInstance<Robot>(this);
             builder.RegisterType<ScriptRunner>();
             builder.RegisterType<Brain>();
-            builder.RegisterType(_adapterType);
+            _adapterTypes.ForEach(t => builder.RegisterType(t));
             return builder.Build();
         }
 
@@ -181,6 +197,7 @@ namespace MMBot
         }
 
         private ScriptSource _currentScriptSource = null;
+        private IEnumerable<Type> _adapterTypes;
 
         public IDisposable StartScriptProcessingSession(ScriptSource scriptSource)
         {
@@ -227,8 +244,14 @@ namespace MMBot
             {
                 throw new RobotNotConfiguredException();
             }
-            LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
-            await _adapter.Run();
+            if(AutoLoadScripts)
+            {
+                LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
+            }
+            foreach(var adapter in _adapters.Values)
+            {
+                await adapter.Run();
+            }
             _isReady = true;
         }
 
@@ -260,7 +283,28 @@ namespace MMBot
 
         public void LoadAdapter()
         {
-            _adapter = Container.Resolve(_adapterType) as Adapter;
+            _adapters.Clear();
+            foreach (var adapterType in _adapterTypes)
+            {
+                try
+                {
+                    var id = adapterType.Name;
+                    int count = 0;
+                    while (_adapters.Keys.Contains(id))
+                    {
+                        count++;
+                        id = adapterType.Name + count;
+                    }
+                    var adapter = Container.Resolve(adapterType, new NamedParameter("adapterId", id)) as Adapter;
+                    
+                    _adapters.Add(id, adapter);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(string.Format("Could not instantiate '{0}' adapter", adapterType.Name), e);
+                }
+            }
+
         }
 
         public void LoadScripts(Assembly assembly)
@@ -352,9 +396,9 @@ namespace MMBot
             _cleanup.Keys.ToList().ForEach(CleanupScript);       
             _cleanup.Clear();
             _listeners.Clear();
-            if (_adapter != null)
+            foreach (var adapter in _adapters.Values)
             {
-                await _adapter.Close();
+                await adapter.Close();
             }
             if (_brain != null)
             {

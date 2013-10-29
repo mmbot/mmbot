@@ -56,7 +56,7 @@ namespace MMBot
 
         public async Task Send(params string[] messages)
         {
-            await _robot.Adapter.Send(_envelope, messages);
+            await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
         }
 
         public Task Reply(params string[] message)

@@ -399,7 +399,10 @@ namespace MMBot.Spotify
                 ? string.Concat(stateDisplayText, " - ", _player.CurrentTrack.GetDisplayName())
                 : stateDisplayText;
 
-            await _robot.Adapter.Topic(_player.LoungeRoom, message);
+            foreach(var adapter in _robot.Adapters.Where(a => a.Value.Rooms.Contains(_player.LoungeRoom)))
+            {
+                await adapter.Value.Topic(_player.LoungeRoom, message);
+            }
         }
 
         

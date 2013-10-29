@@ -28,7 +28,8 @@ namespace MMBot.HipChat
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
 
 
-        public HipChatAdapter(Robot robot, ILog logger) : base(robot, logger)
+        public HipChatAdapter(Robot robot, ILog logger, string adapterId)
+            : base(robot, logger, adapterId)
         {
             Configure();
         }
@@ -118,7 +119,7 @@ namespace MMBot.HipChat
                 
                 Logger.Info(string.Format("[{0}] {1}: {2}", DateTime.Now, user, message.Body.Trim()));
 
-                var userObj = new User(message.Id, user, new string[0], message.From.Bare);
+                var userObj = new User(message.Id, user, new string[0], message.From.Bare, Id);
 
                 if (userObj.Name != _nick)
                 {
@@ -149,6 +150,7 @@ namespace MMBot.HipChat
             {
                 var jid = new Jid(room + "@" + _confhost);
                 mucManager.JoinRoom(jid, _roomNick);
+                Rooms.Add(room);
                 Logger.Info(string.Format("Joined Room '{0}'", room));
             }
         }

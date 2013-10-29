@@ -10,7 +10,8 @@ namespace MMBot.Adapters
     {
         private readonly Robot _robot;
 
-        public Shell(Robot robot, ILog logger) : base(robot, logger)
+        public Shell(Robot robot, ILog logger, string adapterId)
+            : base(robot, logger, adapterId)
         {
             _robot = robot;
         }
