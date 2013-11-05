@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="agsXMPP, Version=1.1.1.0, Culture=neutral, PublicKeyToken=ff839b81f1debe86, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\agsXMPP.1.1.1.0\lib\agsXMPP.dll</HintPath>
+    </Reference>
     <Reference Include="Akavache, Version=3.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\akavache.3.0.2\lib\net45\Akavache.dll</HintPath>
@@ -138,6 +142,10 @@
     <ProjectReference Include="..\MMBot.Spotify\MMBot.Spotify.csproj">
       <Project>{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}</Project>
       <Name>MMBot.Spotify</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMBot.XMPP\MMBot.XMPP.csproj">
+      <Project>{ad4b187e-a1eb-48e9-8e94-110ac78d23a3}</Project>
+      <Name>MMBot.XMPP</Name>
     </ProjectReference>
     <ProjectReference Include="..\MMBot\MMBot.csproj">
       <Project>{0CF33652-B99B-4854-BC70-250B6C2F646A}</Project>

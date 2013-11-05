@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Tester", "MMBot.Teste
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Tests", "MMBot.Tests\MMBot.Tests.csproj", "{8ED68CDA-175C-48D4-9777-D36852319427}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.XMPP", "MMBot.XMPP\MMBot.XMPP.csproj", "{AD4B187E-A1EB-48E9-8E94-110AC78D23A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{8ED68CDA-175C-48D4-9777-D36852319427}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ED68CDA-175C-48D4-9777-D36852319427}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8ED68CDA-175C-48D4-9777-D36852319427}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD4B187E-A1EB-48E9-8E94-110AC78D23A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD4B187E-A1EB-48E9-8E94-110AC78D23A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD4B187E-A1EB-48E9-8E94-110AC78D23A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD4B187E-A1EB-48E9-8E94-110AC78D23A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
