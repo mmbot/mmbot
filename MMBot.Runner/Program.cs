@@ -8,6 +8,7 @@ using MMBot.HipChat;
 using MMBot.Jabbr;
 using MMBot.Scripts;
 using MMBot.Spotify;
+using MMBot.XMPP;
 
 namespace MMBot.Runner
 {
@@ -33,6 +34,12 @@ namespace MMBot.Runner
                     {"MMBOT_JABBR_NICK", "mmbot"},
                     {"MMBOT_JABBR_PASSWORD", password},
                     {"MMBOT_JABBR_ROOMS", "mmbottest,markermetro"},
+                    {"MMBOT_XMPP_HOST", "myemaildomain.com"},
+                    {"MMBOT_XMPP_CONNECT_HOST", "talk.google.com"},
+                    {"MMBOT_XMPP_USERNAME", "myemailusername"},
+                    {"MMBOT_XMPP_PASSWORD", password},
+                    {"MMBOT_XMPP_RESOURCE", "Home"},
+                    
                     //{"MMBOT_TEAMCITY_USERNAME", "buildadmin"},
                     //{"MMBOT_TEAMCITY_PASSWORD", "**********"},
                     //{"MMBOT_TEAMCITY_HOSTNAME", "buildserver"},
@@ -50,6 +57,7 @@ namespace MMBot.Runner
 
             // Uncomment the appropriate line below to use Jabbr or HipChat
             var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
+            //var robot = Robot.Create<XmppAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
             //var robot = Robot.Create<HipChatAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
 
             robot.LoadScripts(typeof(SpotifyPlayerScripts).Assembly);
