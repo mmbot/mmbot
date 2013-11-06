@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using agsXMPP;
 using agsXMPP.protocol.client;
 using agsXMPP.protocol.iq.roster;
+using agsXMPP.sasl;
 using Common.Logging;
 
 namespace MMBot.XMPP
@@ -48,14 +49,17 @@ namespace MMBot.XMPP
                 Password = _password,
                 //Resource = _resource,
                 //UseStartTLS = true,
-                Port = 5222
+                //Port = 5222
                 //UseSSL = false
             };
 
             _xmppConnection.OnLogin += OnLogin;
             _xmppConnection.OnError += OnError;
             _xmppConnection.OnMessage += OnMessage;
+            _xmppConnection.OnPresence += XmppConnectionOnOnPresence;
             _xmppConnection.OnRosterItem += OnClientRosterItem;
+
+            
 
             CancelPreviousLogin();
 
@@ -67,6 +71,12 @@ namespace MMBot.XMPP
             return Task.FromResult(false);
         }
 
+        private void XmppConnectionOnOnPresence(object sender, Presence pres)
+        {
+            
+        }
+
+
         private void OnMessage(object sender, agsXMPP.protocol.client.Message message)
         {
             if (!String.IsNullOrEmpty(message.Body))
@@ -75,14 +85,24 @@ namespace MMBot.XMPP
 
                 string user = string.Format("{0}@{1}/{2}", message.From.User, message.From.Server, message.From.Resource);
 
-                Logger.Info(string.Format("[{0}] {1}: {2}", DateTime.Now, user, message.Body.Trim()));
+                var content = message.Body.Trim();
+
+                // Prefix with the alias if we do not have one. Presume that XMPP is chatting just to us
+                if (!content.StartsWith(Robot.Alias ?? Robot.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    content = string.Concat(Robot.Alias ?? Robot.Name, " ", content);
+                }
+
+                Logger.Info(string.Format("[{0}] {1}: {2}", DateTime.Now, user, content));
 
                 var userObj = new User(message.Id, user, new string[0], message.From.Bare, Id);
 
                 if (userObj.Name != _username)
                 {
                     Task.Run(() =>
-                        Robot.Receive(new TextMessage(userObj, message.Body.Trim(), message.Id)));
+                    {
+                        Robot.Receive(new TextMessage(userObj, content, message.Id));
+                    });
                 }
             }
         }
@@ -130,6 +150,7 @@ namespace MMBot.XMPP
 
         private void OnClientRosterItem(object sender, RosterItem item)
         {
+            
             if (!_roster.ContainsKey(item.Jid.User))
             {
                 _roster.Add(item.Jid.User, item.Name);
