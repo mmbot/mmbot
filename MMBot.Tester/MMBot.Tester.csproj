@@ -51,8 +51,9 @@
     <Reference Include="ReactiveUI">
       <HintPath>..\packages\reactiveui-core.5.0.2\lib\Portable-Net45+WinRT45+WP8\ReactiveUI.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptCs.Contracts">
-      <HintPath>..\packages\ScriptCs.Contracts.0.8.0\lib\net45\ScriptCs.Contracts.dll</HintPath>
+    <Reference Include="ScriptCs.Contracts, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ScriptCs.Contracts.0.8.1\lib\net45\ScriptCs.Contracts.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -88,6 +89,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MMBot.ScriptIt\MMBot.ScriptIt.csproj">
+      <Project>{46bf9b55-40d8-4147-b50b-e43a4431fcc5}</Project>
+      <Name>MMBot.ScriptIt</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.Spotify\MMBot.Spotify.csproj">
       <Project>{59c1faa7-d7f0-4032-a850-a4ff03f890f6}</Project>
       <Name>MMBot.Spotify</Name>

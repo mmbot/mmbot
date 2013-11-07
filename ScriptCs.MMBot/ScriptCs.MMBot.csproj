@@ -32,8 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ScriptCs.Contracts">
-      <HintPath>..\packages\ScriptCs.Contracts.0.8.0\lib\net45\ScriptCs.Contracts.dll</HintPath>
+    <Reference Include="ScriptCs.Contracts, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\ScriptCs.Contracts.0.8.1\lib\net45\ScriptCs.Contracts.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

@@ -352,6 +352,14 @@ namespace MMBot
             }
         }
 
+        public void LoadScriptFile(string scriptName, string scriptFile)
+        {
+            using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
+            {
+                _scriptRunner.RunScriptFile(scriptFile);
+            }
+        }
+
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()
         {
             using(StartScriptProcessingSession(new ScriptSource(typeof(TScript).Name, typeof(TScript).AssemblyQualifiedName)))

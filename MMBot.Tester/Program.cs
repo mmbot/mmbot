@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MMBot.ScriptIt;
 
 namespace MMBot.Tester
 {
@@ -14,6 +15,8 @@ namespace MMBot.Tester
             var config = new Dictionary<string, string>();
 
             var robot = Robot.Create<ConsoleAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
+
+            robot.LoadScript<ScriptsScripts>();
 
             robot.AutoLoadScripts = false;
 

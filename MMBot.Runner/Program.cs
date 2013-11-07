@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using MMBot.HipChat;
 using MMBot.Jabbr;
+using MMBot.ScriptIt;
 using MMBot.Scripts;
 using MMBot.Spotify;
 using MMBot.XMPP;
@@ -62,6 +63,7 @@ namespace MMBot.Runner
             //var robot = Robot.Create("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info), typeof(JabbrAdapter), typeof(XmppAdapter));
 
             robot.LoadScripts(typeof(SpotifyPlayerScripts).Assembly);
+            robot.LoadScript<ScriptsScripts>();
 
             robot.Run();
 
