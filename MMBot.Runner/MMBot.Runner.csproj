@@ -94,7 +94,6 @@
     <Reference Include="ScriptCs.Core">
       <HintPath>..\packages\ScriptCs.Core.0.8.1\lib\net45\ScriptCs.Core.dll</HintPath>
     </Reference>
-    </Reference>
     <Reference Include="ScriptCs.Core">
       <HintPath>..\packages\ScriptCs.Core.0.8.1\lib\net45\ScriptCs.Core.dll</HintPath>
     </Reference>

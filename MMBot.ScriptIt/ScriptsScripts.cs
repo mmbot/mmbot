@@ -28,6 +28,15 @@ namespace MMBot.ScriptIt
                 }
                 catch (Exception ex)
                 {
+                    if (File.Exists(filePath))
+                    {
+                        //clean up
+                        try
+                        {
+                            File.Delete(filePath);
+                        }
+                        catch {}
+                    }
                     msg.Send(ex.Message);
                 }
                 //???
