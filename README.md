@@ -117,7 +117,22 @@ robot.AddHelp(
 
 
 ## Getting started    
-Read the [getting started guide](https://github.com/PeteGoo/mmbot/wiki/Getting-Started)
+
+Just do the codez....
+
+```c#
+var config = new Dictionary<string, string>
+                {
+                    {"MMBOT_JABBR_HOST", "https://jabbr.net/"},
+                    {"MMBOT_JABBR_NICK", "mmbot"},
+                    {"MMBOT_JABBR_PASSWORD", password},
+                    {"MMBOT_JABBR_ROOMS", "mmbottest,markermetro"}
+                };
+
+var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
+```
+
+For more info read the [getting started guide](https://github.com/PeteGoo/mmbot/wiki/Getting-Started)
 
 
 
