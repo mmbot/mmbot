@@ -31,6 +31,7 @@ namespace MMBot
         Task Play(params string[] message);
         Task Locked(params string[] message);
         T Random<T>(IEnumerable<T> message);
+
         void Finish();
         string[] Match { get; }
         MatchCollection Matches { get; }

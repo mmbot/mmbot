@@ -262,7 +262,7 @@ namespace MMBot
                 return;
             }
             SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
-            foreach (var listener in _listeners)
+            foreach (var listener in _listeners.ToArray()) //  need to copy collection so as not to be affectied by a script modying it
             {
                 try
                 {
@@ -328,23 +328,28 @@ namespace MMBot
 
             foreach (var scriptFile in Directory.GetFiles(path, "*.csx"))
             {
-                try
-                {
-                    string scriptFileName = Path.GetFileName(scriptFile);
-                    string scriptName = Path.GetFileNameWithoutExtension(scriptFile);
-
-                    Logger.Info(string.Format("Loading script '{0}'", scriptFileName));
-                    using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
-                    {
-                        _scriptRunner.RunScriptFile(scriptFile);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex.Message);
-                }
+                LoadScriptFile(scriptFile);
             }
 
+        }
+
+        public void LoadScriptFile(string scriptFile)
+        {
+            try
+            {
+                string scriptFileName = Path.GetFileName(scriptFile);
+                string scriptName = Path.GetFileNameWithoutExtension(scriptFile);
+
+                Logger.Info(string.Format("Loading script '{0}'", scriptFileName));
+                using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
+                {
+                    _scriptRunner.RunScriptFile(scriptFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message);
+            }
         }
 
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()
@@ -425,5 +430,7 @@ namespace MMBot
                 _cleanup[_currentScriptSource.Name] =  cleanup;
             }
         }
+
+        
     }
 }
