@@ -20,6 +20,8 @@ namespace MMBot.Tester
 
             robot.AutoLoadScripts = false;
 
+            robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\help.csx");
+
             robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\ping.csx");
 
             robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\whenisay.csx");
