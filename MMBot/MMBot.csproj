@@ -186,7 +186,9 @@
     <None Include="Scripts\Urban.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Scripts\whenisay.csx" />
+    <None Include="Scripts\whenisay.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\Xkcd.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

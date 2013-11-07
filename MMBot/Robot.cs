@@ -354,6 +354,7 @@ namespace MMBot
 
         public void LoadScriptFile(string scriptName, string scriptFile)
         {
+            Logger.Info(string.Format("Loading script '{0}'", Path.GetFileNameWithoutExtension(scriptName)));
             using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
             {
                 _scriptRunner.RunScriptFile(scriptFile);
@@ -364,6 +365,8 @@ namespace MMBot
         {
             using(StartScriptProcessingSession(new ScriptSource(typeof(TScript).Name, typeof(TScript).AssemblyQualifiedName)))
             {
+                Logger.Info(string.Format("Loading script '{0}'", Path.GetFileNameWithoutExtension(typeof(TScript).Name)));
+
                 var script = new TScript();
                 RegisterScript(script);
                 if (!_loadedScriptTypes.Contains(typeof(TScript)))
