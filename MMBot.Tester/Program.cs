@@ -18,11 +18,11 @@ namespace MMBot.Tester
 
             robot.LoadScript<ScriptsScripts>();
 
-            robot.AutoLoadScripts = false;
+            //robot.AutoLoadScripts = false;
 
-            robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\ping.csx");
+            //robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\ping.csx");
 
-            robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\whenisay.csx");
+            //robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\whenisay.csx");
 
             robot.Run();
 
