@@ -334,10 +334,7 @@ namespace MMBot
                     string scriptName = Path.GetFileNameWithoutExtension(scriptFile);
 
                     Logger.Info(string.Format("Loading script '{0}'", scriptFileName));
-                    using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
-                    {
-                        _scriptRunner.RunScriptFile(scriptFile);
-                    }
+                    LoadScriptFile(scriptName, scriptFile);
                 }
                 catch (Exception ex)
                 {
@@ -345,6 +342,14 @@ namespace MMBot
                 }
             }
 
+        }
+
+        public void LoadScriptFile(string scriptName, string scriptFile)
+        {
+            using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
+            {
+                _scriptRunner.RunScriptFile(scriptFile);
+            }
         }
 
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()

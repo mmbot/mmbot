@@ -97,6 +97,7 @@
     <Compile Include="HttpWrapperTests.cs" />
     <Compile Include="RobotTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptItTests.cs" />
     <Compile Include="ScriptsTest.cs" />
     <Compile Include="StubAdapter.cs" />
     <Compile Include="StubEchoScript.cs" />

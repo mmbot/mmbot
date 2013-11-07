@@ -139,6 +139,10 @@
       <Project>{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}</Project>
       <Name>MMBot.Jabbr</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MMBot.ScriptIt\MMBot.ScriptIt.csproj">
+      <Project>{46bf9b55-40d8-4147-b50b-e43a4431fcc5}</Project>
+      <Name>MMBot.ScriptIt</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.Spotify\MMBot.Spotify.csproj">
       <Project>{59C1FAA7-D7F0-4032-A850-A4FF03F890F6}</Project>
       <Name>MMBot.Spotify</Name>
