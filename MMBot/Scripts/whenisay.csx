@@ -49,7 +49,11 @@ robot.Respond(@"forget what I told you to say (\d)", msg => {
 		return;
 	}
 
-	savedResponses.Remove(savedResponses.Keys.ElementAt(i-1));
+	var regex = savedResponses.Keys.ElementAt(i-1);
+	savedResponses.Remove(regex);
+
+	robot.RemoveListener(regex);
+
 	robot.Brain.Set("WhenISay", savedResponses);
 	msg.Send(msg.Random(new[]{"forgotten boss", "forget what ;)", "consider it done"}));
 

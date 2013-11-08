@@ -132,12 +132,23 @@ namespace MMBot
 
         public void Respond(string regex, Action<IResponse<TextMessage>> action)
         {
-            regex = string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
+            regex = PrepareRegexPattern(regex);
 
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
                 Source = _currentScriptSource
             });
+        }
+
+        private string PrepareRegexPattern(string regex)
+        {
+            return string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
+        }
+
+        public void RemoveListener(string regexPattern)
+        {
+            string actualRegex = PrepareRegexPattern(regexPattern);
+            _listeners.RemoveAll(l => l is TextListener && ((TextListener) l).RegexPattern.ToString() == actualRegex);
         }
 
         public void AddHelp(params string[] helpMessages)

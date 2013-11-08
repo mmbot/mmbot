@@ -32,6 +32,9 @@ namespace MMBot
         }
 
         public ScriptSource Source { get; set; }
+        public Regex RegexPattern {
+            get { return _regex; }
+        }
 
         public bool Call(Message message)
         {
