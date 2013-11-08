@@ -120,19 +120,9 @@ namespace MMBot
             _scriptRunner.Initialize();
         }
 
-        public void Hear(Regex regex, Action<Response<TextMessage>> action)
+        public void Hear(string regex, Action<IResponse<TextMessage>> action)
         {
-
-        }
-
-        public void Respond(Regex regex, Action<IResponse<TextMessage>> action)
-        {
-
-        }
-
-        public void Respond(string regex, Action<IResponse<TextMessage>> action)
-        {
-            regex = PrepareRegexPattern(regex);
+            regex = PrepareHearRegexPattern(regex);
 
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
@@ -140,14 +130,29 @@ namespace MMBot
             });
         }
 
-        private string PrepareRegexPattern(string regex)
+        public void Respond(string regex, Action<IResponse<TextMessage>> action)
+        {
+            regex = PrepareRespondRegexPattern(regex);
+
+            _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
+            {
+                Source = _currentScriptSource
+            });
+        }
+
+        private string PrepareRespondRegexPattern(string regex)
         {
             return string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
         }
 
+        private string PrepareHearRegexPattern(string regex)
+        {
+            return string.Format("^(?:{0})", regex);
+        }
+
         public void RemoveListener(string regexPattern)
         {
-            string actualRegex = PrepareRegexPattern(regexPattern);
+            string actualRegex = PrepareRespondRegexPattern(regexPattern);
             _listeners.RemoveAll(l => l is TextListener && ((TextListener) l).RegexPattern.ToString() == actualRegex);
         }
 
@@ -155,13 +160,6 @@ namespace MMBot
         {
             _helpCommands.AddRange(helpMessages.Except(_helpCommands).ToArray());
         }
-
-        //public void Respond(string regex, Func<IResponse<TextMessage>, Task> action)
-        //{
-        //    regex = string.Format("^[@]?{0}[:,]?\\s*(?:{1})", _name, regex);
-
-        //    _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), a => action(a)));
-        //}
 
         public IContainer Container
         {
@@ -205,6 +203,31 @@ namespace MMBot
         public void CatchAll(Action<Response<CatchAllMessage>> action)
         {
 
+        }
+        
+        public void Receive(Message message)
+        {
+            if (!_isReady)
+            {
+                return;
+            }
+            SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
+            foreach (var listener in _listeners.ToArray()) //  need to copy collection so as not to be affectied by a script modifying it
+            {
+                try
+                {
+                    listener.Call(message);
+                    if (message.Done)
+                    {
+                        break;
+                    }
+                } catch (Exception e)
+                {
+                    Logger.Error("Error receiving message", e);
+                    // TODO: Logging exception in listener
+                }
+
+            }
         }
 
         private ScriptSource _currentScriptSource = null;
@@ -266,31 +289,6 @@ namespace MMBot
             _isReady = true;
         }
 
-        public void Receive(Message message)
-        {
-            if (!_isReady)
-            {
-                return;
-            }
-            SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
-            foreach (var listener in _listeners.ToArray()) //  need to copy collection so as not to be affectied by a script modying it
-            {
-                try
-                {
-                    listener.Call(message);
-                    if (message.Done)
-                    {
-                        break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Error receiving message", e);
-                    // TODO: Logging exception in listener
-                }
-
-            }
-        }
 
         public void LoadAdapter()
         {
