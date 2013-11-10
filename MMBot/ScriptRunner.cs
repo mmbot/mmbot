@@ -46,18 +46,7 @@ namespace MMBot
             var defaultReferences = ScriptExecutor.DefaultReferences.ToArray();
 
             var packageReferences = scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory);
-            var assemblyUtility = new AssemblyUtility();
-
-            var binAssemblies = from assembly in Directory.GetFiles(Environment.CurrentDirectory)
-                let extension = Path.GetExtension(assembly)
-                where
-                    extension != null &&
-                    (extension.ToLowerInvariant() == ".exe" || extension.ToLowerInvariant() == ".dll") &&
-                    assemblyUtility.IsManagedAssembly(assembly)
-                select assembly;
-                
-
-
+            
             scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(packageReferences).ToArray());
             scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq", "System.Xml", "System.Net", "System.Net.Http" }).ToArray());
             scriptServiceRoot.Executor.AddReference<Robot>();
