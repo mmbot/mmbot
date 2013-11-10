@@ -36,6 +36,7 @@ namespace MMBot.CompiledScripts
 
             if (_hostname == null)
             {
+                Console.WriteLine("Team City is not configured. Set the MMBOT_TEAMCITY_HOSTNAME, MMBOT_TEAMCITY_USERNAME and MMBOT_TEAMCITY_PASSWORD configuration variables.");
                 return;
             }
 

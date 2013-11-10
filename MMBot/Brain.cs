@@ -37,7 +37,12 @@ namespace MMBot
 
         public async Task<T> Get<T>(string key)
         {
-            return await _cache.GetOrCreateObject<T>(GetKey(key), () => default(T));
+            return await Get(key, default(T));
+        }
+
+        public async Task<T> Get<T>(string key, T defaultValue)
+        {
+            return await _cache.GetOrCreateObject<T>(GetKey(key), () => defaultValue);
         }
 
         private static string GetKey(string key)

@@ -16,11 +16,15 @@ namespace MMBot.Tester
 
             var robot = Robot.Create<ConsoleAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
 
-            robot.LoadScript<ScriptsScripts>();
+//            robot.LoadScript<ScriptsScripts>();
 
-            //robot.AutoLoadScripts = false;
-
+            robot.AutoLoadScripts = false;
+            
             //robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\help.csx");
+
+            robot.LoadScriptFile(@"Scripts\TeamCity.csx");
+
+            //robot.LoadScriptFile(@"TeamCity.csx");
 
             //robot.LoadScriptFile(@"E:\Code\mmbot\MMBot\Scripts\ping.csx");
 

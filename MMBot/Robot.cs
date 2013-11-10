@@ -156,23 +156,6 @@ namespace MMBot
             _listeners.RemoveAll(l => l is TextListener && ((TextListener) l).RegexPattern.ToString() == actualRegex);
         }
 
-        public void AddHelp(params string[] helpMessages)
-        {
-            _helpCommands.AddRange(helpMessages.Except(_helpCommands).ToArray());
-        }
-
-        public IContainer Container
-        {
-            get
-            {
-                if (_container == null)
-                {
-                    _container = CreateContainer();
-                }
-
-                return _container;
-            }
-        }
 
         protected IContainer CreateContainer()
         {
@@ -187,7 +170,7 @@ namespace MMBot
 
         public void Enter(Action<Response<EnterMessage>> action)
         {
-
+            
         }
 
         public void Leave(Action<Response<LeaveMessage>> action)
@@ -230,6 +213,18 @@ namespace MMBot
             }
         }
 
+        public void Speak(string room, params string[] messages)
+        {
+            foreach (
+                var adapter in
+                    _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
+            {
+                adapter.Value.Send(
+                    new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapter.Key),
+                        string.Join(Environment.NewLine, messages), _name)));
+            }
+        }
+
         private ScriptSource _currentScriptSource = null;
         private IEnumerable<Type> _adapterTypes;
 
@@ -251,6 +246,25 @@ namespace MMBot
             _listeners.RemoveAll(l => l.Source != null && l.Source.Name == scriptSource.Name);
 
             return Disposable.Create(() => _currentScriptSource = null);
+        }
+
+
+        public void AddHelp(params string[] helpMessages)
+        {
+            _helpCommands.AddRange(helpMessages.Except(_helpCommands).ToArray());
+        }
+
+        public IContainer Container
+        {
+            get
+            {
+                if (_container == null)
+                {
+                    _container = CreateContainer();
+                }
+
+                return _container;
+            }
         }
 
         private void CleanupScript(string name)
