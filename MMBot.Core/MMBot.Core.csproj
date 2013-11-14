@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdapterNotConfiguredException.cs" />
+    <Compile Include="Adapters\ConsoleAdapter.cs" />
     <Compile Include="Adapters\Extensions.cs" />
     <Compile Include="Adapters\Shell.cs" />
     <Compile Include="AsyncSynchronizationContext.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="CompiledScripts\Urban.cs" />
     <Compile Include="CompiledScripts\Xkcd.cs" />
     <Compile Include="CompiledScripts\Youtube.cs" />
+    <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
