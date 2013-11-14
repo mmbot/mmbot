@@ -60,9 +60,9 @@
     <None Include="Properties\MMBot.HipChat.nuspec" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MMBot\MMBot.csproj">
-      <Project>{0CF33652-B99B-4854-BC70-250B6C2F646A}</Project>
-      <Name>MMBot</Name>
+    <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">
+      <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
+      <Name>MMBot.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

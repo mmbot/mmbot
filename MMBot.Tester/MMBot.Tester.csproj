@@ -113,6 +113,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">
+      <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
+      <Name>MMBot.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.ScriptIt\MMBot.ScriptIt.csproj">
       <Project>{46bf9b55-40d8-4147-b50b-e43a4431fcc5}</Project>
       <Name>MMBot.ScriptIt</Name>
@@ -120,10 +124,6 @@
     <ProjectReference Include="..\MMBot.Spotify\MMBot.Spotify.csproj">
       <Project>{59c1faa7-d7f0-4032-a850-a4ff03f890f6}</Project>
       <Name>MMBot.Spotify</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MMBot\MMBot.csproj">
-      <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
-      <Name>MMBot</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

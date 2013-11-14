@@ -54,13 +54,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MMBot\MMBot.csproj">
-      <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
-      <Name>MMBot</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">
+      <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
+      <Name>MMBot.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

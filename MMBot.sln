@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot", "MMBot\MMBot.csproj", "{0CF33652-B99B-4854-BC70-250B6C2F646A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Core", "MMBot.Core\MMBot.Core.csproj", "{0CF33652-B99B-4854-BC70-250B6C2F646A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Jabbr", "MMBot.Jabbr\MMBot.Jabbr.csproj", "{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}"
 EndProject

@@ -148,6 +148,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">
+      <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
+      <Name>MMBot.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.HipChat\MMBot.HipChat.csproj">
       <Project>{4584C7B7-91F4-4F05-8188-4ECBDF9944CC}</Project>
       <Name>MMBot.HipChat</Name>
@@ -167,10 +171,6 @@
     <ProjectReference Include="..\MMBot.XMPP\MMBot.XMPP.csproj">
       <Project>{ad4b187e-a1eb-48e9-8e94-110ac78d23a3}</Project>
       <Name>MMBot.XMPP</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MMBot\MMBot.csproj">
-      <Project>{0CF33652-B99B-4854-BC70-250B6C2F646A}</Project>
-      <Name>MMBot</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
