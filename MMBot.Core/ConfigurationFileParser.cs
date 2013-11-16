@@ -226,7 +226,7 @@ namespace MMBot
                           let value = GetValue(key, section, null)
                           select new
                           {
-                              Key = string.Format("{0}_{1}", section, key),
+                              Key = string.Format("MMBOT_{0}_{1}", section, key),
                               Value = value
                           }).ToDictionary(x => x.Key, x => x.Value);
         }

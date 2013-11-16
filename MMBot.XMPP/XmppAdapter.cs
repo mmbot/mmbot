@@ -42,7 +42,7 @@ namespace MMBot.XMPP
                 helpSb.AppendLine("  MMBOT_XMPP_CONNECT_HOST - in the case of GTalk this is always talk.google.com. Defaults to talk.google.com");
                 helpSb.AppendLine("  MMBOT_XMPP_USERNAME - the part of mmbot's email address before the @");
                 helpSb.AppendLine("  MMBOT_XMPP_PASSWORD - the password");
-                helpSb.AppendLine( "More info on these values and how to create the config.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                helpSb.AppendLine( "More info on these values and how to create the mmbot.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
             }

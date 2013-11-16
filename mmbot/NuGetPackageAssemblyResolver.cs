@@ -42,12 +42,13 @@ namespace mmbot
 
         public Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
+            var assembly = Assemblies.Where(
+                a =>
+                    String.Equals(Path.GetFileNameWithoutExtension(a), args.Name.Split(',').First(),
+                        StringComparison.InvariantCultureIgnoreCase))
+                .Select(Assembly.LoadFrom).FirstOrDefault();
             return
-                Assemblies.Where(
-                    a =>
-                        String.Equals(Path.GetFileNameWithoutExtension(a), args.Name,
-                            StringComparison.InvariantCultureIgnoreCase))
-                    .Select(Assembly.LoadFrom).FirstOrDefault();
+                assembly;
         }
 
         public IEnumerable<Type> GetCompiledScriptsFromPackages()
