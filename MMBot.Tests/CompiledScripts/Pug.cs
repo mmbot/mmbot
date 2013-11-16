@@ -2,7 +2,7 @@
 using System.Linq;
 using MMBot.Scripts;
 
-namespace MMBot.CompiledScripts
+namespace MMBot.Tests.CompiledScripts
 {
     public class Pug : IMMBotScript
     {

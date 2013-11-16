@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using MMBot.Scripts;
 
-namespace MMBot.CompiledScripts
+namespace MMBot.Tests.CompiledScripts
 {
 
     public class Cats : IMMBotScript

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MMBot.Scripts;
 
-namespace MMBot.CompiledScripts
+namespace MMBot.Tests.CompiledScripts
 {
     // Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/giphy.coffee
 

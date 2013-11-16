@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using MMBot.Scripts;
 
-namespace MMBot.CompiledScripts
+namespace MMBot.Tests.CompiledScripts
 {
     public class Map : IMMBotScript
     {

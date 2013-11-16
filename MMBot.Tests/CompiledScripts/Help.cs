@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MMBot.Scripts;
 
-namespace MMBot.CompiledScripts
+namespace MMBot.Tests.CompiledScripts
 {
     public class Help : IMMBotScript
     {

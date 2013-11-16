@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using MMBot.Scripts;
 using Newtonsoft.Json.Linq;
 
-namespace MMBot.CompiledScripts
+namespace MMBot.Tests.CompiledScripts
 {
     public class TeamCity : IMMBotScript
     {

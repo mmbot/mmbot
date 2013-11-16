@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MMBot.CompiledScripts;
+using MMBot.Tests.CompiledScripts;
 
 namespace MMBot.Tests
 {

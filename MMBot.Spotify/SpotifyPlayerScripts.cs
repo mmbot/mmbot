@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MMBot.Adapters;
-using MMBot.CompiledScripts;
 using MMBot.Scripts;
 using SpotiFire;
 
@@ -371,8 +370,6 @@ namespace MMBot.Spotify
                 if (!await Login(msg)) return;
 
                 await _player.PlayLink("spotify:track:77NNZQSqzLNqh2A9JhLRkg");
-                
-                await Giphy.GifMe(_robot, "winning", msg);
             });
 
             robot.RegisterCleanup(Cleanup);

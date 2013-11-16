@@ -14,7 +14,7 @@ namespace mmbot
     internal class NuGetPackageAssemblyResolver
     {
         private readonly ILog _log;
-        private static IEnumerable<string> _assemblies;
+        private static List<string> _assemblies;
 
         public NuGetPackageAssemblyResolver(ILog log)
         {
@@ -33,7 +33,11 @@ namespace mmbot
 
             var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem), log);
 
-            _assemblies = par.GetAssemblyNames(fileSystem.CurrentDirectory);
+            _assemblies = par.GetAssemblyNames(fileSystem.CurrentDirectory).ToList();
+
+            // Add the assemblies in the current directory
+            _assemblies.AddRange(Directory.GetFiles(fileSystem.CurrentDirectory, "*.dll")
+                .Where(a => new AssemblyUtility().IsManagedAssembly(a)));
         }
 
         public Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
@@ -69,7 +73,7 @@ namespace mmbot
                 try
                 {
                     var assembly = Assembly.LoadFrom(assemblyFile);
-                    return assembly.GetTypes().Where(type.IsAssignableFrom);
+                    return assembly.GetTypes().Where(t => type.IsAssignableFrom(t) && !t.IsAbstract && !t.IsGenericTypeDefinition);
                 }
                 catch (Exception ex)
                 {

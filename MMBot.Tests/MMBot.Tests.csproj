@@ -94,6 +94,22 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BrainTests.cs" />
+    <Compile Include="CompiledScripts\Ascii.cs" />
+    <Compile Include="CompiledScripts\Cats.cs" />
+    <Compile Include="CompiledScripts\Giphy.cs" />
+    <Compile Include="CompiledScripts\GoogleImages.cs" />
+    <Compile Include="CompiledScripts\Help.cs" />
+    <Compile Include="CompiledScripts\Map.cs" />
+    <Compile Include="CompiledScripts\Math.cs" />
+    <Compile Include="CompiledScripts\Ping.cs" />
+    <Compile Include="CompiledScripts\Pug.cs" />
+    <Compile Include="CompiledScripts\Rules.cs" />
+    <Compile Include="CompiledScripts\Spot.cs" />
+    <Compile Include="CompiledScripts\TeamCity.cs" />
+    <Compile Include="CompiledScripts\Translate.cs" />
+    <Compile Include="CompiledScripts\Urban.cs" />
+    <Compile Include="CompiledScripts\Xkcd.cs" />
+    <Compile Include="CompiledScripts\Youtube.cs" />
     <Compile Include="FakeHttpMessageHandler.cs" />
     <Compile Include="HttpWrapperTests.cs" />
     <Compile Include="RobotTests.cs" />

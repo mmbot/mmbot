@@ -307,8 +307,9 @@ namespace MMBot
         public void LoadAdapter()
         {
             _adapters.Clear();
-            foreach (var adapterType in _adapterTypes)
+            foreach (var adapterType in _adapterTypes.Distinct(new GenericEqualityComparer<Type>((t1, t2) => t1.FullName == t2.FullName, type => type.FullName.GetHashCode())))
             {
+                Logger.Info(string.Format("Loading Adapter '{0}'", adapterType.Name));
                 try
                 {
                     var id = adapterType.Name;
