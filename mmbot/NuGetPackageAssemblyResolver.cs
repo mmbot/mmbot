@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Common.Logging;
 using MMBot;
 using MMBot.Scripts;
@@ -15,6 +16,13 @@ namespace mmbot
     {
         private readonly ILog _log;
         private static List<string> _assemblies;
+
+        private static readonly string[] _blacklistedPackages =
+        {
+            "Akavache",
+            "ScriptCs.Hosting",
+            "ScriptCs.Contracts"
+        };
 
         public NuGetPackageAssemblyResolver(ILog log)
         {
@@ -30,6 +38,18 @@ namespace mmbot
         private static void RefreshAssemblies(ILog log)
         {
             var fileSystem = new FileSystem();
+
+            foreach(var packageName in _blacklistedPackages)
+            {
+                foreach(var packagePath in Directory.GetDirectories(Path.Combine(fileSystem.CurrentDirectory, "packages")).Where(d => new DirectoryInfo(d).Name.StartsWith(packageName, StringComparison.InvariantCultureIgnoreCase)))
+                {
+
+                    if(fileSystem.DirectoryExists(packagePath))
+                    {
+                        fileSystem.DeleteDirectory(packagePath);
+                    }
+                }
+            }
 
             var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem), log);
 
