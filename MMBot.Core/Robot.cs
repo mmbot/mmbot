@@ -332,7 +332,12 @@ namespace MMBot
 
         public void LoadScripts(Assembly assembly)
         {
-            assembly.GetTypes().Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach(s =>
+            LoadScripts(assembly.GetTypes());
+        }
+
+        public void LoadScripts(IEnumerable<Type> scriptTypes)
+        {
+            scriptTypes.Where(t => typeof(IMMBotScript).IsAssignableFrom(t) && t.IsClass && !t.IsGenericTypeDefinition && !t.IsAbstract && t.GetConstructors().Any(c => !c.GetParameters().Any())).ForEach(s =>
             {
                 Logger.Info(string.Format("Loading script {0}", s.Name));
 

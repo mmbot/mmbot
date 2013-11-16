@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using MMBot;
 using MMBot.Adapters;
 using Common.Logging;
+using LoggerConfigurator = MMBot.LoggerConfigurator;
 
 namespace mmbot
 {
@@ -12,6 +14,7 @@ namespace mmbot
     {
         static void Main(string[] args)
         {
+            // Parse Arguments
             var options = new Options();
             CommandLine.Parser.Default.ParseArguments(args, options);
 
@@ -25,49 +28,67 @@ namespace mmbot
                 options.Parameters.ForEach(Console.WriteLine);
             }
 
-            if (options.Test)
-            {
-                StartTestBot(options);
-            }
-            else
-            {
-                StartBot(options);
-            }
+            StartBot(options);
         }
 
         private static void StartBot(Options options)
         {
-            //TODO: discover adapters and scripts for loading rather than rely on explicit code to load them
-        }
-
-        private static void StartTestBot(Options options)
-        {
-            if (options.ScriptFiles == null || !options.ScriptFiles.Any())
+            if (options.Test && (options.ScriptFiles == null || !options.ScriptFiles.Any()))
             {
                 Console.WriteLine("You need to specify at least one script file to test.");
                 return;
             }
 
-            // Load the test console experience
-            var robot = Robot.Create<ConsoleAdapter>("mmbot", GetConfiguration(options),
-                LoggerConfigurator.GetConsoleLogger(options.Verbose ? LogLevel.All : LogLevel.Info));
+            var logger = LoggerConfigurator.GetConsoleLogger(options.Verbose ? LogLevel.Debug : LogLevel.Info);
 
-            robot.AutoLoadScripts = false;
+            var nugetResolver = new NuGetPackageAssemblyResolver(logger);
+            
+            AppDomain.CurrentDomain.AssemblyResolve += nugetResolver.OnAssemblyResolve;
 
-            options.ScriptFiles.ForEach(robot.LoadScriptFile);
+            var adapters = new Type[0];
+
+            if (!options.Test)
+            {
+                adapters = LoadAdapters(nugetResolver, logger);
+            }
+
+            var robot = Robot.Create("mmbot", GetConfiguration(options), logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
+
+            if (options.Test)
+            {
+                robot.AutoLoadScripts = false;
+                options.ScriptFiles.ForEach(robot.LoadScriptFile);
+            }
+            else
+            {
+                robot.LoadScripts(nugetResolver.GetCompiledScriptsFromPackages());
+            }
 
             robot.Run().ContinueWith(t =>
             {
                 if (!t.IsFaulted)
                 {
-                    Console.WriteLine("The test console is ready. Press CTRL+C at any time to exit");
+                    Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit" );
                 }
             });
 
             while (true)
             {
                 // sit and spin?
+                Thread.Sleep(2000);
             }
+
+        }
+
+        private static Type[] LoadAdapters(NuGetPackageAssemblyResolver nugetResolver, ILog logger)
+        {
+            var adapters = nugetResolver.GetCompiledAdaptersFromPackages().ToArray();
+
+            if (!adapters.Any())
+            {
+                logger.Warn("Could not find any adapters. Loading the default console adapter only");
+            }
+            return adapters;
         }
 
         public static Dictionary<string, string> GetConfiguration(Options options)
@@ -94,6 +115,4 @@ namespace mmbot
  http://github.com/petegoo/mmbot
 ";
     }
-
-    
 }
