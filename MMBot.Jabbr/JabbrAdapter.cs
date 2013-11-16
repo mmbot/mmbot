@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.AspNet.SignalR.Client;
@@ -22,7 +23,7 @@ namespace MMBot.Jabbr
 
         private void Configure()
         {
-            _host = Robot.GetConfigVariable("MMBOT_JABBR_HOST");
+            _host = Robot.GetConfigVariable("MMBOT_JABBR_HOST") ?? "https://jabbr.net" ;
             _nick = Robot.GetConfigVariable("MMBOT_JABBR_NICK");
             _password = Robot.GetConfigVariable("MMBOT_JABBR_PASSWORD");
             _rooms = (Robot.GetConfigVariable("MMBOT_JABBR_ROOMS") ?? string.Empty)
@@ -31,7 +32,23 @@ namespace MMBot.Jabbr
                 .Select(s => s.Trim())
                 .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
-            _isConfigured = _host != null;
+            if (_host == null || _nick == null | _password == null || !_rooms.Any())
+            {
+                var helpSb = new StringBuilder();
+                helpSb.AppendLine("The Jabbr adapter is not configured correctly and hence will not be enabled.");
+                helpSb.AppendLine("To configure the Jabbr adapter, please set the following configuration properties:");
+                helpSb.AppendLine("  MMBOT_JABBR_HOST: The host name. Defaults to https://jabbr.net");
+                helpSb.AppendLine("  MMBOT_JABBR_NICK: The login name of the bot account on Jabbr, e.g. mmbot");
+                helpSb.AppendLine("  MMBOT_JABBR_PASSWORD: The password of the bot account on Jabbr");
+                helpSb.AppendLine("  MMBOT_JABBR_ROOMS: A comma separated list of room names that mmbot should join");
+                helpSb.AppendLine("More info on these values and how to create the config.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                Logger.Warn(helpSb.ToString());
+                _isConfigured = false;
+            }
+            else
+            {
+                _isConfigured = true;
+            }
         }
 
         public JabbrAdapter(Robot robot, ILog logger, string adapterId)

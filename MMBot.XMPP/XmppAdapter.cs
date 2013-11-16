@@ -21,7 +21,6 @@ namespace MMBot.XMPP
         private XmppClientConnection _xmppConnection;
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
         private TaskCompletionSource<bool> _loginTcs;
-        private string _resource;
 
         public XmppAdapter(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
         {
@@ -30,13 +29,28 @@ namespace MMBot.XMPP
 
         private void Configure()
         {
-            _host = Robot.GetConfigVariable("MMBOT_XMPP_HOST");
-            _connectHost = Robot.GetConfigVariable("MMBOT_XMPP_CONNECT_HOST");
+            _host = Robot.GetConfigVariable("MMBOT_XMPP_HOST") ?? "gmail.com";
+            _connectHost = Robot.GetConfigVariable("MMBOT_XMPP_CONNECT_HOST") ?? "talk.google.com";
             _username = Robot.GetConfigVariable("MMBOT_XMPP_USERNAME");
             _password = Robot.GetConfigVariable("MMBOT_XMPP_PASSWORD");
-            _resource = Robot.GetConfigVariable("MMBOT_XMPP_RESOURCE");
-            _isConfigured = _host != null;
-        }
+            
+            if (_host == null || _connectHost == null | _username == null  || _password == null)
+            {
+                var helpSb = new StringBuilder();
+                helpSb.AppendLine("The XMPP adapter is not configured correctly and hence will not be enabled.");
+                helpSb.AppendLine("  MMBOT_XMPP_HOST - Typically gmail.com or your google apps domain e.g. mydomain.com. Defaults to gmail.com");
+                helpSb.AppendLine("  MMBOT_XMPP_CONNECT_HOST - in the case of GTalk this is always talk.google.com. Defaults to talk.google.com");
+                helpSb.AppendLine("  MMBOT_XMPP_USERNAME - the part of mmbot's email address before the @");
+                helpSb.AppendLine("  MMBOT_XMPP_PASSWORD - the password");
+                helpSb.AppendLine( "More info on these values and how to create the config.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                Logger.Warn(helpSb.ToString());
+                _isConfigured = false;
+            }
+            else
+            {
+                _isConfigured = true;
+            }
+}
 
         public override Task Run()
         {
@@ -47,10 +61,6 @@ namespace MMBot.XMPP
                 AutoResolveConnectServer = true,
                 Username = _username,
                 Password = _password,
-                //Resource = _resource,
-                //UseStartTLS = true,
-                //Port = 5222
-                //UseSSL = false
             };
 
             _xmppConnection.OnLogin += OnLogin;

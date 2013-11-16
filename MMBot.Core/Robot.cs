@@ -298,7 +298,19 @@ namespace MMBot
             }
             foreach(var adapter in _adapters.Values)
             {
-                await adapter.Run();
+                try
+                {
+                    await adapter.Run();
+                }
+                catch (AdapterNotConfiguredException)
+                {
+                    Logger.WarnFormat("The adapter '{0}' is not configured and will not be loaded",
+                        adapter.GetType().Name);
+                }
+                catch (Exception e)
+                {
+                    Logger.ErrorFormat("Could not run the adapter '{0}': {1}", e, adapter.GetType().Name, e.Message);
+                }
             }
             _isReady = true;
         }

@@ -35,8 +35,8 @@ namespace MMBot.HipChat
         }
 
         private void Configure() {
-            _host = Robot.GetConfigVariable("MMBOT_HIPCHAT_HOST");
-            _confhost = Robot.GetConfigVariable("MMBOT_HIPCHAT_CONFHOST");
+            _host = Robot.GetConfigVariable("MMBOT_HIPCHAT_HOST") ?? "chat.hipchat.com";
+            _confhost = Robot.GetConfigVariable("MMBOT_HIPCHAT_CONFHOST") ?? "conf.hipchat.com";
             _nick = Robot.GetConfigVariable("MMBOT_HIPCHAT_NICK");
             _roomNick = Robot.GetConfigVariable("MMBOT_HIPCHAT_ROOMNICK");
             _username = Robot.GetConfigVariable("MMBOT_HIPCHAT_USERNAME");
@@ -47,7 +47,26 @@ namespace MMBot.HipChat
                 .Select(s => s.Trim())
                 .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
 
-            _isConfigured = _host != null;
+            if (_host == null || _nick == null | _password == null || !_rooms.Any())
+            {
+                var helpSb = new StringBuilder();
+                helpSb.AppendLine("The HipCat adapter is not configured correctly and hence will not be enabled.");
+                helpSb.AppendLine("To configure the HipChat adapter, please set the following configuration properties:");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_HOST: The host name defaults to chat.hipchat.com");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_CONFHOST: The host name defaults to conf.hipchat.com");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_NICK: The nick name of the bot account on HipChat, e.g. mmbot");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_ROOMNICK: The name of the bot account on HipChat, e.g. mmbot Bot");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_USERNAME: The username of the bot account on HipChat, e.g. 70126_494074");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_PASSWORD: The password of the bot account on HipChat");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_ROOMS: A comma separated list of room names that mmbot should join");
+                helpSb.AppendLine("More info on these values and how to create the config.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                Logger.Warn(helpSb.ToString());
+                _isConfigured = false;
+            }
+            else
+            {
+                _isConfigured = true;
+            }
         }
 
         public override async Task Run()
