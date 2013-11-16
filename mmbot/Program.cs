@@ -68,6 +68,7 @@ namespace mmbot
             {
                 if (!t.IsFaulted)
                 {
+                    Console.WriteLine(IntroText);
                     Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit" );
                 }
             });
