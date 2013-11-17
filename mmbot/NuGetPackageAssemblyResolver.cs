@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Common.Logging;
 using MMBot;
 using MMBot.Scripts;
@@ -39,15 +38,20 @@ namespace mmbot
         {
             var fileSystem = new FileSystem();
 
-            foreach(var packageName in _blacklistedPackages)
-            {
-                foreach(var packagePath in Directory.GetDirectories(Path.Combine(fileSystem.CurrentDirectory, "packages")).Where(d => new DirectoryInfo(d).Name.StartsWith(packageName, StringComparison.InvariantCultureIgnoreCase)))
-                {
+            var packagesFolder = Path.Combine(fileSystem.CurrentDirectory, "packages");
 
-                    if(fileSystem.DirectoryExists(packagePath))
-                    {
-                        fileSystem.DeleteDirectory(packagePath);
-                    }
+            if(fileSystem.DirectoryExists(packagesFolder))
+            {
+                // Delete any blacklisted packages to avoid various issues with PackageAssemblyResolver
+                // https://github.com/scriptcs/scriptcs/issues/511
+                foreach (var packagePath in
+                    _blacklistedPackages.SelectMany(packageName => Directory.GetDirectories(packagesFolder)
+                                .Where(d => new DirectoryInfo(d).Name.StartsWith(packageName, StringComparison.InvariantCultureIgnoreCase)),
+                                (packageName, packagePath) => new {packageName, packagePath})
+                        .Where(t => fileSystem.DirectoryExists(t.packagePath))
+                        .Select(t => @t.packagePath))
+                {
+                    fileSystem.DeleteDirectory(packagePath);
                 }
             }
 

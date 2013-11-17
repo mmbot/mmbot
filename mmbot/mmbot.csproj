@@ -100,7 +100,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="mmbot.template.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
+    <None Include="Properties\MMBot.nuspec" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">

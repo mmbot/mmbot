@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.Spotify</id>
+        <version>0.9</version>
+        <authors>Peter Goodman</authors>
+        <owners>Peter Goodman</owners>
+        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A set of scripts for mmbot that can play and queue tracks from spotify through the local speakers</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot petegoo chat robot bot spotify</tags>
+    </metadata>
+</package>

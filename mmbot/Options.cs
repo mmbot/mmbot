@@ -19,6 +19,9 @@ namespace mmbot
 
         [Option('t', "test", HelpText = "Starts a test console to evaluate the specified scripts")]
         public bool Test { get; set; }
+
+        [Option('i', "init", HelpText = "Initialises the current directory with the default base scripts. Typically, if you installed via Chocolatey you need to run this before mmbot will become useful")]
+        public bool Init { get; set; }
         
         [ValueList(typeof(List<string>))]
         public IList<string> ScriptFiles { get; set; }

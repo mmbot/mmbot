@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using MMBot;
 using MMBot.Adapters;
@@ -12,7 +15,7 @@ namespace mmbot
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(string[] args) 
         {
             // Parse Arguments
             var options = new Options();
@@ -28,7 +31,53 @@ namespace mmbot
                 options.Parameters.ForEach(Console.WriteLine);
             }
 
-            StartBot(options);
+            if (options.Init)
+            {
+                InitialiseCurrentDirectory();
+            }
+            else
+            {
+                StartBot(options);
+            }
+        }
+
+        private static void InitialiseCurrentDirectory()
+        {
+            var path = Environment.CurrentDirectory;
+            var installationFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            if (installationFolder == null || !Directory.Exists(Path.Combine(installationFolder, "scripts")))
+            {
+                Console.WriteLine("The installation directory cannot be determined or does not contain a scripts sub-directory.");
+                return;
+            }
+            if (string.Equals(path, installationFolder, StringComparison.InvariantCultureIgnoreCase))
+            {
+                Console.WriteLine("The current directory is the installation directory. The init command is designed to initialise a different location with the necessary base scripts etc. by copying them from the installation folder.");
+                return;
+            }
+
+            var scriptsFolder = Path.Combine(path, "scripts");
+            if (!Directory.Exists(scriptsFolder))
+            {
+                Directory.CreateDirectory(scriptsFolder);
+            }
+
+            Directory.GetFiles(Path.Combine(installationFolder, "scripts")).ForEach(f => File.Copy(f, Path.Combine(scriptsFolder, Path.GetFileName(f)), true));
+
+            if (File.Exists(Path.Combine(installationFolder, "mmbot.template.ini")))
+            {
+                File.Copy(Path.Combine(installationFolder, "mmbot.template.ini"), Path.Combine(path, "mmbot.ini"));
+            }
+
+            Console.WriteLine("The current directory has been initialised");
+            Console.WriteLine();
+            Console.WriteLine("Remember to delete any scripts you don't want from the scripts folder and configure the mmbot.ini file");
+            Console.WriteLine();
+            Console.WriteLine("You can now install an adapter like jabbr to connect to your chat room using");
+            Console.WriteLine("  nuget install mmbot.jabbr -o packages");
+            Console.WriteLine("  or");
+            Console.WriteLine("  scriptcs install mmbot.jabbr");
+            Console.WriteLine();
         }
 
         private static void StartBot(Options options)
@@ -62,6 +111,10 @@ namespace mmbot
             else
             {
                 robot.LoadScripts(nugetResolver.GetCompiledScriptsFromPackages());
+                if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "scripts")))
+                {
+                    logger.Warn("There is no scripts folder. Have you forgotten to run 'mmbot init' to initialise the current running directory?");
+                }
             }
 
             robot.Run().ContinueWith(t =>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.ScriptIt</id>
+        <version>0.9</version>
+        <authors>Damian Karzon</authors>
+        <owners>Damian Karzon</owners>
+        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>An script for mmbot that can execute scripts on the fly from messages or gists</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot petegoo chat robot bot scripting</tags>
+    </metadata>
+</package>

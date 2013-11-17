@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>mmbot</id>
+    <title>mmbot</title>
+    <version>1.0</version>
+    <authors>Peter Goodman, Damian Karzon</authors>
+    <owners>Peter Goodman, Damian Karzon</owners>
+    <summary>mmbot is an C# port of github's Hubot, a chatroom bot for automating life.</summary>
+    <description>mmbot can support jabbr, hipchat and google talk. mmbot scripts are written in C# using scriptcs.</description>
+    <projectUrl>https://github.com/petegoo/mmbot</projectUrl>
+    <tags>hubot mmbot jabbr hipchat </tags>
+    <copyright>Peter Goodman</copyright>
+    <licenseUrl>https://raw.github.com/PeteGoo/mmbot/master/LICENSE.md</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <!--<iconUrl>https://raw.github.com/__CHOCO_PKG_OWNER_REPO__/master/__NAME__/__NAME__.png</iconUrl>-->
+    <dependencies>
+      <dependency id="NuGet.CommandLine" version="2.5.0" />
+    </dependencies>
+    <releaseNotes></releaseNotes>
+  </metadata>
+    <files>
+    <file src="mmbot\bin\Release\*.exe" target="tools/mmbot" />
+    <file src="mmbot\bin\Release\*.dll" target="tools/mmbot" />
+    <file src="mmbot\bin\Release\*.pdb" target="tools/mmbot" />
+    <file src="mmbot\bin\Release\*.config" target="tools/mmbot" />
+    <file src="mmbot\bin\Release\*.ini" target="tools/mmbot" />
+    <file src="mmbot\bin\Release\scripts\*.csx" target="tools/mmbot/scripts" />
+  </files>
+</package>
