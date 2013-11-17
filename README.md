@@ -11,6 +11,46 @@ This may mean that some weird design choices are made in the API but it should s
 4. __Eventually provide the ability to run from scriptcs__. (blocked)    
 There are some blockers here in the NuGet package resolution and [dynamic loading of scripts](https://github.com/scriptcs/scriptcs/issues/243)
 
+## Getting started    
+
+The best plan is to use [chocolatey](https://chocolatey.org/)...
+
+```PowerShell
+# install scriptcs if you like. mmbot includes what it needs from scriptcs but it makes package installation easier
+cinst scriptcs
+
+# chocolatey can install mmbot globally
+cinst mmbot
+
+# Now create a folder to host the scripts and config, then from that dir...
+mmbot --init
+
+# You're ready to go...
+mmbot
+
+
+```
+
+When you need an adapter to talk to your chat rooms
+
+```PowerShell
+scriptcs install mmbot.jabbr
+```
+or if you don't have scriptcs...
+```PowerShell
+nuget install mmbot.jabbr -o packages
+```
+
+When you want a script that is in nuget
+
+```PowerShell
+scriptcs install mmbot.spotify
+```
+...or simply drop the .csx file in the "scripts" folder
+...or even better use the scriptthis and scriptthat scripts to input them inline or pull from a gist!!!
+
+For more info read the [getting started guide](https://github.com/PeteGoo/mmbot/wiki/Getting-Started)
+
 ## Adapters
 Currently the only implemented adapter is for [jabbr](https://jabbr.net) but the implementation is extremely similar to Hubot so other adapters could easily be added.
 
@@ -116,23 +156,7 @@ robot.AddHelp(
     mmbot youtube me <query> - Searches YouTube for the query and returns the video embed link.
 
 
-## Getting started    
 
-Just do the codez....
-
-```c#
-var config = new Dictionary<string, string>
-                {
-                    {"MMBOT_JABBR_HOST", "https://jabbr.net/"},
-                    {"MMBOT_JABBR_NICK", "mmbot"},
-                    {"MMBOT_JABBR_PASSWORD", password},
-                    {"MMBOT_JABBR_ROOMS", "mmbottest,markermetro"}
-                };
-
-var robot = Robot.Create<JabbrAdapter>("mmbot", config, LoggerConfigurator.GetConsoleLogger(LogLevel.Info));
-```
-
-For more info read the [getting started guide](https://github.com/PeteGoo/mmbot/wiki/Getting-Started)
 
 
 
