@@ -44,7 +44,7 @@ nuget install mmbot.jabbr -o packages
 When you want a script that is in nuget
 
 ```PowerShell
-scriptcs install mmbot.spotify
+scriptcs install mmbot.scriptit
 ```
 ...or simply drop the .csx file in the "scripts" folder
 ...or even better use the scriptthis and scriptthat scripts to input them inline or pull from a gist!!!
