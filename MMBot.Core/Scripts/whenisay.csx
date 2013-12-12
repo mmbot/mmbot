@@ -39,7 +39,7 @@ robot.Respond(@"what did i tell you to say\??", msg => {
 	msg.Send(sb.ToString());
 });
 
-robot.Respond(@"forget what I told you to say (\d)", msg => {
+robot.Respond(@"forget what I told you to say (\d+)", msg => {
 	var savedResponses = robot.Brain.Get<Dictionary<string, string>>("WhenISay").Result ?? new Dictionary<string, string>(); 
 
 	int i = int.Parse(msg.Match[1]);
