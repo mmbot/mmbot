@@ -119,6 +119,7 @@
     <Compile Include="Adapter.cs" />
     <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
@@ -143,6 +144,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Scripts\Giphy.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\GithubStatus.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Scripts\Help.csx">
