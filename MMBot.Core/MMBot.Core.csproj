@@ -202,7 +202,9 @@
     <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\MMBot.Core.nuspec" />
     <None Include="Scripts\Math.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

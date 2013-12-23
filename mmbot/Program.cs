@@ -37,6 +37,7 @@ namespace mmbot
             }
             else
             {
+                log4net.Config.XmlConfigurator.Configure();
                 StartBot(options);
             }
         }
@@ -102,6 +103,7 @@ namespace mmbot
             }
 
             var robot = Robot.Create("mmbot", GetConfiguration(options), logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
+            robot.Name = robot.GetConfigVariable("MMBOT_DEFAULT_NAME") ?? "mmbot";
 
             if (options.Test)
             {

@@ -57,6 +57,7 @@ namespace MMBot
         public string Name
         {
             get { return _name; }
+            set { _name = value; }
         }
 
         public Brain Brain
