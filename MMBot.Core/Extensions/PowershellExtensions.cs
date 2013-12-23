@@ -16,8 +16,6 @@ namespace MMBot
 {
     public static class PowershellExtensions
     {
-        private static readonly ILog _logger = LogManager.GetLogger(typeof(PowershellExtensions));
-
         public static string ExecutePowershellCommand(this string command)
         {
             var host = new MMBotHost();
@@ -37,21 +35,13 @@ namespace MMBot
                             foreach (var error in errors)
                                 errorString += error.ToString();
 
-                            _logger.Error(string.Format("ERROR!: {0}", errorString));
-                            psObjects = new Collection<PSObject>
-                            {
-                                new PSObject(string.Format("Failure running {0}.  {1}.", command, errorString))
-                            };
+                            throw new Exception(errorString);
                         }
 
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error("ERROR!:", ex);
-                        psObjects = new Collection<PSObject>
-                        {
-                            new PSObject(string.Format("Failure running {0}.  {1}.", command, ex.Message))
-                        };
+                        throw ex;
                     }
 
                     return psObjects.ConvertToString();
@@ -64,21 +54,20 @@ namespace MMBot
             StringBuilder sb = new StringBuilder();
             foreach (var psObject in psObjects)
             {
-                _logger.Info(psObject.ImmediateBaseObject.GetType().FullName);
                 string message = string.Empty;
 
-                // the PowerShell (.NET) return types we are supporting
                 if (psObject.BaseObject.GetType() == typeof(string))
-                    message = psObject.ToString();
+                    sb.AppendLine(psObject.ToString());
 
                 else if (psObject.BaseObject.GetType() == typeof(Hashtable))
                 {
                     Hashtable hashTable = (Hashtable)psObject.BaseObject;
 
                     foreach (DictionaryEntry dictionaryEntry in hashTable)
-                        message += string.Format("{0} = {1}\n", dictionaryEntry.Key, dictionaryEntry.Value);
-                    sb.AppendLine(message);
+                        sb.AppendFormat("{0} = {1}\n", dictionaryEntry.Key, dictionaryEntry.Value);
                 }
+                else
+                    sb.AppendLine(psObject.ToString());
             }
             return sb.ToString();
         }
