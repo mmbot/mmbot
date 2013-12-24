@@ -10,6 +10,8 @@ robot.Respond(@"DIE$", msg => Environment.Exit(0));
 
 robot.Respond(@"RESPAWN$", msg => {msg.Finish(); robot.Reset(); });
 
+robot.Hear(@"ROLL CALL$", msg => msg.Send(msg.Random(new[]{"I'm here", "present", "ready and waiting", "sup", robot.Name + " is alive", "yo", "I'm awake", "reporting in", "howdy"})));
+
 robot.AddHelp(
     "mmbot ping -  Reply with pong",
     "mmbot echo <text> - Reply back with <text>",
