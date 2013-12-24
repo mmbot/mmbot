@@ -22,7 +22,10 @@ namespace mmbot
 
         [Option('i', "init", HelpText = "Initialises the current directory with the default base scripts. Typically, if you installed via Chocolatey you need to run this before mmbot will become useful")]
         public bool Init { get; set; }
-        
+
+        [Option('d', "directory", HelpText = "Sets the working directory for exeucing mmbot outside the initialized directory.")]
+        public string WorkingDirectory { get; set; }
+
         [ValueList(typeof(List<string>))]
         public IList<string> ScriptFiles { get; set; }
 
@@ -32,7 +35,6 @@ namespace mmbot
 
         [OptionArray('p', "parameters", HelpText = "A list of configuration parameters and their values e.g. -p PARAM1=VALUE1 PARAM2=VALUE2", DefaultValue = new string[0])]
         public string[] Parameters { get; set; }
-
 
 
         [HelpOption]
@@ -45,7 +47,7 @@ namespace mmbot
             };
             help.AddPreOptionsLine("Usage: mmbot [-t] [-v] [script files]");
             help.AddOptions(this);
-            return string.Concat(Program.IntroText, help);
+            return string.Concat(Initializer.IntroText, help);
 
         }
 
