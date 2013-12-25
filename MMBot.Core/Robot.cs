@@ -217,7 +217,6 @@ namespace MMBot
 
         public void Speak(string room, params string[] messages)
         {
-            
             foreach (
                 var adapter in
                     _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
