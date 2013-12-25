@@ -151,6 +151,9 @@
     <None Include="Scripts\Cats.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\Scheduler.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\Giphy.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

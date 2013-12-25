@@ -124,7 +124,8 @@ namespace MMBot
         public void Hear(string regex, Action<IResponse<TextMessage>> action)
         {
             regex = PrepareHearRegexPattern(regex);
-
+            var d = new Dictionary<int, string>();
+            
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
                 Source = _currentScriptSource
@@ -211,11 +212,12 @@ namespace MMBot
                     // TODO: Logging exception in listener
                 }
 
-            }
+            }            
         }
 
         public void Speak(string room, params string[] messages)
         {
+            
             foreach (
                 var adapter in
                     _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
