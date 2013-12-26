@@ -57,6 +57,7 @@ namespace MMBot
         public string Name
         {
             get { return _name; }
+            set { _name = value; }
         }
 
         public Brain Brain
@@ -123,7 +124,7 @@ namespace MMBot
         public void Hear(string regex, Action<IResponse<TextMessage>> action)
         {
             regex = PrepareHearRegexPattern(regex);
-
+            
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
                 Source = _currentScriptSource
@@ -133,7 +134,7 @@ namespace MMBot
         public void Respond(string regex, Action<IResponse<TextMessage>> action)
         {
             regex = PrepareRespondRegexPattern(regex);
-
+            
             _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
                 Source = _currentScriptSource
@@ -210,7 +211,7 @@ namespace MMBot
                     // TODO: Logging exception in listener
                 }
 
-            }
+            }            
         }
 
         public void Speak(string room, params string[] messages)

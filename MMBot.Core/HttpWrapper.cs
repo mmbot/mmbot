@@ -11,6 +11,7 @@ using MMBot.Adapters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Xml;
+using HtmlAgilityPack;
 
 namespace MMBot
 {
@@ -30,7 +31,7 @@ namespace MMBot
             _logger = logger;
             _envelope = envelope;
             _baseUrl = new Uri(baseUrl);
-            _httpMessageHandler = httpMessageHandler ?? new HttpClientHandler();
+            _httpMessageHandler = httpMessageHandler ?? new HttpClientHandler();            
         }
 
         public HttpWrapper Query(string name, string value)
@@ -89,6 +90,45 @@ namespace MMBot
             newUri = newUri + (string.IsNullOrWhiteSpace(_baseUrl.Query) ? "?" : "&");
 
             return new Uri(newUri + string.Join("&", array));
+        }
+
+        public async Task<HtmlDocument> GetHtml()
+        {
+            try
+            {
+                var response = await GetResponseMessage();
+                response.EnsureSuccessStatusCode();
+                var result = await response.Content.ReadAsStringAsync();
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(result);
+                return doc;
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http GetHtml error", e);
+                throw;
+            }
+        }
+
+        public async Task GetHtml(Action<Exception, HttpResponseMessage, HtmlDocument> callback)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await GetResponseMessage();
+
+                response.EnsureSuccessStatusCode();
+
+                string result = await response.Content.ReadAsStringAsync();
+                HtmlDocument doc = new HtmlDocument();
+                doc.LoadHtml(result);                
+                callback(null, response, doc);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http GetHtml error", e);
+                callback(e, response, null);
+            }
         }
 
         public async Task<dynamic> GetJson()
