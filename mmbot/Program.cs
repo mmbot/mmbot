@@ -40,7 +40,6 @@ namespace mmbot
                 }
                 else
                 {
-                    log4net.Config.XmlConfigurator.Configure();
                     Initializer.StartBot(options);
                 }
             }
@@ -48,7 +47,6 @@ namespace mmbot
             {
                 var options = new Options();
                 CommandLine.Parser.Default.ParseArguments(args, options);
-                log4net.Config.XmlConfigurator.Configure();
                 ServiceBase.Run(new ServiceBase[] { new Service(options) });
             }            
 
