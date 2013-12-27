@@ -148,8 +148,6 @@
     </None>
     <None Include="Scripts\DefProgramming.csx" />
     <None Include="Scripts\ExchangeRates.csx" />
-    <None Include="Scripts\Powershell.csx" />
-    <None Include="Scripts\PowershellModule.csx" />
     <None Include="Scripts\Scheduler.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
