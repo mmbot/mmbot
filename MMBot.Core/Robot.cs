@@ -37,6 +37,7 @@ namespace MMBot
         private ScriptRunner _scriptRunner;
         private IContainer _container;
         public ILog Logger { get; private set; }
+        public LoggerConfigurator LogConfig { get; private set; }
 
         public Dictionary<string, Adapter> Adapters
         {
@@ -97,12 +98,30 @@ namespace MMBot
             return robot;
         }
 
+        public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, params Type[] adapterTypes)
+        {
+            var robot = new Robot(logConfig == null ? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F") : logConfig.GetLogger(), logConfig);
+
+            robot.Configure(name, config, adapterTypes);
+
+            robot.LoadAdapter();
+
+            return robot;
+        }
+
         protected Robot() : this(new TraceLogger(false, "default", LogLevel.Error, true, false, false, "F"))
         {
         }
 
         protected Robot(ILog logger)
         {
+            Logger = logger;
+            AutoLoadScripts = true;
+        }
+
+        protected Robot(ILog logger, LoggerConfigurator logConfig)
+        {
+            LogConfig = logConfig;
             Logger = logger;
             AutoLoadScripts = true;
         }
@@ -214,15 +233,15 @@ namespace MMBot
             }            
         }
 
-        public void Speak(string room, params string[] messages)
+        public async void Speak(string room, params string[] messages)
         {
             foreach (
                 var adapter in
                     _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
-            {
-                adapter.Value.Send(
+            {   
+                await adapter.Value.Send(
                     new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapter.Key),
-                        string.Join(Environment.NewLine, messages), _name)));
+                        string.Join(Environment.NewLine, messages), _name)), messages);
             }
         }
 
@@ -313,7 +332,11 @@ namespace MMBot
                     Logger.ErrorFormat("Could not run the adapter '{0}': {1}", e, adapter.GetType().Name, e.Message);
                 }
             }
+
+            LoadLogging();
+
             _isReady = true;
+
         }
 
 
@@ -342,6 +365,24 @@ namespace MMBot
                 }
             }
 
+        }
+
+        public void LoadLogging()
+        {
+            if (LogConfig == null || LogConfig.GetAppenders().Any(d => d == "MMBot.RobotLogAppender"))
+                return;
+
+            foreach (string logRooms in new string[] {
+                GetConfigVariable("MMBOT_JABBR_LOGROOMS"),
+                GetConfigVariable("MMBOT_HIPCHAT_LOGROOMS"),
+                GetConfigVariable("MMBOT_XMPP_LOGROOMS")})
+            {
+                if (!string.IsNullOrWhiteSpace(logRooms))
+                {
+                    LogConfig.ConfigureForRobot(this);
+                    break;
+                }
+            }
         }
 
         public void LoadScripts(Assembly assembly)
@@ -462,6 +503,7 @@ namespace MMBot
             {
                 await _brain.Close();
             }
+                        
         }
 
         public async Task Reset()

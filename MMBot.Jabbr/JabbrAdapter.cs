@@ -18,6 +18,7 @@ namespace MMBot.Jabbr
         private string _nick;
         private string _password;
         private string[] _rooms;
+        private string[] _logRooms;
         private bool _isConfigured = false;
         
 
