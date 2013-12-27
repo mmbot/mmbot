@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Core", "MMBot.Core\MMBot.Core.csproj", "{0CF33652-B99B-4854-BC70-250B6C2F646A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Jabbr", "MMBot.Jabbr\MMBot.Jabbr.csproj", "{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}"
@@ -27,6 +29,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mmbot", "mmbot\mmbot.csproj", "{ABEC92B7-C798-4012-AC00-61EC662E1DD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Powershell", "MMBot.Powershell\MMBot.Powershell.csproj", "{DCBCD922-F3BC-4BC9-A99C-D8B0A9FA2AE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Router.Nancy", "MMBot.Router.Nancy\MMBot.Router.Nancy.csproj", "{87AE89E5-9BCD-42C0-B9A0-CBAE18CFD74E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +78,10 @@ Global
 		{DCBCD922-F3BC-4BC9-A99C-D8B0A9FA2AE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCBCD922-F3BC-4BC9-A99C-D8B0A9FA2AE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCBCD922-F3BC-4BC9-A99C-D8B0A9FA2AE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87AE89E5-9BCD-42C0-B9A0-CBAE18CFD74E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87AE89E5-9BCD-42C0-B9A0-CBAE18CFD74E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87AE89E5-9BCD-42C0-B9A0-CBAE18CFD74E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87AE89E5-9BCD-42C0-B9A0-CBAE18CFD74E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
