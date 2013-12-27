@@ -175,7 +175,6 @@
     <None Include="Scripts\Rules.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Scripts\Scheduler.csx" />
     <None Include="Scripts\Spot.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
