@@ -80,6 +80,7 @@ namespace MMBot
 
         public ICommonLog GetLogger()
         {
+            if (_logger == null) LoadLogger();
             return _logger;
         }
 
