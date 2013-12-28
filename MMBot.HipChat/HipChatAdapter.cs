@@ -16,6 +16,7 @@ namespace MMBot.HipChat
     {
         private static string _host;
         private static string[] _rooms;
+        private static string[] _logRooms;
         private static string _nick;
         private static string _password;
 
@@ -42,6 +43,11 @@ namespace MMBot.HipChat
             _username = Robot.GetConfigVariable("MMBOT_HIPCHAT_USERNAME");
             _password = Robot.GetConfigVariable("MMBOT_HIPCHAT_PASSWORD");
             _rooms = (Robot.GetConfigVariable("MMBOT_HIPCHAT_ROOMS") ?? string.Empty)
+                .Trim()
+                .Split(',')
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            _logRooms = (Robot.GetConfigVariable("MMBOT_HIPCHAT_LOGROOMS") ?? string.Empty)
                 .Trim()
                 .Split(',')
                 .Select(s => s.Trim())
@@ -165,12 +171,16 @@ namespace MMBot.HipChat
         {
             var mucManager = new MucManager(_client);
 
-            foreach (string room in _rooms)
+            foreach (string room in _rooms.Union(_logRooms).Distinct())
             {
                 var jid = new Jid(room + "@" + _confhost);
                 mucManager.JoinRoom(jid, _roomNick);
                 Rooms.Add(room);
                 Logger.Info(string.Format("Joined Room '{0}'", room));
+            }
+            foreach (string logRoom in _logRooms)
+            {
+                LogRooms.Add(logRoom);
             }
         }
 

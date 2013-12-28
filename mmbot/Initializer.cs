@@ -62,7 +62,18 @@ namespace mmbot
                 return;
             }
 
-            var logger = LoggerConfigurator.GetConsoleLogger(options.Verbose ? LogLevel.Debug : LogLevel.Info);
+            var logConfig = new LoggerConfigurator(options.Verbose ? LogLevel.Debug : LogLevel.Info);
+            if (Environment.UserInteractive)
+                logConfig.ConfigureForConsole();
+            var logger = logConfig.GetLogger();
+
+            if (!string.IsNullOrWhiteSpace(options.LogFile))
+            {
+                if (Directory.Exists(Path.GetDirectoryName(options.LogFile)))
+                    logConfig.ConfigureForFile(options.LogFile);
+                else
+                    logger.Warn(string.Format("Failed to load log file.  Path for {0} does not exist.", options.LogFile));
+            }
 
             if (!string.IsNullOrWhiteSpace(options.WorkingDirectory))
             {
@@ -87,8 +98,10 @@ namespace mmbot
                 adapters = LoadAdapters(nugetResolver, logger);
             }
 
-            var robot = Robot.Create("mmbot", GetConfiguration(options), logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
+            var robot = Robot.Create("mmbot", GetConfiguration(options), logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
             robot.Name = robot.GetConfigVariable("MMBOT_ROBOT_NAME") ?? "mmbot";
+
+            
 
             if (options.Test)
             {

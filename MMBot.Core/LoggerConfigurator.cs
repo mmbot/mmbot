@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Globalization;
+using System.Collections.Generic;
 using System.Text;
 using Common.Logging.Log4Net;
 using log4net;
@@ -21,13 +23,7 @@ namespace MMBot
         private readonly LogLevel _logLevel;
 
         private ICommonLog _logger;
-
-        public static Common.Logging.ILog GetConsoleLogger(LogLevel logLevel)
-        {
-            var configurator = new LoggerConfigurator(logLevel);
-            configurator.ConfigureForConsole();
-            return configurator.GetLogger();
-        }
+        private object _logLock = new object();
 
         public LoggerConfigurator(LogLevel logLevel)
         {
@@ -36,21 +32,50 @@ namespace MMBot
 
         public void ConfigureForConsole()
         {
-            ConfigureAppender(new log4net.Appender.ConsoleAppender());
+            AddAppender(new log4net.Appender.ConsoleAppender());
         }
 
-        public void ConfigureAppender(AppenderSkeleton appender)
+        public void ConfigureForRobot(Robot robot)
         {
-            var hierarchy = (Hierarchy)log4net.LogManager.GetRepository();
-            var logger = log4net.LogManager.GetLogger(LoggerName);
+            AddAppender(new RobotLogAppender(robot));
+        }
 
+        public void ConfigureForFile(string logFile)
+        {
+            if (!File.Exists(logFile)) File.Create(logFile).Dispose();
+            var appender = new log4net.Appender.FileAppender(null, logFile, true);
+            appender.File = logFile;
+            AddAppender(appender);
+        }
+
+        public void AddAppender(AppenderSkeleton appender)
+        {
+            if (_logger == null)
+                LoadLogger();
+
+            var hierarchy = (Hierarchy)log4net.LogManager.GetRepository();
             appender.Layout = new PatternLayout(GetLogPattern(_logLevel));
             appender.Threshold = hierarchy.LevelMap[_logLevel.ToString().ToUpper(CultureInfo.CurrentCulture)];
             hierarchy.Root.AddAppender(appender);
-            hierarchy.Root.Level = Level.All;
-            hierarchy.Configured = true;
+        }
 
-            _logger = new CodeConfigurableLog4NetLogger(logger);
+        public IEnumerable<string> GetAppenders()
+        {
+            var hierarchy = (Hierarchy)log4net.LogManager.GetRepository();
+            foreach (var appender in hierarchy.Root.Appenders)
+                yield return appender.GetType().ToString();
+        }
+
+        public void LoadLogger()
+        {
+            lock (_logLock)
+            {
+                var hierarchy = (Hierarchy)log4net.LogManager.GetRepository();
+                var logger = log4net.LogManager.GetLogger(LoggerName);
+                hierarchy.Root.Level = Level.All;
+                hierarchy.Configured = true;
+                _logger = new CodeConfigurableLog4NetLogger(logger);
+            }
         }
 
         public ICommonLog GetLogger()
