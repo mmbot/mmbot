@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using Common.Logging;
 using log4net.Repository.Hierarchy;
+using Microsoft.Owin;
 using MMBot.ScriptCS;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,6 +19,7 @@ namespace MMBot
     {
         private readonly Robot _robot;
         private ILog _logger;
+        private string[] _defaultMMBotReferences = new[] {"Microsoft.Owin"};
 
         public ScriptRunner(Robot robot, ILog logger)
         {
@@ -46,7 +48,7 @@ namespace MMBot
             var defaultReferences = ScriptExecutor.DefaultReferences.ToArray();
 
             var packageReferences = scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory);
-            
+
             scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(packageReferences).ToArray());
             scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq", "System.Xml", "System.Net", "System.Net.Http" }).ToArray());
             scriptServiceRoot.Executor.AddReference<Robot>();
@@ -54,6 +56,7 @@ namespace MMBot
             scriptServiceRoot.Executor.AddReference<JArray>();
             scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
             scriptServiceRoot.Executor.AddReference<IScriptPackContext>();
+            scriptServiceRoot.Executor.AddReference<OwinContext>();
             
             scriptServiceRoot.Executor.Initialize(new string[0], new IScriptPack[]
             {

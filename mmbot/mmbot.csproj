@@ -61,12 +61,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Web.Xdt.1.0.0\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
-    <Reference Include="Nancy">
-      <HintPath>..\packages\Nancy.0.21.1\lib\net40\Nancy.dll</HintPath>
-    </Reference>
-    <Reference Include="Nancy.Hosting.Self">
-      <HintPath>..\packages\Nancy.Hosting.Self.0.21.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
-    </Reference>
     <Reference Include="NuGet.Core, Version=2.7.40911.225, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NuGet.Core.2.7.1\lib\net40-Client\NuGet.Core.dll</HintPath>

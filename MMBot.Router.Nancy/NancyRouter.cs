@@ -28,7 +28,7 @@ namespace MMBot.Router.Nancy
 
         public void Start()
         {
-            if (_isConfigured)
+            if (!_isConfigured)
             {
                 throw new InvalidOperationException("The router has not yet been configured. You must call Configure before calling start");
             }

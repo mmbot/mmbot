@@ -62,59 +62,23 @@ namespace mmbot
                 return;
             }
 
-            var logConfig = new LoggerConfigurator(options.Verbose ? LogLevel.Debug : LogLevel.Info);
-            if (Environment.UserInteractive)
-                logConfig.ConfigureForConsole();
-            var logger = logConfig.GetLogger();
+            var logger = CreateLogger(options);
 
-            if (!string.IsNullOrWhiteSpace(options.LogFile))
-            {
-                if (Directory.Exists(Path.GetDirectoryName(options.LogFile)))
-                    logConfig.ConfigureForFile(options.LogFile);
-                else
-                    logger.Warn(string.Format("Failed to load log file.  Path for {0} does not exist.", options.LogFile));
-            }
-
-            if (!string.IsNullOrWhiteSpace(options.WorkingDirectory))
-            {
-                if (!Directory.Exists(options.WorkingDirectory))
-                {
-                    logger.Warn("Could not find specified directory.  Defaulting to current directory");
-                }
-                else
-                {
-                    Directory.SetCurrentDirectory(options.WorkingDirectory);
-                }
-            }
+            ConfigurePath(options, logger);
 
             var nugetResolver = new NuGetPackageAssemblyResolver(logger);
             
             AppDomain.CurrentDomain.AssemblyResolve += nugetResolver.OnAssemblyResolve;
 
-            var adapters = new Type[0];
-
-            if (!options.Test)
-            {
-                adapters = LoadAdapters(nugetResolver, logger);
-            }
+            var adapters = DiscoverAdapters(options, nugetResolver, logger);
 
             var configuration = GetConfiguration(options);
             string name;
             var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
 
-            if (options.Test)
-            {
-                robot.AutoLoadScripts = false;
-                options.ScriptFiles.ForEach(robot.LoadScriptFile);
-            }
-            else
-            {
-                robot.LoadScripts(nugetResolver.GetCompiledScriptsFromPackages());
-                if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "scripts")))
-                {
-                    logger.Warn("There is no scripts folder. Have you forgotten to run 'mmbot init' to initialise the current running directory?");
-                }
-            }
+            ConfigureRouter(robot, nugetResolver);
+
+            LoadScripts(options, robot, nugetResolver, logger);
 
             robot.Run().ContinueWith(t =>
             {
@@ -131,6 +95,86 @@ namespace mmbot
                 Thread.Sleep(2000);
             }
 
+        }
+
+        private static void ConfigurePath(Options options, ILog logger)
+        {
+            if (!string.IsNullOrWhiteSpace(options.WorkingDirectory))
+            {
+                if (!Directory.Exists(options.WorkingDirectory))
+                {
+                    logger.Warn("Could not find specified directory.  Defaulting to current directory");
+                }
+                else
+                {
+                    Directory.SetCurrentDirectory(options.WorkingDirectory);
+                }
+            }
+        }
+
+        private static ILog CreateLogger(Options options)
+        {
+            var logConfig = new LoggerConfigurator(options.Verbose ? LogLevel.Debug : LogLevel.Info);
+            if (Environment.UserInteractive)
+                logConfig.ConfigureForConsole();
+            var logger = logConfig.GetLogger();
+
+            if (!string.IsNullOrWhiteSpace(options.LogFile))
+            {
+                if (Directory.Exists(Path.GetDirectoryName(options.LogFile)))
+                    logConfig.ConfigureForFile(options.LogFile);
+                else
+                    logger.Warn(string.Format("Failed to load log file.  Path for {0} does not exist.", options.LogFile));
+            }
+            return logger;
+        }
+
+        private static IEnumerable<Type> DiscoverAdapters(Options options, NuGetPackageAssemblyResolver nugetResolver, ILog logger)
+        {
+            var adapters = new Type[0];
+
+            if (!options.Test)
+            {
+                adapters = LoadAdapters(nugetResolver, logger);
+            }
+            return adapters;
+        }
+
+        private static void LoadScripts(Options options, Robot robot, NuGetPackageAssemblyResolver nugetResolver,
+            ILog logger)
+        {
+            if (options.Test)
+            {
+                robot.AutoLoadScripts = false;
+                options.ScriptFiles.ForEach(robot.LoadScriptFile);
+            }
+            else
+            {
+                robot.LoadScripts(nugetResolver.GetCompiledScriptsFromPackages());
+                if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "scripts")))
+                {
+                    logger.Warn(
+                        "There is no scripts folder. Have you forgotten to run 'mmbot init' to initialise the current running directory?");
+                }
+            }
+        }
+
+        private static void ConfigureRouter(Robot robot, NuGetPackageAssemblyResolver nugetResolver)
+        {
+            var robotEnabledVar = robot.GetConfigVariable("MMBOT_ROUTER_ENABLED");
+            if (robotEnabledVar != null && robotEnabledVar.ToLower() == "true" || robotEnabledVar == "yes")
+            {
+                var routerType = nugetResolver.GetCompiledRouterFromPackages();
+                if (routerType != null)
+                {
+                    robot.Logger.Info(string.Format("Loading router '{0}'", routerType.Name));
+                    robot.ConfigureRouter(routerType);
+                }
+                else
+                {
+                    robot.Logger.Warn("The router was enabled but no implementation was found. Make sure you have installed the relevant router package");
+                }
+            }
         }
 
         internal static Type[] LoadAdapters(NuGetPackageAssemblyResolver nugetResolver, ILog logger)

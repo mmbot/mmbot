@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Common.Logging;
 using MMBot;
+using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
@@ -83,6 +84,11 @@ namespace mmbot
         public IEnumerable<Type> GetCompiledAdaptersFromPackages()
         {
             return ProbeForType(typeof(Adapter));
+        }
+
+        public Type GetCompiledRouterFromPackages()
+        {
+            return ProbeForType(typeof(IRouter)).FirstOrDefault(t => t != typeof(NullRouter));
         }
 
         private IEnumerable<Type> ProbeForType(Type type)

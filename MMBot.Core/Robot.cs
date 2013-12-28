@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Autofac.Core;
 using Common.Logging;
 using Common.Logging.Simple;
 using MMBot.Adapters;
+using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
 using LogLevel = Common.Logging.LogLevel;
@@ -36,6 +34,10 @@ namespace MMBot
         private bool _isReady = false;
         private ScriptRunner _scriptRunner;
         private IContainer _container;
+        private ScriptSource _currentScriptSource = null;
+        private IEnumerable<Type> _adapterTypes;
+        private IRouter _router = new NullRouter();
+
         public ILog Logger { get; private set; }
         public LoggerConfigurator LogConfig { get; private set; }
 
@@ -64,6 +66,11 @@ namespace MMBot
         public Brain Brain
         {
             get { return _brain; }
+        }
+
+        public IRouter Router
+        {
+            get { return _router; }
         }
 
         public static Robot Create<TAdapter>() where TAdapter : Adapter
@@ -138,6 +145,23 @@ namespace MMBot
 
             _brain.Initialize();
             _scriptRunner.Initialize();
+        }
+
+        public void ConfigureRouter(Type routerType)
+        {
+            if (!_isConfigured)
+            {
+                throw new RobotNotConfiguredException();
+            }
+
+            if (!typeof(IRouter).IsAssignableFrom(routerType))
+            {
+                throw new TypeLoadException(string.Format("Could not configure router type '{0}' as it does not implement IRouter", routerType));
+            }
+
+            var router = Activator.CreateInstance(routerType) as IRouter;
+            router.Configure(this, int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
+            _router = router;
         }
 
         public void Hear(string regex, Action<IResponse<TextMessage>> action)
@@ -252,9 +276,6 @@ namespace MMBot
                         string.Join(Environment.NewLine, messages), _name)), messages);
         }
 
-        private ScriptSource _currentScriptSource = null;
-        private IEnumerable<Type> _adapterTypes;
-
         public IDisposable StartScriptProcessingSession(ScriptSource scriptSource)
         {
             if (scriptSource == null)
@@ -319,10 +340,21 @@ namespace MMBot
             {
                 throw new RobotNotConfiguredException();
             }
+
             if(AutoLoadScripts)
             {
                 LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
             }
+
+            try
+            {
+                _router.Start();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(string.Format("Could not start router '{0}'", _router.GetType().Name), e);
+            }
+
             foreach(var adapter in _adapters.Values)
             {
                 try
