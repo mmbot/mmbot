@@ -19,6 +19,7 @@ namespace MMBot
             Logger = logger;
             Id = adapterId;
             Rooms = new Collection<string>();
+            LogRooms = new Collection<string>();
         }
 
         public virtual Task Send(Envelope envelope, params string[] messages)
@@ -62,6 +63,11 @@ namespace MMBot
         }
 
         public IList<string> Rooms
+        {
+            get; protected set;
+        }
+
+        public IList<string> LogRooms
         {
             get; protected set;
         }

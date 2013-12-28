@@ -245,6 +245,13 @@ namespace MMBot
             }
         }
 
+        public async void Speak(string adapterId, string room, params string[] messages)
+        {
+            await Adapters[adapterId].Send(
+                    new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapterId),
+                        string.Join(Environment.NewLine, messages), _name)), messages);
+        }
+
         private ScriptSource _currentScriptSource = null;
         private IEnumerable<Type> _adapterTypes;
 
@@ -333,7 +340,14 @@ namespace MMBot
                 }
             }
 
-            LoadLogging();
+            try
+            {
+                LoadLogging();
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorFormat("Could not enable room logging : {0}", ex.ToString());
+            }
 
             _isReady = true;
 
@@ -372,16 +386,13 @@ namespace MMBot
             if (LogConfig == null || LogConfig.GetAppenders().Any(d => d == "MMBot.RobotLogAppender"))
                 return;
 
-            foreach (string logRooms in new string[] {
-                GetConfigVariable("MMBOT_JABBR_LOGROOMS"),
-                GetConfigVariable("MMBOT_HIPCHAT_LOGROOMS"),
-                GetConfigVariable("MMBOT_XMPP_LOGROOMS")})
+            if (Adapters.Values.Any(d => d.LogRooms.Any()))
             {
-                if (!string.IsNullOrWhiteSpace(logRooms))
-                {
-                    LogConfig.ConfigureForRobot(this);
-                    break;
-                }
+                LogConfig.ConfigureForRobot(this);
+            }
+            else
+            {
+                Logger.Info("No logging rooms to enabled");
             }
         }
 

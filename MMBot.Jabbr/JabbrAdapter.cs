@@ -18,6 +18,7 @@ namespace MMBot.Jabbr
         private string _nick;
         private string _password;
         private string[] _rooms;
+        private string[] _logRooms;
         private bool _isConfigured = false;
         
 
@@ -27,6 +28,11 @@ namespace MMBot.Jabbr
             _nick = Robot.GetConfigVariable("MMBOT_JABBR_NICK");
             _password = Robot.GetConfigVariable("MMBOT_JABBR_PASSWORD");
             _rooms = (Robot.GetConfigVariable("MMBOT_JABBR_ROOMS") ?? string.Empty)
+                .Trim()
+                .Split(',')
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            _logRooms = (Robot.GetConfigVariable("MMBOT_JABBR_LOGROOMS") ?? string.Empty)
                 .Trim()
                 .Split(',')
                 .Select(s => s.Trim())
@@ -146,17 +152,19 @@ namespace MMBot.Jabbr
             SetupJabbrClient();
 
             var result = await _client.Connect(_nick, _password);
-
+            
             _client.StateChanged += OnClientStateChanged;
-
+            
             Logger.Info(string.Format("Logged on successfully. {0} is currently in the following rooms:", _nick));
             foreach (var room in result.Rooms)
             {
-                Logger.Info(string.Format(" - " + room.Name + (room.Private ? " (private)" : string.Empty)));
+                Logger.Info(string.Format(" - " + room.Name + (room.Private ? " (private)" : string.Empty) + (_logRooms.Contains(room.Name) ? " (logging)" : string.Empty)));
                 Rooms.Add(room.Name);
+                if (_logRooms.Contains(room.Name))
+                    LogRooms.Add(room.Name);
             }
 
-            foreach (var room in _rooms.Where(room => !result.Rooms.Select(r => r.Name).Contains(room)))
+            foreach (var room in _rooms.Union(_logRooms).Distinct().Where(room => !result.Rooms.Select(r => r.Name).Contains(room)))
             {
                 try
                 {
@@ -168,6 +176,11 @@ namespace MMBot.Jabbr
                 {
                     Logger.Info(string.Format("Could not join room {0}: {1}", room, e.Message));
                 }
+            }
+
+            foreach (var logRoom in _logRooms)
+            {
+                if (!LogRooms.Contains(logRoom)) LogRooms.Add(logRoom);
             }
         }
 

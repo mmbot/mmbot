@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 using log4net.Core;
 using log4net.Layout;
 using log4net;
@@ -15,34 +16,25 @@ namespace MMBot
     public class RobotLogAppender : AppenderSkeleton
     {
         private Robot _robot;
-        private List<string> _rooms = new List<string>();
 
         public RobotLogAppender(Robot robot)
         {
             _robot = robot;
-
-            foreach (string logRooms in new string[] {
-                robot.GetConfigVariable("MMBOT_JABBR_LOGROOMS"),
-                robot.GetConfigVariable("MMBOT_HIPCHAT_LOGROOMS"),
-                robot.GetConfigVariable("MMBOT_XMPP_LOGROOMS")})
-            {
-                if (!string.IsNullOrWhiteSpace(logRooms))
-                    _rooms.AddRange(logRooms.Trim().Split(',')
-                        .Select(s => s.Trim())
-                        .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray());
-            }
         }
 
         protected override void Append(LoggingEvent loggingEvent)
         {
-            var msg = RenderLoggingEvent(loggingEvent);
+            var msg = RenderLoggingEvent(loggingEvent).Trim();
             //hack to prevent this from triggering a cascade of logging events
-            if (Regex.Matches(msg, @".{4,5} : \[").Count > 1)
+            if (Regex.Matches(msg, @"[A-Z]{4,5} : ").Count > 1)
                 return;
 
-            foreach (var room in _rooms)
+            foreach (var adapter in _robot.Adapters.Where(d => d.Value.LogRooms.Any()))
             {
-                _robot.Speak(room, msg.Trim());
+                foreach (var room in adapter.Value.LogRooms)
+                {
+                    _robot.Speak(adapter.Key, room, msg);
+                }
             }
         }
     }
