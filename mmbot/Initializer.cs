@@ -98,10 +98,9 @@ namespace mmbot
                 adapters = LoadAdapters(nugetResolver, logger);
             }
 
-            var robot = Robot.Create("mmbot", GetConfiguration(options), logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
-            robot.Name = robot.GetConfigVariable("MMBOT_ROBOT_NAME") ?? "mmbot";
-
-            
+            var configuration = GetConfiguration(options);
+            string name;
+            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
 
             if (options.Test)
             {
