@@ -87,11 +87,11 @@ namespace MMBot
             var tree = SyntaxTree.ParseFile(path, ParseOptions.Default.WithParseDocumentationComments(true));
 
             var compilation = Compilation.Create("test", syntaxTrees: new[] {tree});
-            var classSymbol = compilation.GlobalNamespace.GetMembers();
-            foreach (var symbol in classSymbol)
+            var classSymbol = compilation.GlobalNamespace.GetMembers().FirstOrDefault();
+            if (classSymbol != null)
             {
-                var doc = symbol.GetDocumentationComment();
-                Console.WriteLine(doc.SummaryTextOpt);
+                var doc = classSymbol.GetDocumentationComment();
+                Console.WriteLine(doc.FullXmlFragmentOpt);
             }
 
             //var classNode = tree.GetRoot().Members.First();
