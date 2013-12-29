@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Security.Cryptography;
 using Common.Logging;
@@ -11,6 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ScriptCs;
 using ScriptCs.Contracts;
+using Roslyn.Compilers.CSharp;
 using LogLevel = ScriptCs.Contracts.LogLevel;
 
 namespace MMBot
@@ -35,6 +37,8 @@ namespace MMBot
         
         public bool RunScriptFile(string path)
         {
+            ParseScriptComments(path);
+
             var console = new ScriptConsole();
 
             var scriptServicesBuilder = new ScriptServicesBuilder(console, _logger);
@@ -76,6 +80,25 @@ namespace MMBot
             }
 
             return result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
+        }
+
+        public void ParseScriptComments(string path)
+        {
+            var tree = SyntaxTree.ParseFile(path, ParseOptions.Default.WithParseDocumentationComments(true));
+
+            var compilation = Compilation.Create("test", syntaxTrees: new[] {tree});
+            var classSymbol = compilation.GlobalNamespace.GetMembers();
+            foreach (var symbol in classSymbol)
+            {
+                var doc = symbol.GetDocumentationComment();
+                Console.WriteLine(doc.SummaryTextOpt);
+            }
+
+            //var classNode = tree.GetRoot().Members.First();
+            //var trivia = classNode.GetLeadingTrivia().Single(t => t.Kind == SyntaxKind.DocumentationCommentTrivia);
+            //var xml = trivia.GetStructure();
+            //Console.WriteLine(xml);
+
         }
 
 
