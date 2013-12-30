@@ -4,24 +4,24 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Common.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MMBot.Adapters;
+using Xunit;
 
 namespace MMBot.Tests
 {
-    [TestClass]
+    
     public class RobotTests
     {
-        [TestMethod]
+        [Fact]
         public void WhenConfiguredFromDictionary_GetConfigVariableReturnsValue()
         {
             var paramName = "param1";
             var paramValue = "param1Value";
             var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>{{"param1", "param1Value"}});
-            Assert.AreEqual(robot.GetConfigVariable(paramName), paramValue);
+            Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void WhenConfiguredFromEnvironmentVariable_GetConfigVariableReturnsValue()
         {
             var paramName = "param1";
@@ -30,11 +30,11 @@ namespace MMBot.Tests
             using(Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
                 var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>());
-                Assert.AreEqual(robot.GetConfigVariable(paramName), paramValue);
+                Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WhenConfiguredFromDictionary_EnvironmentVariableIsOverriden()
         {
             var paramName = "param1";
@@ -44,19 +44,19 @@ namespace MMBot.Tests
             using (Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
                 var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>{{paramName, newParamValue}});
-                Assert.AreEqual(robot.GetConfigVariable(paramName), newParamValue);
+                Assert.Equal(robot.GetConfigVariable(paramName), newParamValue);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WhenInstantiatedWithoutDictionary_RobotIsConfigured()
         {
             var robot = Robot.Create<StubAdapter>();
 
-            Assert.IsNull(robot.GetConfigVariable("NothingExpected"));
+            Assert.Null(robot.GetConfigVariable("NothingExpected"));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenMessageIsSentFromScript_AdapterSendIsInvoked()
         {
             var robot = Robot.Create<StubAdapter>();
@@ -79,10 +79,10 @@ namespace MMBot.Tests
             Console.WriteLine("Actual:");
             Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
 
-            Assert.IsTrue(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+            Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenRobotIsReset_ScriptCleanupIsInvoked()
         {
             var robot = Robot.Create<StubAdapter>();
@@ -96,10 +96,10 @@ namespace MMBot.Tests
 
             await robot.Reset();
 
-            Assert.IsTrue(isCleanedUp);
+            Assert.True(isCleanedUp);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenMultipleAdaptersAreConfigured_ResponsesAreOnlySentToTheOriginatingAdapter()
         {
             var robot = Robot.Create("mmbot", new Dictionary<string, string>(), new TestLogger(), new[]{typeof(StubAdapter), typeof(StubAdapter2)});
@@ -128,8 +128,8 @@ namespace MMBot.Tests
             Console.WriteLine("Actual:");
             Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
 
-            Assert.IsTrue(expectedMessagesValues.SequenceEqual(actualMessagesValues));
-            Assert.AreEqual(0, adapter2.Messages.Count());
+            Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+            Assert.Equal(0, adapter2.Messages.Count());
 
             Console.WriteLine("Testing Adapter 2");
             expectedMessages.ForEach(t => adapter2.SimulateMessage(t.Item1, "mmbot " + t.Item2));
@@ -141,8 +141,8 @@ namespace MMBot.Tests
             Console.WriteLine("Actual:");
             Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
 
-            Assert.IsTrue(expectedMessagesValues.SequenceEqual(actualMessagesValues));
-            Assert.AreEqual(3, adapter1.Messages.Count());
+            Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+            Assert.Equal(3, adapter1.Messages.Count());
         }
 
         public class StubAdapter2 : StubAdapter
