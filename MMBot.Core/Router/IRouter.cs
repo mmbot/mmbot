@@ -15,6 +15,9 @@ namespace MMBot.Router
         void Stop();
 
         void Get(string path, Func<OwinContext, object> actionFunc);
+
+        void Post(string path, Func<OwinContext, object> actionFunc);
+
         IDictionary<Route, Func<OwinContext, object>> Routes { get; }
     }
 
