@@ -25,8 +25,7 @@ namespace MMBot
         
         private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
-        private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
-        private readonly List<string> _helpCommands = new List<string>();
+        private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();        
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private IDictionary<string, string> _config;
         private Brain _brain;
@@ -40,6 +39,7 @@ namespace MMBot
 
         public ILog Logger { get; private set; }
         public LoggerConfigurator LogConfig { get; private set; }
+        public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
 
         public Dictionary<string, Adapter> Adapters
         {
@@ -48,7 +48,7 @@ namespace MMBot
 
         public List<string> HelpCommands
         {
-            get { return _helpCommands; }
+            get { return ScriptData.SelectMany(d => d.Commands).ToList(); }
         }
 
         public string Alias { get; set; }
@@ -86,7 +86,7 @@ namespace MMBot
         public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, ILog logger) where TAdapter : Adapter
         {
             var robot = new Robot(logger ?? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F"));
-
+            
             robot.Configure(name, config, typeof(TAdapter));
 
             robot.LoadAdapter();
@@ -299,7 +299,16 @@ namespace MMBot
 
         public void AddHelp(params string[] helpMessages)
         {
-            _helpCommands.AddRange(helpMessages.Except(_helpCommands).ToArray());
+            if (!ScriptData.Any(d => d.Name == "UnReferenced"))
+                ScriptData.Add(new ScriptMetadata() { Name = "UnReferenced", Description = "Commands not referenced in a script file's summary details" });
+            var unreferencedHelpCommands = ScriptData.Where(d => d.Name == "UnReferenced").First();
+            
+            unreferencedHelpCommands.Commands.AddRange(helpMessages.Except(unreferencedHelpCommands.Commands).ToArray());
+        }
+
+        public void AddMetadata(ScriptMetadata metadata)
+        {
+            ScriptData.Add(metadata);
         }
 
         public IContainer Container
