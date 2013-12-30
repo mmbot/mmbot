@@ -1,8 +1,23 @@
-﻿// Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/achievement_unlocked.coffee
-///<summary>
-///Teststs
-///</summary>
-
+﻿/// <description>
+/// Teststs
+/// </description>
+///
+/// <configuration>
+///
+/// </configuration>
+///
+/// <commands>
+/// mmbot achievement &lt;achievement&gt; [achiever's gravatar email],
+/// mmbot award &lt;achievement&gt; [achiever's gravatar email]
+/// </commands>
+/// 
+/// <notes>
+/// Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/achievement_unlocked.coffee
+/// </notes>
+/// 
+/// <author>
+/// PeteGoo
+/// </author>
 
 var robot = Require<Robot>();
 
@@ -27,8 +42,3 @@ private static void AchievementCore(IResponse<TextMessage> msg, string caption, 
 
     msg.Send(url);
 }
-
-robot.AddHelp(
-        "mmbot achievement <achievement> [achiever's gravatar email]",
-        "mmbot award <achievement> [achiever's gravatar email]"
-);

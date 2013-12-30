@@ -26,7 +26,7 @@ namespace MMBot
         private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
-        private readonly List<string> _helpCommands = new List<string>();
+        private readonly List<ScriptMetadata> _scriptMetadata = new List<ScriptMetadata>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private IDictionary<string, string> _config;
         private Brain _brain;
@@ -48,7 +48,7 @@ namespace MMBot
 
         public List<string> HelpCommands
         {
-            get { return _helpCommands; }
+            get { return _scriptMetadata.SelectMany(d => d.Commands).ToList(); }
         }
 
         public string Alias { get; set; }
@@ -299,7 +299,16 @@ namespace MMBot
 
         public void AddHelp(params string[] helpMessages)
         {
-            _helpCommands.AddRange(helpMessages.Except(_helpCommands).ToArray());
+            if (!_scriptMetadata.Any(d => d.Name == "UnReferenced"))
+                _scriptMetadata.Add(new ScriptMetadata() { Name = "UnReferenced" });
+            var unreferencedHelpCommands = _scriptMetadata.Where(d => d.Name == "UnReferenced").First();
+            
+            unreferencedHelpCommands.Commands.AddRange(helpMessages.Except(unreferencedHelpCommands.Commands).ToArray());
+        }
+
+        public void AddMetadata(ScriptMetadata metadata)
+        {
+            _scriptMetadata.Add(metadata);
         }
 
         public IContainer Container
