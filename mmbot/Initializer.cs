@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
+using System.Threading.Tasks;
 using MMBot;
 using MMBot.Adapters;
 using Common.Logging;
@@ -53,13 +54,13 @@ namespace mmbot
             Console.WriteLine();
         }
 
-        public static void StartBot(Options options)
+        public static async Task<Robot> StartBot(Options options)
         {
 
             if (options.Test && (options.ScriptFiles == null || !options.ScriptFiles.Any()))
             {
                 Console.WriteLine("You need to specify at least one script file to test.");
-                return;
+                return null;
             }
 
             var logger = CreateLogger(options);
@@ -80,7 +81,7 @@ namespace mmbot
 
             LoadScripts(options, robot, nugetResolver, logger);
 
-            robot.Run().ContinueWith(t =>
+            await robot.Run().ContinueWith(t =>
             {
                 if (!t.IsFaulted)
                 {
@@ -88,13 +89,7 @@ namespace mmbot
                     Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit" );
                 }
             });
-
-            while (true)
-            {
-                // sit and spin?
-                Thread.Sleep(2000);
-            }
-
+            return robot;
         }
 
         private static void ConfigurePath(Options options, ILog logger)
@@ -116,7 +111,12 @@ namespace mmbot
         {
             var logConfig = new LoggerConfigurator(options.Verbose ? LogLevel.Debug : LogLevel.Info);
             if (Environment.UserInteractive)
+            {
                 logConfig.ConfigureForConsole();
+            }
+
+            logConfig.AddTraceListener();
+
             var logger = logConfig.GetLogger();
 
             if (!string.IsNullOrWhiteSpace(options.LogFile))
