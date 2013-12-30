@@ -1,4 +1,25 @@
-﻿//ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/defprogramming.coffee
+﻿/**
+* <description>
+*     Displays a random quote from def programming
+* </description>
+*
+* <configuration>
+*
+* </configuration>
+*
+* <commands>
+*     mmbot def programming - returns a random programming quote;
+* </commands>
+* 
+* <notes>
+*     Requires HtmlAgilityPack
+*     ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/defprogramming.coffee*     
+* </notes>
+* 
+* <author>
+*     jamessantiago
+* </author>
+*/
 
 using HtmlAgilityPack;
 
@@ -26,7 +47,3 @@ robot.Respond(@"def programming", msg =>
             
     });
 });
-
-robot.AddHelp(
-    "mmbot def programming - returns a random programming quote"
-);

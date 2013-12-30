@@ -1,3 +1,20 @@
+/**
+* <description>
+*     Creates an anchievement image with user's gravatar pic and achievement text
+* </description>
+*
+* <commands>
+*     mmbot rate from &lt;currency&gt; to &lt;currency&gt; - Gets current exchange rate between two currencies.;
+* </commands>
+* 
+* <notes>
+*    Currencies are defined by their ISO code: http://en.wikipedia.org/wiki/ISO_4217
+* </notes>
+* 
+* <author>
+*     jamessantiago
+* </author>
+*/
 
 var robot = Require<Robot>();
 
@@ -29,7 +46,3 @@ robot.Respond(@"rate from (...) to (...)", msg =>
         	}
         });
 	});
-
-robot.AddHelp(
-    "mmbot rate from <currency> to <currency> - Gets current exchange rate between two currencies."
-	);

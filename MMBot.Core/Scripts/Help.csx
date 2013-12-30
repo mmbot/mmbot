@@ -1,4 +1,21 @@
-﻿using System.Text.RegularExpressions;
+﻿/**
+* <description>
+*     Provides help commands
+* </description>
+*
+* <commands>
+*     mmbot help - Displays all of the help commands that mmbot knows about.;
+*     mmbot help &lt;query&gt; - Displays all help commands that match &lt;query&gt;.;
+*     mmbot list scripts - Displays a list of all the loaded script files;
+*     mmbot man &lt;query&gt; - Displays the details for the script that matches &lt;query&gt;.;
+* </commands>
+* 
+* <author>
+*     PeteGoo
+* </author>
+*/
+
+using System.Text.RegularExpressions;
 
 var robot = Require<Robot>();
 
@@ -27,9 +44,53 @@ robot.Respond(@"help\s*(.*)?$", msg =>
     msg.Message.Done = true;
 });
 
+robot.Respond(@"list scripts$", msg =>
+{
+	if (!robot.ScriptData.Any())
+	{
+		msg.Send("No script information is available");
+	}
+	else
+	{
+		msg.Send("I have the following scripts:\n\n" + string.Join(Environment.NewLine, robot.ScriptData.Select(s => s.Name).OrderBy(n => n)));
+	}
+});
 
-robot.AddHelp(
-    "mmbot help - Displays all of the help commands that mmbot knows about.",
-    "mmbot help <query> - Displays all help commands that match <query>."
-);
+robot.Respond(@"(man|explain) (.*)", msg =>
+{
+	var scriptName = msg.Match[2];
+	var scriptData = robot.ScriptData.Where(d => d.Name.Equals(scriptName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
+	if (scriptData != null)
+	{
+		string detailsFormat = @"
+Name:
+  {0}
 
+Description:
+  {1}
+
+Configuration:
+  {2}
+
+Commands:
+  {3}
+
+Notes:
+  {4}
+
+Author:
+  {5}
+";
+		msg.Send(string.Format(detailsFormat,
+			scriptData.Name,
+			scriptData.Description,
+			scriptData.Configuration,
+			string.Join(Environment.NewLine + "  ", scriptData.Commands),
+			scriptData.Notes,
+			scriptData.Author));
+	}
+	else
+	{
+		msg.Send(string.Format("No script has the name of {0}", scriptName));
+	}
+});

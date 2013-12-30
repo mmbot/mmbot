@@ -1,23 +1,25 @@
-﻿/// <description>
-/// Teststs
-/// </description>
-///
-/// <configuration>
-///
-/// </configuration>
-///
-/// <commands>
-/// mmbot achievement &lt;achievement&gt; [achiever's gravatar email],
-/// mmbot award &lt;achievement&gt; [achiever's gravatar email]
-/// </commands>
-/// 
-/// <notes>
-/// Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/achievement_unlocked.coffee
-/// </notes>
-/// 
-/// <author>
-/// PeteGoo
-/// </author>
+﻿/**
+* <description>
+*     Creates an anchievement image with user's gravatar pic and achievement text
+* </description>
+*
+* <configuration>
+*
+* </configuration>
+*
+* <commands>
+*     mmbot achievement &lt;achievement&gt; [achiever's gravatar email];
+*     mmbot award &lt;achievement&gt; [achiever's gravatar email];
+* </commands>
+* 
+* <notes>
+*     Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/achievement_unlocked.coffee
+* </notes>
+* 
+* <author>
+*     PeteGoo
+* </author>
+*/
 
 var robot = Require<Robot>();
 

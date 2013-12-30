@@ -1,5 +1,24 @@
-﻿// Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/giphy.coffee
-
+﻿/**
+* <description>
+*     Interfaces with the Giphy API
+* </description>
+*
+* <configuration>
+*     MMBOT_GIPHY_APIKEY
+* </configuration>
+*
+* <commands>
+*     mmbot gif me &lt;query&gt; - Returns an animated gif matching the requested search term.
+* </commands>
+* 
+* <notes>
+*     Ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/giphy.coffee
+* </notes>
+* 
+* <author>
+*     PeteGoo
+* </author>
+*/
 
 var robot = Require<Robot>();
 
@@ -45,5 +64,4 @@ private static void GifMeCore(IResponse<TextMessage> msg, string query, string a
     });
 }
 
-robot.AddHelp("mmbot gif me <query> - Returns an animated gif matching the requested search term.");
 
