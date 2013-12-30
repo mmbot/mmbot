@@ -45,7 +45,14 @@ namespace mmbot
         public void MMBotWorkerThread()
         {
             log4net.Config.XmlConfigurator.Configure();
-            Initializer.StartBot(_options);
+            Initializer.StartBot(_options).Wait();
+
+            while (true)
+            {
+                // sit and spin?
+                Thread.Sleep(2000);
+            }
+
         }
     }
 }
