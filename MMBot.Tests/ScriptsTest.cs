@@ -1,24 +1,27 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MMBot.Tests.CompiledScripts;
+using Xunit;
 
 namespace MMBot.Tests
 {
-    [TestClass]
     public class ScriptsTest
     {
-        [TestMethod]
+        [Fact]
         public void CanRegisterCompiledScripts()
         {
             var robot = Robot.Create<StubAdapter>();
             robot.LoadScripts(typeof(Ping).Assembly);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenPing_ReceivePong()
         {
             var robot = Robot.Create<StubAdapter>();
+            robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
 
@@ -26,10 +29,20 @@ namespace MMBot.Tests
 
             adapter.SimulateMessage("test1", "mmbot ping");
 
-            var messages = adapter.Messages.Select(m => m.Item2);
-            Assert.AreEqual(1, messages.Count());
-            Assert.AreEqual("pong", messages.First().First(), true);
+            var firstMessage = (await adapter.GetEmittedMessages(1)).Select(i => i.Item2).First();
+            Assert.Equal(1, firstMessage.Count());
+            Assert.Equal("pong", firstMessage.First(), StringComparer.InvariantCultureIgnoreCase);
         }
 
+        [Fact]
+        public async Task TestReplaySubject()
+        {
+            var subject = new ReplaySubject<string>();
+            subject.OnNext("foo");
+
+            var foo = await subject.FirstAsync();
+
+            Assert.Equal("foo", foo);
+        }
     }
 }
