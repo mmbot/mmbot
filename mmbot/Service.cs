@@ -44,7 +44,6 @@ namespace mmbot
 
         public void MMBotWorkerThread()
         {
-
             Initializer.StartBot(_options).Wait();
 
             while (true)
