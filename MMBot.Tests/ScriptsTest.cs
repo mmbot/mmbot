@@ -34,7 +34,7 @@ namespace MMBot.Tests
             Assert.Equal("pong", firstMessage.First(), StringComparer.InvariantCultureIgnoreCase);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
             var robot = Robot.Create<StubAdapter>();
@@ -43,17 +43,17 @@ namespace MMBot.Tests
             robot.LoadScriptName("Auth");
             await robot.Run();
 
-            Assert.IsTrue(robot.ScriptData.Any(d => d.Name == "Auth"));
+            Assert.True(robot.ScriptData.Any(d => d.Name == "Auth"));
 
             adapter.SimulateMessage("test1", "mmbot add test1 to the testgroup role");
             adapter.SimulateMessage("test1", "mmbot remove test1 from the testgroup role");
 
-            var messages = adapter.Messages.Select(m => m.Item2);
-            Assert.AreEqual(2, messages.Count());
-            Assert.IsTrue(
-                "Got it, test1 is now in the testgroup role" == messages.First().First() ||
-                "test1 is already in the testgroup role" == messages.First().First());
-            Assert.AreEqual("Got it, test1 is no longer in the testgroup role", messages.Last().First(), true);            
+            var messages = await adapter.GetEmittedMessages(2);
+            Assert.Equal(2, messages.Count());
+            Assert.True(
+                "Got it, test1 is now in the testgroup role" == messages.First().Item2.First() ||
+                "test1 is already in the testgroup role" == messages.First().Item2.First());
+            Assert.Equal("Got it, test1 is no longer in the testgroup role", messages.Last().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
         }
 
         [Fact]
