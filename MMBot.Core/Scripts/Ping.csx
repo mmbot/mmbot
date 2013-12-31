@@ -1,4 +1,5 @@
-﻿var robot = Require<Robot>();
+﻿
+var robot = Require<Robot>();
 
 robot.Respond(@"PING$",msg => msg.Send("PONG"));
 

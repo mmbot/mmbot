@@ -16,8 +16,7 @@
 * </author>
 */
 
-var robot = 
-Robot>();
+var robot = Robot>();
 
 robot.Respond(@"rate from (...) to (...)", msg =>
 	{

@@ -153,6 +153,7 @@
     <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\ExtensionMethos.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
@@ -177,11 +178,18 @@
     <None Include="Scripts\Ascii.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\Auth.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\Cats.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Scripts\DefProgramming.csx" />
-    <None Include="Scripts\ExchangeRates.csx" />
+    <None Include="Scripts\DefProgramming.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scripts\ExchangeRates.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\Scheduler.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -243,6 +251,11 @@
     </None>
     <None Include="Properties\MMBot.Core.nuspec" />
     <None Include="Scripts\Math.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\WhoIs.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

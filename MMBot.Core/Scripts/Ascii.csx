@@ -1,5 +1,24 @@
-﻿
-// Ported from https://github.com/rbwestmoreland/Jabbot/blob/master/Jabbot.Sprockets.Community/AsciiSprocket.cs
+﻿/**
+* <description>
+*     Creates an ascii art representation of input text
+* </description>
+*
+* <configuration>
+*
+* </configuration>
+*
+* <commands>
+*     mmbot ascii me &lt;query&gt; - Returns ASCII art of the query text.
+* </commands>
+* 
+* <notes>
+*     Ported from https://github.com/rbwestmoreland/Jabbot/blob/master/Jabbot.Sprockets.Community/AsciiSprocket.cs
+* </notes>
+* 
+* <author>
+*     dkarzon
+* </author>
+*/
 
 var robot = Require<Robot>();
 
@@ -24,4 +43,3 @@ robot.Respond(@"(ascii)( me)? (.*)", msg =>
     });
 });
 
-robot.AddHelp("mmbot ascii me <query> - Returns ASCII art of the query text.");

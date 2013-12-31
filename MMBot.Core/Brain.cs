@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Akavache;
 
 namespace MMBot
@@ -52,7 +53,7 @@ namespace MMBot
 
         public async Task Set<T>(string key, T value)
         {
-            _cache.InsertObject(GetKey(key), value);
+            await _cache.InsertObject(GetKey(key), value);
         }
 
         public async Task Remove<T>(string key)

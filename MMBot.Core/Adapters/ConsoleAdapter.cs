@@ -13,7 +13,6 @@ namespace MMBot.Adapters
             : base(robot, logger, adapterId)
         {
             _user = robot.GetUser("ConsoleUser", "ConsoleUser", "Console", adapterId);
-            _user.AddRole(robot, "admin");
         }
 
         public async override Task Run()

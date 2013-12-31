@@ -23,7 +23,6 @@ namespace MMBot
         private string _name = "mmbot";
         private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();
         
-        private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();        
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
@@ -50,7 +49,8 @@ namespace MMBot
                     .Trim()
                     .Split(',')
                     .Select(s => s.Trim())
-                    .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray());
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Union(new string[] {"ConsoleUser"}).ToArray());
             }
         }
 
