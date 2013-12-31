@@ -12,7 +12,8 @@ namespace MMBot.Adapters
         public ConsoleAdapter(Robot robot, ILog logger, string adapterId)
             : base(robot, logger, adapterId)
         {
-            _user = new User("test", "test", new string[0], "testRoom", Id);
+            _user = robot.GetUser("ConsoleUser", "ConsoleUser", "Console", adapterId);
+            _user.AddRole(robot, "admin");
         }
 
         public async override Task Run()
