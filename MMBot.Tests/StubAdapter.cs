@@ -31,7 +31,7 @@ namespace MMBot.Tests
 
         public void SimulateMessage(string user, string message)
         {
-            Robot.Receive(new TextMessage(new User(user, user, new string[0], "testRoom", Id), message, null));
+            Robot.Receive(new TextMessage(Robot.GetUser(user, user, "testRoom", Id), message, null));
         }
 
         public override Task Send(Envelope envelope, params string[] messages)

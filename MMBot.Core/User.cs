@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MMBot
 {
@@ -20,12 +21,55 @@ namespace MMBot
 
         public string Id { get; private set; }
 
-        public IEnumerable<string> Roles { get; private set; }
-
         public string Name { get; private set; }
+
+        public IEnumerable<string> Roles { get; set; }
 
         public string Room { get; private set; }
 
         public string AdapterId { get; set; }
+
+    }
+
+    public static class UserExtensions
+    {
+
+        public static User GetUser(this Robot robot, string id, string name, string room, string adapterId)
+        {
+            var roleStore = robot.Brain.Get<Dictionary<string, string>>("UserRoleStore").Result ?? new Dictionary<string, string>();
+            return new User(id, name, robot.GetUserRoles(name), room, adapterId);            
+        }
+
+        public static string[] GetUserRoles(this Robot robot, string userName)
+        {
+            var roleStore = robot.Brain.Get<Dictionary<string, string>>("UserRoleStore").Result ?? new Dictionary<string, string>();
+            return roleStore.ContainsKey(userName) ? roleStore[userName].Split(',') : new string[0];
+        }
+
+        public static void AddUserRole(this Robot robot, string userName, string role)
+        {
+            AddUserRole(robot, userName, new string[] { role });
+        }
+
+        public static void AddUserRole(this Robot robot, string userName,  string[] roles)
+        {
+            var roleStore = robot.Brain.Get<Dictionary<string, string>>("UserRoleStore").Result ?? new Dictionary<string, string>();
+            var newRoles = (roleStore.ContainsKey(userName) ? roleStore[userName].Split(',') : new string[0])
+                .Union(roles)
+                .Distinct()
+                .Select(d => d.Replace(",", ""));
+            roleStore[userName] = string.Join(",", newRoles);
+            robot.Brain.Set("UserRoleStore", roleStore);
+        }
+
+        public static bool IsInRole(this User user, string role)
+        {
+            return user.Roles.Any(d => d.Equals(role, System.StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public static bool IsAdmin(this User user, Robot robot)
+        {
+            return robot.Admins.Any(d => d.Equals(user.Id, System.StringComparison.InvariantCultureIgnoreCase));
+        }
     }
 }

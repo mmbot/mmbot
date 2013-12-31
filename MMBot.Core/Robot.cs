@@ -36,10 +36,23 @@ namespace MMBot
         private ScriptSource _currentScriptSource = null;
         private IEnumerable<Type> _adapterTypes;
         private IRouter _router = new NullRouter();
+        private List<User> UserStore = new List<User>();
+        private string[] _admins;
 
         public ILog Logger { get; private set; }
         public LoggerConfigurator LogConfig { get; private set; }
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
+        public string[] Admins
+        {
+            get
+            {
+                return _admins ?? (_admins = (GetConfigVariable("MMBOT_AUTH_ADMIN") ?? string.Empty)
+                    .Trim()
+                    .Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray());
+            }
+        }
 
         public Dictionary<string, Adapter> Adapters
         {
@@ -264,7 +277,7 @@ namespace MMBot
                     _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
             {   
                 await adapter.Value.Send(
-                    new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapter.Key),
+                    new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
                         string.Join(Environment.NewLine, messages), _name)), messages);
             }
         }
@@ -272,7 +285,7 @@ namespace MMBot
         public async void Speak(string adapterId, string room, params string[] messages)
         {
             await Adapters[adapterId].Send(
-                    new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapterId),
+                    new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapterId),
                         string.Join(Environment.NewLine, messages), _name)), messages);
         }
 

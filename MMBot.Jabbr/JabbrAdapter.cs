@@ -89,7 +89,7 @@ namespace MMBot.Jabbr
         {
             Logger.Info(string.Format("*PRIVATE* {0} -> {1} ", @from, message));
 
-            var user = new User(@from, @from, new string[0], null, Id);
+            var user = Robot.GetUser(@from, @from, null, Id);
 
             if (user.Name != _nick)
             {
@@ -131,7 +131,7 @@ namespace MMBot.Jabbr
             //    user = self.robot.brain.userForId id
             //    user.name = msg.name
 
-            var user = new User(message.User.Name, message.User.Name, new string[0], room, Id);
+            var user = Robot.GetUser(message.User.Name, message.User.Name, room, Id);
 
             //TODO: Filter out messages from mmbot itself using the current nick
             if(user.Name != _nick)
