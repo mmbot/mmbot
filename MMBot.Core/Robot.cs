@@ -35,7 +35,6 @@ namespace MMBot
         private ScriptSource _currentScriptSource = null;
         private IEnumerable<Type> _adapterTypes;
         private IRouter _router = new NullRouter();
-        private List<User> UserStore = new List<User>();
         private string[] _admins;
 
         public ILog Logger { get; private set; }
