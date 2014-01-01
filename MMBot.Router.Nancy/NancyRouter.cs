@@ -27,7 +27,7 @@ namespace MMBot.Router.Nancy
             _isConfigured = true;
         }
 
-        public void Start()
+        public virtual void Start()
         {
             if (!_isConfigured)
             {
@@ -56,9 +56,26 @@ namespace MMBot.Router.Nancy
             Routes.Add(new Route{ Method = Route.RouteMethod.Get, Path = path}, actionFunc);
         }
 
+        public void Get(string path, Action<OwinContext> action)
+        {
+            Routes.Add(new Route { Method = Route.RouteMethod.Get, Path = path }, context => { action(context);
+                                                                                                 return null;
+            } );
+        }
+
         public void Post(string path, Func<OwinContext, object> actionFunc)
         {
             Routes.Add(new Route { Method = Route.RouteMethod.Post, Path = path }, actionFunc);
+        }
+
+
+        public void Post(string path, Action<OwinContext> action)
+        {
+            Routes.Add(new Route { Method = Route.RouteMethod.Post, Path = path }, context =>
+            {
+                action(context);
+                return null;
+            });
         }
     }
 }

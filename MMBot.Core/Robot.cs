@@ -101,29 +101,22 @@ namespace MMBot
         
         public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, ILog logger) where TAdapter : Adapter
         {
-            var robot = new Robot(logger ?? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F"));
-            
-            robot.Configure(name, config, typeof(TAdapter));
-
-            robot.LoadAdapter();
-
-            return robot;
+            return Create(name, config, logger, new Type[] {typeof (TAdapter)});
         }
 
         public static Robot Create(string name, IDictionary<string, string> config, ILog logger, params Type[] adapterTypes)
         {
-            var robot = new Robot(logger ?? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F"));
-
-            robot.Configure(name, config, adapterTypes);
-
-            robot.LoadAdapter();
-
-            return robot;
+            return Create(name, config, logger, null, adapterTypes);
         }
 
         public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, params Type[] adapterTypes)
         {
-            var robot = new Robot(logConfig == null ? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F") : logConfig.GetLogger(), logConfig);
+            return Create(name, config, null, logConfig, adapterTypes);
+        }
+
+        private static Robot Create(string name, IDictionary<string, string> config, ILog logger, LoggerConfigurator logConfig, params Type[] adapterTypes)
+        {
+            var robot = new Robot(logger, logConfig);
 
             robot.Configure(name, config, adapterTypes);
 
@@ -132,20 +125,16 @@ namespace MMBot
             return robot;
         }
 
-        protected Robot() : this(new TraceLogger(false, "default", LogLevel.Error, true, false, false, "F"))
+        protected Robot() : this(null, null)
         {
-        }
-
-        protected Robot(ILog logger)
-        {
-            Logger = logger;
-            AutoLoadScripts = true;
         }
 
         protected Robot(ILog logger, LoggerConfigurator logConfig)
         {
             LogConfig = logConfig;
-            Logger = logger;
+            Logger = logger ?? (logConfig == null
+                ? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F")
+                : logConfig.GetLogger());
             AutoLoadScripts = true;
         }
 
