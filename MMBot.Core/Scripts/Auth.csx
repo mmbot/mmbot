@@ -8,11 +8,11 @@
 * </configuration>
 *
 * <commands>
-*    give &lt;user&gt; the &lt;role&gt; role - assigns user to role
-*    remove &lt;user&gt; from the &lt;role&gt; - removes user from role;
-*    list roles for &lt;user&gt; - lists roles that the user has
-*    list admins - lists the admin users
-*    dump roles - dumps all user role assignments
+*    mmbot give &lt;user&gt; the &lt;role&gt; role - assigns user to role
+*    mmbot remove &lt;user&gt; from the &lt;role&gt; - removes user from role;
+*    mmbot list roles for &lt;user&gt; - lists roles that the user has
+*    mmbot list admins - lists the admin users
+*    mmbot dump roles - dumps all user role assignments
 * </commands>
 * 
 * <notes>
@@ -28,7 +28,7 @@
 
 var robot = Require<Robot>();
 
-robot.Respond(@"(give|add) (.+) (to )?the ([-_ \w]+) role$", msg =>
+robot.Respond(@"(give|add) (\S+) (to )?the ([-_ \w]+) role$", msg =>
 {
 	var user = msg.Match[2];
 	var role = msg.Match[4];
@@ -44,7 +44,7 @@ robot.Respond(@"(give|add) (.+) (to )?the ([-_ \w]+) role$", msg =>
     }
 });
 
-robot.Respond(@"remove (.+) from the ([-_ \w]+) role$", msg =>
+robot.Respond(@"remove (\S+) from the ([-_ \w]+) role$", msg =>
 {
 	var user = msg.Match[1];
 	var role = msg.Match[2];

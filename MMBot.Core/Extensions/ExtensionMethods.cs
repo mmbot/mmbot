@@ -12,7 +12,7 @@ namespace MMBot
     /// <summary>
     /// Credit to stack exchange team: https://github.com/opserver/Opserver
     /// </summary>
-    public static class ExtensionMethos
+    public static class ExtensionMethods
     {
         public static int LineCount(this string s)
         {

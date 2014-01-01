@@ -60,7 +60,7 @@ namespace MMBot
 
         public List<string> HelpCommands
         {
-            get { return ScriptData.SelectMany(d => d.Commands).ToList(); }
+            get { return ScriptData.SelectMany(d => d.Commands).Where(d => d.HasValue()).ToList(); }
         }
 
         public string Alias { get; set; }
@@ -534,6 +534,13 @@ namespace MMBot
                     _loadedScriptTypes.Add(scriptType);
                 }
             }
+        }
+
+        public void LoadScriptName(string ScriptName)
+        {
+            string filePath = Path.Combine(Environment.CurrentDirectory, "scripts", ScriptName.EndsWith(".csx") ? ScriptName : ScriptName + ".csx");
+            if (File.Exists(filePath))
+                LoadScriptFile(filePath);            
         }
 
         public string GetConfigVariable(string name)

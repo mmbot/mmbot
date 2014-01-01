@@ -153,7 +153,7 @@
     <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
-    <Compile Include="Extensions\ExtensionMethos.cs" />
+    <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
