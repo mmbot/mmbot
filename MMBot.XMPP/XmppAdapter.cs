@@ -105,7 +105,7 @@ namespace MMBot.XMPP
 
                 Logger.Info(string.Format("[{0}] {1}: {2}", DateTime.Now, user, content));
 
-                var userObj = new User(message.Id, user, new string[0], message.From.Bare, Id);
+                var userObj = Robot.GetUser(message.Id, user, message.From.Bare, Id);
 
                 if (userObj.Name != _username)
                 {

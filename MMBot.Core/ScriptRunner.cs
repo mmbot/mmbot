@@ -101,29 +101,31 @@ namespace MMBot
                 var doc = classSymbol.GetDocumentationComment();
                 XDocument comments = XDocument.Parse(string.Format("{0}{1}{2}", "<root>", doc.FullXmlFragmentOpt, "</root>"));                    
                 ScriptMetadata metadata = new ScriptMetadata();
+                
                 var name = Path.GetFileNameWithoutExtension(path);
-                var description = comments.Descendants("description").FirstOrDefault();
-                var configuration = comments.Descendants("configuration").FirstOrDefault();
-                var author = comments.Descendants("author").FirstOrDefault();
-                var notes = comments.Descendants("notes").FirstOrDefault();
-                var commands = comments.Descendants("commands").FirstOrDefault();
-
                 if (!string.IsNullOrWhiteSpace(name))
                     metadata.Name = name;
-                if (description != null && !string.IsNullOrWhiteSpace(description.Value))
-                    metadata.Description = description.Value.Trim();
-                if (configuration != null && !string.IsNullOrWhiteSpace(configuration.Value))
-                    metadata.Configuration = configuration.Value.Trim();
-                if (author != null && !string.IsNullOrWhiteSpace(author.Value))
-                    metadata.Author = author.Value.Trim();
-                if (notes != null && !string.IsNullOrWhiteSpace(notes.Value))
-                    metadata.Notes = notes.Value.Trim();
+
+                metadata.Description = ParseNode(comments, "description");
+                metadata.Configuration = ParseNode(comments, "configuration");
+                metadata.Author = ParseNode(comments, "author");
+                metadata.Notes = ParseNode(comments, "notes");
+
+                var commands = comments.Descendants("commands").FirstOrDefault();
                 if (commands != null && !string.IsNullOrWhiteSpace(commands.Value))
                     metadata.Commands = commands.Value.Split(';').Select(d => d.Trim()).ToList();
 
                 _robot.AddMetadata(metadata);
             }
+        }
 
+        private string ParseNode(XDocument comments, string nodeName)
+        {
+            var item = comments.Descendants(nodeName).FirstOrDefault();
+            string results = "";
+            if (item != null && !string.IsNullOrWhiteSpace(item.Value))
+                results = string.Join(Environment.NewLine, item.Value.Trim().Split(';').Select(d => d.Trim()));
+            return results;
         }
 
 

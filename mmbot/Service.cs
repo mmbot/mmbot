@@ -44,7 +44,6 @@ namespace mmbot
 
         public void MMBotWorkerThread()
         {
-            log4net.Config.XmlConfigurator.Configure();
             Initializer.StartBot(_options);
         }
     }

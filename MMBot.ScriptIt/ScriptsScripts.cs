@@ -14,6 +14,12 @@ namespace MMBot.ScriptIt
         {
             robot.Respond(@"scriptthis (.*):(.*)", async msg =>
             {
+                if (!msg.Message.User.IsAdmin(robot))
+                {
+                    msg.Send("You must be an admin to run this command");
+                    return;
+                }
+
                 string name = msg.Match[1].Trim();
                 string script = msg.Match[2].Trim();
 
@@ -46,6 +52,12 @@ namespace MMBot.ScriptIt
 
             robot.Respond(@"scriptthat (.*)", async msg =>
             {
+                if (!msg.Message.User.IsAdmin(robot))
+                {
+                    msg.Send("You must be an admin to run this command");
+                    return;
+                }
+
                 string url = msg.Match[1].Trim();
 
                 Uri uri;

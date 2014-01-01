@@ -1,4 +1,20 @@
-﻿
+﻿/**
+* <description>
+*     Brings cats
+* </description>
+*
+* <commands>
+*     mmbot cat me &lt;number&gt; - Returns a number of cat pictures.;
+*     mmbot cat me - Returns a cat picture.;
+*     mmbot cat gif &lt;number&gt; - Returns a number of cat gifs.;
+*     mmbot cat gif - Returns a cat gif.;
+* </commands>
+* 
+* <author>
+*     dkarzon
+* </author>
+*/
+
 var robot = Require<Robot>();
 
 private const string Url = "http://thecatapi.com/api/images/get?format=xml&results_per_page={0}&api_key=MTAzNjQ";
@@ -74,11 +90,3 @@ private static void CatMeGifCore(IResponse<TextMessage> msg, int number)
         }
     });
 }
-
-robot.AddHelp(
-        "mmbot cat me <number> - Returns a number of cat pictures.",
-        "mmbot cat me - Returns a cat picture.",
-        "mmbot cat gif <number> - Returns a number of cat gifs.",
-        "mmbot cat gif - Returns a cat gif."
-);
-

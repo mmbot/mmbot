@@ -23,7 +23,6 @@ namespace MMBot
         private string _name = "mmbot";
         private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();
         
-        private Brain brain;
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();        
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
@@ -36,10 +35,23 @@ namespace MMBot
         private ScriptSource _currentScriptSource = null;
         private IEnumerable<Type> _adapterTypes;
         private IRouter _router = new NullRouter();
+        private string[] _admins;
 
         public ILog Logger { get; private set; }
         public LoggerConfigurator LogConfig { get; private set; }
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
+        public string[] Admins
+        {
+            get
+            {
+                return _admins ?? (_admins = (GetConfigVariable("MMBOT_AUTH_ADMIN") ?? string.Empty)
+                    .Trim()
+                    .Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Union(new string[] {"ConsoleUser"}).ToArray());
+            }
+        }
 
         public Dictionary<string, Adapter> Adapters
         {
@@ -48,7 +60,7 @@ namespace MMBot
 
         public List<string> HelpCommands
         {
-            get { return ScriptData.SelectMany(d => d.Commands).ToList(); }
+            get { return ScriptData.SelectMany(d => d.Commands).Where(d => d.HasValue()).ToList(); }
         }
 
         public string Alias { get; set; }
@@ -264,7 +276,7 @@ namespace MMBot
                     _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
             {   
                 await adapter.Value.Send(
-                    new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapter.Key),
+                    new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
                         string.Join(Environment.NewLine, messages), _name)), messages);
             }
         }
@@ -272,7 +284,7 @@ namespace MMBot
         public async void Speak(string adapterId, string room, params string[] messages)
         {
             await Adapters[adapterId].Send(
-                    new Envelope(new TextMessage(new User(_name, _name, new string[0], room, adapterId),
+                    new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapterId),
                         string.Join(Environment.NewLine, messages), _name)), messages);
         }
 
@@ -522,6 +534,13 @@ namespace MMBot
                     _loadedScriptTypes.Add(scriptType);
                 }
             }
+        }
+
+        public void LoadScriptName(string ScriptName)
+        {
+            string filePath = Path.Combine(Environment.CurrentDirectory, "scripts", ScriptName.EndsWith(".csx") ? ScriptName : ScriptName + ".csx");
+            if (File.Exists(filePath))
+                LoadScriptFile(filePath);            
         }
 
         public string GetConfigVariable(string name)
