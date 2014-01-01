@@ -173,6 +173,7 @@
     <Compile Include="Envelope.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />
+    <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
@@ -187,6 +188,7 @@
     <Compile Include="RobotNotConfiguredException.cs" />
     <Compile Include="Router\IRouter.cs" />
     <Compile Include="Router\NullRouter.cs" />
+    <Compile Include="Router\Route.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
     <Compile Include="ScriptMetadata.cs" />
     <Compile Include="ScriptProcessingException.cs" />

@@ -32,9 +32,19 @@ namespace MMBot.Router
             
         }
 
+        public void Get(string path, Action<OwinContext> action)
+        {
+            
+        }
+
         public void Post(string path, Func<OwinContext, object> actionFunc)
         {
             
+        }
+
+        public void Post(string path, Action<OwinContext> action)
+        {
+           
         }
 
         public IDictionary<Route, Func<OwinContext, object>> Routes { get; private set; }

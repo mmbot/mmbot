@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using MMBot;
 using MMBot.Adapters;
 using Common.Logging;
@@ -76,7 +77,7 @@ namespace mmbot
             var configuration = GetConfiguration(options);
             string name;
             var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
-
+            
             ConfigureRouter(robot, nugetResolver);
 
             LoadScripts(options, robot, nugetResolver, logger);
