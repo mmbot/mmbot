@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Net;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin.Testing;
 using MMBot.Router.Nancy;
-using Nancy.Owin;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Owin;
 using Xunit;
+using HttpStatusCode = System.Net.HttpStatusCode;
 
 namespace MMBot.Tests
 {
@@ -62,6 +62,26 @@ namespace MMBot.Tests
             Assert.Equal(expected, actual);
         }
 
+        public async Task WhenGithubWebHook_BodyIsParsed()
+        {
+            JToken actualPayload = null;
+            var client = await SetupRoute(robot => robot.Router.Post("/github/webhook/test/", context =>
+            {
+                actualPayload = context.Form()["payload"].ToJson();
+                context.Response.StatusCode = 200;
+            }));
+
+            var response =
+                await
+                    client.PostAsync("/github/webhook/test",
+                        new FormUrlEncodedContent(new Dictionary<string, string>
+                        {
+                            {"payload", Resources.GithubWebHookJson}
+                        }));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(3, actualPayload["commits"].Count());
+        }
 
 
         private async Task<HttpClient> SetupRoute(Action<Robot> setup)
@@ -92,7 +112,7 @@ namespace MMBot.Tests
 
             public override void Start()
             {
-                Server = TestServer.Create(app => app.UseNancy((NancyOptions options) => options.Bootstrapper = new Bootstrapper(this)));
+                Server = TestServer.Create(app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
             }
         }
     }

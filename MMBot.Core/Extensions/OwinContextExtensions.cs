@@ -1,4 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin;
@@ -27,7 +30,23 @@ namespace MMBot
         }
 
         public static async Task<JToken> ReadBodyAsJsonAsync(this IOwinContext context)
-        {  
+        {
+            var body = await context.ReadBodyAsStringAsync();
+            if (body.StartsWith("["))
+            {
+                return await JsonConvert.DeserializeObjectAsync<JArray>(body);
+            }
+            
+            return await JsonConvert.DeserializeObjectAsync<JObject>(body);
+        }
+        
+        public static string ReadBodyAsString(this IOwinContext context)
+        {
+            return context.ReadBodyAsStringAsync().Result;
+        }
+
+        public static async Task<string> ReadBodyAsStringAsync(this IOwinContext context)
+        {
             var sb = new StringBuilder();
             var buffer = new byte[8000];
             var read = 0;
@@ -40,13 +59,17 @@ namespace MMBot
                 read = await context.Request.Body.ReadAsync(buffer, 0, buffer.Length);
             }
 
-            string body = sb.ToString();
-            if (body.StartsWith("["))
-            {
-                return await JsonConvert.DeserializeObjectAsync<JArray>(body);
-            }
-            
-            return await JsonConvert.DeserializeObjectAsync<JObject>(body);
+            return sb.ToString();
+        }
+
+        public static async Task<IFormCollection> FormAsync(this IOwinContext context)
+        {
+            return await context.Request.ReadFormAsync();
+        }
+
+        public static IFormCollection Form(this IOwinContext context)
+        {
+            return context.FormAsync().Result;
         }
     }
 }

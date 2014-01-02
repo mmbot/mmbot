@@ -158,16 +158,7 @@ namespace MMBot
 
                 string result = await response.Content.ReadAsStringAsync();
 
-                JToken body;
-
-                if (result != null && result.StartsWith("["))
-                {
-                    body = await JsonConvert.DeserializeObjectAsync<JArray>(result);
-                }
-                else
-                {
-                    body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
-                }
+                var body = await result.ToJsonAsync();
                 
                 callback(null, response, body);
             }
