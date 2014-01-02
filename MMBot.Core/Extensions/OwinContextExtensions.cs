@@ -32,12 +32,7 @@ namespace MMBot
         public static async Task<JToken> ReadBodyAsJsonAsync(this IOwinContext context)
         {
             var body = await context.ReadBodyAsStringAsync();
-            if (body.StartsWith("["))
-            {
-                return await JsonConvert.DeserializeObjectAsync<JArray>(body);
-            }
-            
-            return await JsonConvert.DeserializeObjectAsync<JObject>(body);
+            return await body.ToJsonAsync();
         }
         
         public static string ReadBodyAsString(this IOwinContext context)
