@@ -22,7 +22,7 @@ namespace MMBot
     {
         private string _name = "mmbot";
         private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();
-        
+        private Dictionary<string, EventEmitItem> _emitTable = new Dictionary<string, EventEmitItem>();
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();        
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
@@ -51,6 +51,10 @@ namespace MMBot
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Union(new string[] {"ConsoleUser"}).ToArray());
             }
+        }
+        public string[] Emitters
+        {
+            get { return _emitTable.Keys.ToArray(); }
         }
 
         public Dictionary<string, Adapter> Adapters
@@ -593,6 +597,32 @@ namespace MMBot
             if(_currentScriptSource != null)
             {
                 _cleanup[_currentScriptSource.Name] =  cleanup;
+            }
+        }
+
+        public void Emit<T>(string key, T data)
+        {
+            if (_emitTable.ContainsKey(key))
+                _emitTable[key].Raise(data);
+        }
+
+        public void On<T>(string key, Action<T> action)
+        {
+            if (!_emitTable.ContainsKey(key))
+            {
+                _emitTable.Add(key, new EventEmitItem());
+            }
+
+            _emitTable[key].Emitted += delegate(object o, EventArgs e) { action((T)o); };
+        }
+
+        private class EventEmitItem
+        {
+            public event EventHandler Emitted;
+
+            public void Raise<T>(T data)
+            {
+                Emitted.Raise(data, null);
             }
         }
 
