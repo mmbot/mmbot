@@ -403,7 +403,6 @@ namespace MMBot
             }
 
             _isReady = true;
-
         }
 
 

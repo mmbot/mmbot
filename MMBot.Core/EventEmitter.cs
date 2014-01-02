@@ -25,15 +25,22 @@ namespace MMBot
 
             EmitTable[key].Emitted += delegate(object o, EventArgs e) { action(o); };
         }
-    }
 
-    public class EventEmitItem
-    {
-        public event EventHandler Emitted;
-
-        public void Raise(object data)
+        public virtual string[] GetEmitters()
         {
-            Emitted.Raise(data, null);
+            return EmitTable.Keys.ToArray();
+        }
+
+        protected class EventEmitItem
+        {
+            public event EventHandler Emitted;
+
+            public void Raise(object data)
+            {
+                Emitted.Raise(data, null);
+            }
         }
     }
+
+
 }

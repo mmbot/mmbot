@@ -162,7 +162,7 @@ namespace MMBot.Tests
                 Assert.IsNotNull(data);
                 Assert.AreEqual(data, "Emitted");
             });
-
+            
             robot.Emit("Test", "Emitted");
         }
     }
