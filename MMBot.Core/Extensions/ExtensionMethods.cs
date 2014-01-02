@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.ComponentModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MMBot
 {
@@ -257,6 +259,18 @@ namespace MMBot
             return string.Format("{0:n0}", number);
         }
 
-        
+        public static async Task<JToken> ToJsonAsync(this string jsonString)
+        {
+            if (jsonString != null && jsonString.StartsWith("["))
+            {
+                return await JsonConvert.DeserializeObjectAsync<JArray>(jsonString);
+            }
+            return await JsonConvert.DeserializeObjectAsync<JObject>(jsonString);
+        }
+
+        public static JToken ToJson(this string jsonString)
+        {
+            return jsonString.ToJsonAsync().Result;
+        }
     }
 }

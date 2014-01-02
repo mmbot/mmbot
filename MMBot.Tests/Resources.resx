@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GithubWebHookJson" xml:space="preserve">
+    <value>{
+    "after": "76c6c2e28e4833cf2524a4b5730132940a2e05af",
+    "before": "d979f44796e726573ca0de821c82b9ab54883b98",
+    "commits": [
+        {
+            "added": [],
+            "author": {
+                "email": "james.r.santiago@gmail.com",
+                "name": "jamessantiago",
+                "username": "jamessantiago"
+            },
+            "committer": {
+                "email": "james.r.santiago@gmail.com",
+                "name": "jamessantiago",
+                "username": "jamessantiago"
+            },
+            "distinct": true,
+            "id": "35ffdc2fbe1bf6caf3fdf099bbb4e432b8cd20e1",
+            "message": "minor changes",
+            "modified": [
+                "MMBot.Core/Robot.cs",
+                "MMBot.Core/Scripts/ExchangeRates.csx",
+                "MMBot.Core/Scripts/Ping.csx"
+            ],
+            "removed": [],
+            "timestamp": "2013-12-31T04:50:37-08:00",
+            "url": "https://github.com/PeteGoo/mmbot/commit/35ffdc2fbe1bf6caf3fdf099bbb4e432b8cd20e1"
+        },
+        {
+            "added": [
+                "MMBot.Core/Extensions/ExtensionMethods.cs"
+            ],
+            "author": {
+                "email": "james.r.santiago@gmail.com",
+                "name": "jamessantiago",
+                "username": "jamessantiago"
+            },
+            "committer": {
+                "email": "james.r.santiago@gmail.com",
+                "name": "jamessantiago",
+                "username": "jamessantiago"
+            },
+            "distinct": true,
+            "id": "bedcec7ad4791e6d5da3b1273f39006916362d56",
+            "message": "cleanup, updated tests",
+            "modified": [
+                "MMBot.Core/MMBot.Core.csproj",
+                "MMBot.Core/Robot.cs",
+                "MMBot.Core/ScriptMetadata.cs",
+                "MMBot.Core/Scripts/Auth.csx",
+                "MMBot.Tests/MMBot.Tests.csproj",
+                "MMBot.Tests/ScriptsTest.cs"
+            ],
+            "removed": [
+                "MMBot.Core/Extensions/ExtensionMethos.cs"
+            ],
+            "timestamp": "2013-12-31T22:24:43-08:00",
+            "url": "https://github.com/PeteGoo/mmbot/commit/bedcec7ad4791e6d5da3b1273f39006916362d56"
+        },
+        {
+            "added": [
+                "MMBot.Core/Extensions/ExtensionMethods.cs",
+                "MMBot.Core/Scripts/Auth.csx",
+                "MMBot.Core/Scripts/WhoIs.csx"
+            ],
+            "author": {
+                "email": "pete@petegoo.com",
+                "name": "Peter Goodman",
+                "username": "PeteGoo"
+            },
+            "committer": {
+                "email": "pete@petegoo.com",
+                "name": "Peter Goodman",
+                "username": "PeteGoo"
+            },
+            "distinct": true,
+            "id": "76c6c2e28e4833cf2524a4b5730132940a2e05af",
+            "message": "Merge pull request #66 from jamessantiago/auth\n\nAuthentication and More. Fixes #42, #41",
+            "modified": [
+                "MMBot.Core/Adapters/ConsoleAdapter.cs",
+                "MMBot.Core/Brain.cs",
+                "MMBot.Core/Extensions/DateTimeExtensions.cs",
+                "MMBot.Core/MMBot.Core.csproj",
+                "MMBot.Core/Robot.cs",
+                "MMBot.Core/ScriptMetadata.cs",
+                "MMBot.Core/ScriptRunner.cs",
+                "MMBot.Core/Scripts/AchievementUnlocked.csx",
+                "MMBot.Core/Scripts/Ascii.csx",
+                "MMBot.Core/Scripts/Cats.csx",
+                "MMBot.Core/User.cs",
+                "MMBot.HipChat/HipChatAdapter.cs",
+                "MMBot.HipChat/MMBot.HipChat.csproj",
+                "MMBot.Jabbr/JabbrAdapter.cs",
+                "MMBot.Jabbr/MMBot.Jabbr.csproj",
+                "MMBot.Powershell/MMBot.Powershell.csproj",
+                "MMBot.Router.Nancy/MMBot.Router.Nancy.csproj",
+                "MMBot.ScriptIt/MMBot.ScriptIt.csproj",
+                "MMBot.ScriptIt/ScriptsScripts.cs",
+                "MMBot.Tests/MMBot.Tests.csproj",
+                "MMBot.Tests/ScriptsTest.cs",
+                "MMBot.Tests/StubAdapter.cs",
+                "MMBot.XMPP/MMBot.XMPP.csproj",
+                "MMBot.XMPP/XmppAdapter.cs",
+                "MMBot.sln",
+                "ScriptCs.MMBot/ScriptCs.MMBot.csproj",
+                "mmbot/Service.cs",
+                "mmbot/mmbot.csproj"
+            ],
+            "removed": [],
+            "timestamp": "2014-01-01T01:30:52-08:00",
+            "url": "https://github.com/PeteGoo/mmbot/commit/76c6c2e28e4833cf2524a4b5730132940a2e05af"
+        }
+    ],
+    "compare": "https://github.com/PeteGoo/mmbot/compare/d979f44796e7...76c6c2e28e48",
+    "created": false,
+    "deleted": false,
+    "forced": false,
+    "head_commit": {
+        "added": [
+            "MMBot.Core/Extensions/ExtensionMethods.cs",
+            "MMBot.Core/Scripts/Auth.csx",
+            "MMBot.Core/Scripts/WhoIs.csx"
+        ],
+        "author": {
+            "email": "pete@petegoo.com",
+            "name": "Peter Goodman",
+            "username": "PeteGoo"
+        },
+        "committer": {
+            "email": "pete@petegoo.com",
+            "name": "Peter Goodman",
+            "username": "PeteGoo"
+        },
+        "distinct": true,
+        "id": "76c6c2e28e4833cf2524a4b5730132940a2e05af",
+        "message": "Merge pull request #66 from jamessantiago/auth\n\nAuthentication and More. Fixes #42, #41",
+        "modified": [
+            "MMBot.Core/Adapters/ConsoleAdapter.cs",
+            "MMBot.Core/Brain.cs",
+            "MMBot.Core/Extensions/DateTimeExtensions.cs",
+            "MMBot.Core/MMBot.Core.csproj",
+            "MMBot.Core/Robot.cs",
+            "MMBot.Core/ScriptMetadata.cs",
+            "MMBot.Core/ScriptRunner.cs",
+            "MMBot.Core/Scripts/AchievementUnlocked.csx",
+            "MMBot.Core/Scripts/Ascii.csx",
+            "MMBot.Core/Scripts/Cats.csx",
+            "MMBot.Core/User.cs",
+            "MMBot.HipChat/HipChatAdapter.cs",
+            "MMBot.HipChat/MMBot.HipChat.csproj",
+            "MMBot.Jabbr/JabbrAdapter.cs",
+            "MMBot.Jabbr/MMBot.Jabbr.csproj",
+            "MMBot.Powershell/MMBot.Powershell.csproj",
+            "MMBot.Router.Nancy/MMBot.Router.Nancy.csproj",
+            "MMBot.ScriptIt/MMBot.ScriptIt.csproj",
+            "MMBot.ScriptIt/ScriptsScripts.cs",
+            "MMBot.Tests/MMBot.Tests.csproj",
+            "MMBot.Tests/ScriptsTest.cs",
+            "MMBot.Tests/StubAdapter.cs",
+            "MMBot.XMPP/MMBot.XMPP.csproj",
+            "MMBot.XMPP/XmppAdapter.cs",
+            "MMBot.sln",
+            "ScriptCs.MMBot/ScriptCs.MMBot.csproj",
+            "mmbot/Service.cs",
+            "mmbot/mmbot.csproj"
+        ],
+        "removed": [],
+        "timestamp": "2014-01-01T01:30:52-08:00",
+        "url": "https://github.com/PeteGoo/mmbot/commit/76c6c2e28e4833cf2524a4b5730132940a2e05af"
+    },
+    "pusher": {
+        "name": "none"
+    },
+    "ref": "refs/heads/master",
+    "repository": {
+        "created_at": 1379330353,
+        "description": "A C# port of Hubot",
+        "fork": false,
+        "forks": 5,
+        "has_downloads": true,
+        "has_issues": true,
+        "has_wiki": true,
+        "id": 12865453,
+        "language": "C#",
+        "master_branch": "master",
+        "name": "mmbot",
+        "open_issues": 23,
+        "owner": {
+            "email": "pete@petegoo.com",
+            "name": "PeteGoo"
+        },
+        "private": false,
+        "pushed_at": 1388579605,
+        "size": 7582,
+        "stargazers": 42,
+        "url": "https://github.com/PeteGoo/mmbot",
+        "watchers": 42
+    }
+}</value>
+  </data>
+</root>
