@@ -18,7 +18,7 @@ using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
 {
-    public class Robot : EventEmitter, IScriptPackContext
+    public class Robot : IScriptPackContext
     {
         private string _name = "mmbot";
         private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();

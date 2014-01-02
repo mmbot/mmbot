@@ -152,15 +152,15 @@ namespace MMBot.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WhenEmitInvokeOn()
         {
             var robot = Robot.Create<StubAdapter>();
             robot.On<string>("Test", result =>
             {
                 var data = result;
-                Assert.IsNotNull(data);
-                Assert.AreEqual(data, "Emitted");
+                Assert.NotNull(data);
+                Assert.Equal(data, "Emitted");
             });
             
             robot.Emit("Test", "Emitted");
