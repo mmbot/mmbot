@@ -60,9 +60,11 @@ namespace MMBot.XMPP
                 ConnectServer = _connectHost,
                 AutoResolveConnectServer = true,
                 Username = _username,
-                Password = _password,
+                Password = _password
             };
 
+            _xmppConnection.KeepAlive = true;
+            
             _xmppConnection.OnLogin += OnLogin;
             _xmppConnection.OnError += OnError;
             _xmppConnection.OnMessage += OnMessage;
@@ -70,8 +72,6 @@ namespace MMBot.XMPP
             _xmppConnection.OnRosterItem += OnClientRosterItem;
             _xmppConnection.OnXmppConnectionStateChanged += OnXmppConnectionStateChanged;
 
-            //_xmppConnection.OnXmppConnectionStateChanged
-            
             CancelPreviousLogin();
 
             _loginTcs = new TaskCompletionSource<bool>();
@@ -120,7 +120,7 @@ namespace MMBot.XMPP
 
         private void OnError(object sender, Exception ex)
         {
-            Robot.Logger.Error("XMPP Error - " + ex.Message);
+            Logger.Error("XMPP Error - " + ex.Message);
             //if (_loginTcs != null)
             //{
             //    _loginTcs.SetException(ex);
@@ -130,7 +130,7 @@ namespace MMBot.XMPP
 
         private void OnLogin(object sender)
         {
-            Robot.Logger.Info("Logged into " + _xmppConnection.Server);
+            Logger.Info("Logged into " + _xmppConnection.Server);
             if (_loginTcs != null)
             {
                 _loginTcs.TrySetResult(true);
@@ -140,7 +140,7 @@ namespace MMBot.XMPP
 
         private void OnXmppConnectionStateChanged(object sender, XmppConnectionState state)
         {
-            Robot.Logger.Info("XMPP connection changed - " + state.GetDescription());
+            Logger.Info("XMPP connection changed - " + state.GetDescription());
         }
 
         public override Task Close()
