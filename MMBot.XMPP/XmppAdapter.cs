@@ -68,9 +68,10 @@ namespace MMBot.XMPP
             _xmppConnection.OnMessage += OnMessage;
             _xmppConnection.OnPresence += XmppConnectionOnOnPresence;
             _xmppConnection.OnRosterItem += OnClientRosterItem;
+            _xmppConnection.OnXmppConnectionStateChanged += OnXmppConnectionStateChanged;
 
+            //_xmppConnection.OnXmppConnectionStateChanged
             
-
             CancelPreviousLogin();
 
             _loginTcs = new TaskCompletionSource<bool>();
@@ -119,6 +120,7 @@ namespace MMBot.XMPP
 
         private void OnError(object sender, Exception ex)
         {
+            Robot.Logger.Error("XMPP Error - " + ex.Message);
             //if (_loginTcs != null)
             //{
             //    _loginTcs.SetException(ex);
@@ -128,11 +130,17 @@ namespace MMBot.XMPP
 
         private void OnLogin(object sender)
         {
+            Robot.Logger.Info("Logged into " + _xmppConnection.Server);
             if (_loginTcs != null)
             {
                 _loginTcs.TrySetResult(true);
                 _loginTcs = null;
             }
+        }
+
+        private void OnXmppConnectionStateChanged(object sender, XmppConnectionState state)
+        {
+            Robot.Logger.Info("XMPP connection changed - " + state.GetDescription());
         }
 
         public override Task Close()
