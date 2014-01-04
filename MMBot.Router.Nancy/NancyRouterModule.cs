@@ -37,7 +37,11 @@ namespace MMBot.Router.Nancy
 
         private OwinContext OwinContext
         {
-            get { return new OwinContext((IDictionary<string, object>)Context.Items[NancyOwinHost.RequestEnvironmentKey]); }
+            get { 
+                var owinContext = new OwinContext((IDictionary<string, object>)Context.Items[NancyOwinHost.RequestEnvironmentKey]);
+                owinContext.Request.Body = Context.Request.Body;
+                return owinContext;
+            }
         }
     }
 }
