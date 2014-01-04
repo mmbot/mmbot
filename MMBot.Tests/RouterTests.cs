@@ -65,22 +65,29 @@ namespace MMBot.Tests
         public async Task WhenGithubWebHook_BodyIsParsed()
         {
             JToken actualPayload = null;
+            string eventType = null;
             var client = await SetupRoute(robot => robot.Router.Post("/github/webhook/test/", context =>
             {
                 actualPayload = context.Form()["payload"].ToJson();
+                eventType = context.Request.Headers["X-GitHub-Event"];
                 context.Response.StatusCode = 200;
             }));
+
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"payload", Resources.GithubWebHookJson}
+            });
+
+            content.Headers.Add("X-GitHub-Event", new[]{"push"});
 
             var response =
                 await
                     client.PostAsync("/github/webhook/test",
-                        new FormUrlEncodedContent(new Dictionary<string, string>
-                        {
-                            {"payload", Resources.GithubWebHookJson}
-                        }));
+                        content);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(3, actualPayload["commits"].Count());
+            Assert.Equal("push", eventType);
         }
 
 
