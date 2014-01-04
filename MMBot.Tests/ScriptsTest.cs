@@ -55,16 +55,5 @@ namespace MMBot.Tests
                 "test1 is already in the testgroup role" == messages.First().Item2.First());
             Assert.Equal("Got it, test1 is no longer in the testgroup role", messages.Last().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
         }
-
-        [Fact]
-        public async Task TestReplaySubject()
-        {
-            var subject = new ReplaySubject<string>();
-            subject.OnNext("foo");
-
-            var foo = await subject.FirstAsync();
-
-            Assert.Equal("foo", foo);
-        }
     }
 }
