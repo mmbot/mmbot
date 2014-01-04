@@ -180,14 +180,20 @@ namespace MMBot
 
         #region Message Handling
 
-        public void CatchAll(Action<Response<CatchAllMessage>> action)
+        public void CatchAll(Action<IResponse<CatchAllMessage>> action)
         {
-            //TODO: add listener for any incomming message
+            _listeners.Add(new CatchAllListener(this, action)
+            {
+                Source = _currentScriptSource
+            });
         }
 
-        public void Enter(Action<Response<EnterMessage>> action)
+        public void Enter(Action<IResponse<EnterMessage>> action)
         {
-            //TODO: add listener for presense data?
+            _listeners.Add(new RosterListener(this, action)
+            {
+                Source = _currentScriptSource
+            });
         }
 
         public void Hear(string regex, Action<IResponse<TextMessage>> action)
@@ -200,9 +206,12 @@ namespace MMBot
             });
         }
 
-        public void Leave(Action<Response<LeaveMessage>> action)
+        public void Leave(Action<IResponse<LeaveMessage>> action)
         {
-            //TODO: add listener for presense data?
+            _listeners.Add(new RosterListener(this, action)
+            {
+                Source = _currentScriptSource
+            });
         }
 
         public void Receive(Message message)

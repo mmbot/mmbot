@@ -117,6 +117,7 @@
   <ItemGroup>
     <Compile Include="BrainTests.cs" />
     <Compile Include="CompiledScripts\Ascii.cs" />
+    <Compile Include="CompiledScripts\CatchAllTest.cs" />
     <Compile Include="CompiledScripts\Cats.cs" />
     <Compile Include="CompiledScripts\Giphy.cs" />
     <Compile Include="CompiledScripts\GoogleImages.cs" />

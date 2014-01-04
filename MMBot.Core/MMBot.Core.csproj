@@ -144,20 +144,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdapterNotConfiguredException.cs" />
+    <Compile Include="Adapters\AdapterNotConfiguredException.cs" />
     <Compile Include="Adapters\ConsoleAdapter.cs" />
     <Compile Include="Adapters\Extensions.cs" />
     <Compile Include="AsyncSynchronizationContext.cs" />
     <Compile Include="Brain.cs" />
-    <Compile Include="Adapter.cs" />
+    <Compile Include="Adapters\Adapter.cs" />
     <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="HttpWrapper.cs" />
-    <Compile Include="IListener.cs" />
+    <Compile Include="Listeners\CatchAllListener.cs" />
+    <Compile Include="Listeners\IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
-    <Compile Include="Listener.cs" />
+    <Compile Include="Listeners\Listener.cs" />
+    <Compile Include="Listeners\RosterListener.cs" />
     <Compile Include="LoggerConfigurator.cs" />
     <Compile Include="MatchResult.cs" />
     <Compile Include="Message.cs" />
@@ -242,7 +244,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="TaskAsyncHelper.cs" />
-    <Compile Include="TextListener.cs" />
+    <Compile Include="Listeners\TextListener.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>

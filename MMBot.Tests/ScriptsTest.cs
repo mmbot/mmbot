@@ -57,5 +57,39 @@ namespace MMBot.Tests
 
         #endregion
 
+        [TestMethod]
+        public async Task CanCatchAnyMessage()
+        {
+            var robot = Robot.Create<StubAdapter>();
+            var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.LoadScript<CatchAllTest>();
+            robot.AutoLoadScripts = false;
+            await robot.Run();
+
+            adapter.SimulateMessage("tester", "test message");
+
+            var messages = adapter.Messages.Select(m => m.Item2);
+            Assert.AreEqual(1, messages.Count());
+            Assert.AreEqual("Caught msg test message from tester", messages.First().First(), true);
+
+            adapter.SimulateEnter("tester");
+
+            messages = adapter.Messages.Select(m => m.Item2);
+            Assert.AreEqual(2, messages.Count());
+            Assert.AreEqual("Caught msg tester joined testRoom from tester", messages.Skip(1).First().First(), true);
+
+            adapter.SimulateLeave("tester");
+
+            messages = adapter.Messages.Select(m => m.Item2);
+            Assert.AreEqual(3, messages.Count());
+            Assert.AreEqual("Caught msg tester left testRoom from tester", messages.Skip(2).First().First(), true);
+
+            adapter.SimulateTopic("tester", "new topic");
+
+            messages = adapter.Messages.Select(m => m.Item2);
+            Assert.AreEqual(4, messages.Count());
+            Assert.AreEqual("Caught msg new topic from tester", messages.Skip(3).First().First(), true);
+        }
+
     }
 }
