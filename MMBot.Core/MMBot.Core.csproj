@@ -159,6 +159,7 @@
     <Compile Include="Listeners\IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
     <Compile Include="Listeners\Listener.cs" />
+    <Compile Include="Listeners\TopicListener.cs" />
     <Compile Include="Listeners\RosterListener.cs" />
     <Compile Include="LoggerConfigurator.cs" />
     <Compile Include="MatchResult.cs" />

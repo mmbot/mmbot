@@ -268,9 +268,12 @@ namespace MMBot
                         string.Join(Environment.NewLine, messages), _name)), messages);
         }
 
-        public void Topic(Action<Response<TopicMessage>> action)
+        public void Topic(Action<IResponse<TopicMessage>> action)
         {
-            //TODO: add listener for topic change?
+            _listeners.Add(new TopicListener(this, action)
+            {
+                Source = _currentScriptSource
+            });
         }
 
         #endregion Message Handling
