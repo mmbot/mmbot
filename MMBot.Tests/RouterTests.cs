@@ -88,6 +88,8 @@ namespace MMBot.Tests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(3, actualPayload["commits"].Count());
             Assert.Equal("push", eventType);
+
+            
         }
 
 
