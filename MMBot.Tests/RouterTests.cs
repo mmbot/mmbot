@@ -122,5 +122,6 @@ namespace MMBot.Tests
                 Server = TestServer.Create(app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
             }
         }
+
     }
 }
