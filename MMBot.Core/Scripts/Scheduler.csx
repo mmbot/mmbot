@@ -28,14 +28,14 @@ var robot = Require<Robot>();
 
 public class MessageJob
 {
-	public Message Message;
+	public TextMessage Message;
 	public string Schedule;
 	public System.Timers.Timer JobTimer;
 }
 
 public class SavedJob
 {
-	public Message Message;
+	public TextMessage Message;
 	public string Schedule;
 	public double Interval;
 }
@@ -65,7 +65,7 @@ robot.Respond(@"(repeat every (\d*)(\w) )(.*)", msg =>
 	var timeType = msg.Match[3];
 	var cmdText = robot.Name + " " + msg.Match[4];	
 
-	Message m = new TextMessage(msg.Message.User, cmdText, null);
+	TextMessage m = new TextMessage(msg.Message.User, cmdText, null);
 
 	TimeSpan interval = GetTimeSpanFromRelative(timeValue, timeType); 
 	if (interval.TotalMilliseconds == 0)
@@ -102,7 +102,7 @@ robot.Respond(@"(schedule for (\d*)(\w) )(.*)", msg =>
 	var timeType = msg.Match[3];
 	var cmdText = robot.Name + " " + msg.Match[4];	
 
-	Message m = new TextMessage(msg.Message.User, cmdText, null);
+	TextMessage m = new TextMessage(msg.Message.User, cmdText, null);
 
 	TimeSpan interval = GetTimeSpanFromRelative(timeValue, timeType); 
 	if (interval.TotalMilliseconds == 0)
@@ -171,7 +171,7 @@ robot.Respond(@"(stop|kill)( job)? (.*)", msg =>
 	}
 });
 
-private static void HandleMessageTimerElapsed(Message m, Robot robot)
+private static void HandleMessageTimerElapsed(TextMessage m, Robot robot)
 {
 	robot.Receive(m);
 }
