@@ -31,8 +31,6 @@ namespace MMBot.Tests
             Assert.AreEqual("pong", messages.First().First(), true);
         }
 
-        #region Auth
-
         [TestMethod]
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
@@ -54,8 +52,6 @@ namespace MMBot.Tests
                 "test1 is already in the testgroup role" == messages.First().First());
             Assert.AreEqual("Got it, test1 is no longer in the testgroup role", messages.Last().First(), true);            
         }
-
-        #endregion
 
         [TestMethod]
         public async Task CanCatchAnyMessage()

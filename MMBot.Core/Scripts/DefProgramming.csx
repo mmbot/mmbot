@@ -12,16 +12,13 @@
 * </commands>
 * 
 * <notes>
-*     Requires HtmlAgilityPack
-*     ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/defprogramming.coffee*     
+*     ported from https://github.com/github/hubot-scripts/blob/master/src/scripts/defprogramming.coffee
 * </notes>
 * 
 * <author>
 *     jamessantiago
 * </author>
 */
-
-using HtmlAgilityPack;
 
 var robot = Require<Robot>();
 
