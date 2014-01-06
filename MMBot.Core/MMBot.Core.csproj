@@ -146,7 +146,6 @@
   <ItemGroup>
     <Compile Include="Adapters\AdapterNotConfiguredException.cs" />
     <Compile Include="Adapters\ConsoleAdapter.cs" />
-    <Compile Include="Adapters\Extensions.cs" />
     <Compile Include="AsyncSynchronizationContext.cs" />
     <Compile Include="Brain.cs" />
     <Compile Include="Adapters\Adapter.cs" />
