@@ -14,36 +14,50 @@
 
     public class TextMessage : Message
     {
-        
-
         public TextMessage(User user, string content, string id)
         {
             User = user;
             Text = content;
-            Id = id;
         }
 
-        public string Id { get; private set; }
         public string Text { get; private set; }
     }
 
     public class EnterMessage : Message
     {
-
+        public EnterMessage(User user)
+        {
+            User = user;
+        }
     }
 
     public class LeaveMessage : Message
     {
-
+        public LeaveMessage(User user)
+        {
+            User = user;
+        }
     }
 
     public class TopicMessage : Message
     {
+        public TopicMessage(User user, string topic)
+        {
+            User = user;
+            Topic = topic;
+        }
 
+        public string Topic { get; private set; }
     }
 
     public class CatchAllMessage : Message
     {
+        public CatchAllMessage(User user, string textData)
+        {
+            User = user;
+            Text = textData;
+        }
 
+        public string Text { get; private set; }
     }
 }

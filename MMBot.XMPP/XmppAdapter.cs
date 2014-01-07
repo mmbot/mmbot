@@ -68,7 +68,6 @@ namespace MMBot.XMPP
             _xmppConnection.OnMessage += OnMessage;
             _xmppConnection.OnPresence += XmppConnectionOnOnPresence;
             _xmppConnection.OnRosterItem += OnClientRosterItem;
-
             
 
             CancelPreviousLogin();
@@ -80,6 +79,7 @@ namespace MMBot.XMPP
             //return _loginTcs == null ? Task.FromResult(false) :  _loginTcs.Task;
             return Task.FromResult(false);
         }
+
 
         private void XmppConnectionOnOnPresence(object sender, Presence pres)
         {
