@@ -20,8 +20,6 @@ namespace MMBot
 {
     public class Robot : IScriptPackContext
     {
-        #region Fields
-
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
         protected bool _isConfigured = false;
         private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();
@@ -39,10 +37,6 @@ namespace MMBot
         private string _name = "mmbot";
         private IRouter _router = new NullRouter();
         private ScriptRunner _scriptRunner;
-
-        #endregion Fields
-
-        #region Constructors + Constructor Methods
 
         protected Robot()
             : this(new TraceLogger(false, "default", LogLevel.Error, true, false, false, "F"))
@@ -104,10 +98,6 @@ namespace MMBot
 
             return robot;
         }
-
-        #endregion Constructors + Constructor Methods
-
-        #region Properties
 
         public Dictionary<string, Adapter> Adapters
         {
@@ -175,10 +165,6 @@ namespace MMBot
         }
 
         public string ScriptPath { get; set; }
-
-        #endregion Properties
-
-        #region Message Handling
 
         public void CatchAll(Action<IResponse<CatchAllMessage>> action)
         {
@@ -276,10 +262,6 @@ namespace MMBot
             });
         }
 
-        #endregion Message Handling
-
-        #region Configuration Methods
-
         public void AddHelp(params string[] helpMessages)
         {
             if (!ScriptData.Any(d => d.Name == "UnReferenced"))
@@ -324,8 +306,6 @@ namespace MMBot
             router.Configure(this, int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
             _router = router;
         }
-
-        
 
         public string GetConfigVariable(string name)
         {
@@ -376,10 +356,6 @@ namespace MMBot
                 Logger.Info("No logging rooms to enabled");
             }
         }
-
-        #endregion
-
-        #region Script Management Methods
 
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()
         {
@@ -492,10 +468,6 @@ namespace MMBot
                 }
             }
         }
-
-        #endregion Script Management Methods
-
-        #region Methods
 
         public void Emit<T>(string key, T data)
         {
@@ -649,8 +621,6 @@ namespace MMBot
 
             HelpCommands.AddRange(script.GetHelp());
         }
-
-        #endregion
 
         private class EventEmitItem
         {
