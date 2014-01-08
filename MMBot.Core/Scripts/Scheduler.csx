@@ -28,9 +28,33 @@ var robot = Require<Robot>();
 
 public class MessageJob
 {
+	public MessageJob(SavedJob saved){
+		Message = saved.Message;
+		Schedule = saved.Schedule;
+		Interval = saved.Interval;
+	}
+
+	public MessageJob(){}
+
 	public TextMessage Message;
 	public string Schedule;
-	public System.Timers.Timer JobTimer;
+	public double Interval;
+
+	private System.Timers.Timer _timer;
+
+	public void Start(Robot robot, Action<TextMessage> onMessage){
+		var t = new System.Timers.Timer();
+		t.Elapsed += (sender, e) => { onMessage(Message); };
+		t.Interval = Interval;
+		t.Enabled = true;
+		_timer = t;
+	}
+
+	public void Stop(){
+		if(_timer != null){
+			_timer.Enabled = false;
+		}
+	}
 }
 
 public class SavedJob
@@ -45,17 +69,9 @@ var previouslySavedJobs = robot.Brain.Get<List<SavedJob>>("Schedule").Result ?? 
 
 foreach (var savedJob in previouslySavedJobs)
 {
-	var t = new System.Timers.Timer();
-	t.Elapsed += (sender, e) => { HandleMessageTimerElapsed(savedJob.Message, robot); };
-	t.Interval = savedJob.Interval;
-	t.Enabled = true;
-
-	scheduledJobs.Add(new MessageJob()
-	{
-		Message = savedJob.Message,
-		Schedule = savedJob.Schedule,
-		JobTimer = t
-	});
+	var job = new MessageJob(savedJob);
+	scheduledJobs.Add(job);
+	job.Start(robot, HandleMessageTimerElapsed);
 }
 
 robot.Respond(@"(repeat every (\d*)(\w) )(.*)", msg =>
@@ -65,7 +81,7 @@ robot.Respond(@"(repeat every (\d*)(\w) )(.*)", msg =>
 	var timeType = msg.Match[3];
 	var cmdText = robot.Name + " " + msg.Match[4];	
 
-	TextMessage m = new TextMessage(msg.Message.User, cmdText, null);
+	TextMessage m = new TextMessage(msg.Message.User, cmdText);
 
 	TimeSpan interval = GetTimeSpanFromRelative(timeValue, timeType); 
 	if (interval.TotalMilliseconds == 0)
@@ -73,17 +89,14 @@ robot.Respond(@"(repeat every (\d*)(\w) )(.*)", msg =>
 		msg.Send("Could not understand time given");
 		return;
 	}
-
-	var t = new System.Timers.Timer();
-	t.Elapsed += (sender, e) => { HandleMessageTimerElapsed(m, robot); };
-	t.Interval = interval.TotalMilliseconds;
-	t.Enabled = true;
-
-	scheduledJobs.Add(new MessageJob(){
+	var job = new MessageJob(){
 		Message = m,
 		Schedule = "on repeat at an interval of " + timeValue.ToString() + timeType,
-		JobTimer = t
-	});
+		Interval = interval.TotalMilliseconds
+	};
+	scheduledJobs.Add(job);
+	job.Start(robot, HandleMessageTimerElapsed);
+
 	var savedJobs = robot.Brain.Get<List<SavedJob>>("Schedule").Result ?? new List<SavedJob>();
 	savedJobs.Add(new SavedJob(){
 		Message = m,
@@ -102,7 +115,7 @@ robot.Respond(@"(schedule for (\d*)(\w) )(.*)", msg =>
 	var timeType = msg.Match[3];
 	var cmdText = robot.Name + " " + msg.Match[4];	
 
-	TextMessage m = new TextMessage(msg.Message.User, cmdText, null);
+	TextMessage m = new TextMessage(msg.Message.User, cmdText);
 
 	TimeSpan interval = GetTimeSpanFromRelative(timeValue, timeType); 
 	if (interval.TotalMilliseconds == 0)
@@ -110,18 +123,14 @@ robot.Respond(@"(schedule for (\d*)(\w) )(.*)", msg =>
 		msg.Send("Could not understand time given");
 		return;
 	}
-
-	var t = new System.Timers.Timer();
-	t.Elapsed += (sender, e) => { HandleMessageTimerElapsed(m, robot); };
-	t.Interval = interval.TotalMilliseconds;
-	t.AutoReset = false;
-	t.Enabled = true;
-
-	scheduledJobs.Add(new MessageJob(){
+	var job = new MessageJob(){
 		Message = m,
 		Schedule = "at " + DateTime.Now.AddMilliseconds(interval.TotalMilliseconds).ToString(),
-		JobTimer = t
-	});
+		Interval = interval.TotalMilliseconds
+	};
+	scheduledJobs.Add(job);
+	job.Start(robot, HandleMessageTimerElapsed);
+
 	var savedJobs = robot.Brain.Get<List<SavedJob>>("Schedule").Result ?? new List<SavedJob>();
 	savedJobs.Add(new SavedJob()
 	{
@@ -136,6 +145,11 @@ robot.Respond(@"(schedule for (\d*)(\w) )(.*)", msg =>
 
 robot.Respond(@"list schedule(s)?(d jobs)?", msg => 
 {
+	if(!scheduledJobs.Any()){
+		msg.Send("There are no scheduled jobs");
+		return;
+	}
+
 	foreach (var job in scheduledJobs)
 	{
 		msg.Send(string.Format("\"{0}\" scheduled to execute {1}", ((TextMessage)job.Message).Text, job.Schedule));
@@ -149,12 +163,13 @@ robot.Respond(@"(stop|kill)( job)? (.*)", msg =>
 	{
 		foreach (var j in scheduledJobs)
 		{
-			j.JobTimer.Enabled = false;
+			j.Stop();
 		}
 		scheduledJobs.Clear();
 		savedJobs.Clear();
 		robot.Brain.Set<List<SavedJob>>("Schedule", savedJobs);
 		msg.Send("Killed all jobs");
+		return;
 	}
 	var job = scheduledJobs.Where(d => ((TextMessage)d.Message).Text.ToLower() == msg.Match[3].ToLower()).FirstOrDefault();
 	if (job == null)
@@ -163,7 +178,7 @@ robot.Respond(@"(stop|kill)( job)? (.*)", msg =>
 	}
 	else
 	{
-		job.JobTimer.Enabled = false;
+		job.Stop();
 		savedJobs.Remove(savedJobs.Where(d => d.Message == job.Message).FirstOrDefault());
 		scheduledJobs.Remove(job);
 		robot.Brain.Set<List<SavedJob>>("Schedule", savedJobs);
@@ -171,7 +186,7 @@ robot.Respond(@"(stop|kill)( job)? (.*)", msg =>
 	}
 });
 
-private static void HandleMessageTimerElapsed(TextMessage m, Robot robot)
+private void HandleMessageTimerElapsed(TextMessage m)
 {
 	robot.Receive(m);
 }

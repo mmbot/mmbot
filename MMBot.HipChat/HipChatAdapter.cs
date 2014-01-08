@@ -149,7 +149,7 @@ namespace MMBot.HipChat
                 if (userObj.Name != _nick)
                 {
                     Task.Run(() =>
-                        Robot.Receive(new TextMessage(userObj, message.Body.Trim(), message.Id)));
+                        Robot.Receive(new TextMessage(userObj, message.Body.Trim())));
                 }
             }
         }

@@ -19,7 +19,7 @@ namespace MMBot.Tests
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(), 
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             http.Query(new
@@ -44,7 +44,7 @@ namespace MMBot.Tests
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             http.Query("foo", "Foo");
@@ -61,7 +61,7 @@ namespace MMBot.Tests
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             http.Query(new Dictionary<string, string>{{"foo", "Foo"}, {"bar", "Bar"}});
@@ -84,7 +84,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             var actual = await http.GetJson();
@@ -106,7 +106,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             var callback = false;
@@ -130,7 +130,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             Assert.Throws<AggregateException>(() => http.GetJson().Result);
@@ -147,7 +147,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             var callback = false;
@@ -176,7 +176,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             var actual = await http.GetXml();
@@ -197,7 +197,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             var callback = false;
@@ -221,7 +221,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             Assert.Throws<AggregateException>(() => http.GetXml().Result);
@@ -238,7 +238,7 @@ namespace MMBot.Tests
             });
             var http = new HttpWrapper("http://foo.com/",
                 new TestLogger(),
-                new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
+                new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
             var callback = false;
