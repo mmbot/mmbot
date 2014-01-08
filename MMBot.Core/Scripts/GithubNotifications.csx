@@ -11,6 +11,7 @@
 * 
 * <notes>
 *    Uses the router. Needs to have the router correctly configured. For information on event types see http://developer.github.com/v3/activity/events/types/
+*    You must install the Octokit package for this script to run (type "nuget install Octokit -o packages" from your installation directory).
 * </notes>
 * 
 * <author>
