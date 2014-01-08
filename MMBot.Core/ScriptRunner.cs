@@ -9,6 +9,7 @@ using Common.Logging;
 using log4net.Repository.Hierarchy;
 using Microsoft.Owin;
 using MMBot.ScriptCS;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ScriptCs;
@@ -62,10 +63,11 @@ namespace MMBot
             var packageReferences = scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory);
 
             scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(packageReferences).ToArray());
-            scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq", "System.Xml", "System.Net", "System.Net.Http" }).ToArray());
+            scriptServiceRoot.Executor.ImportNamespaces(ScriptExecutor.DefaultNamespaces.Concat(new[] { "MMBot", "Newtonsoft.Json", "Newtonsoft.Json.Linq", "HtmlAgilityPack", "System.Xml", "System.Net", "System.Net.Http" }).ToArray());
             scriptServiceRoot.Executor.AddReference<Robot>();
             scriptServiceRoot.Executor.AddReference<ILog>();
             scriptServiceRoot.Executor.AddReference<JArray>();
+            scriptServiceRoot.Executor.AddReference<HtmlDocument>();
             scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
             scriptServiceRoot.Executor.AddReference<IScriptPackContext>();
             scriptServiceRoot.Executor.AddReference<OwinContext>();

@@ -20,6 +20,16 @@ namespace MMBot
 
             throw new NotImplementedException();
         }
+
+        public static IResponse<T> Create<T>(Robot robot, T message) where T : Message
+        {
+            if (message is EnterMessage || message is LeaveMessage || message is CatchAllMessage)
+            {
+                return new Response<T>(robot, message);
+            }
+
+            throw new NotImplementedException();
+        }
     }
 
     public interface IResponse<out T> where T : Message
@@ -53,6 +63,13 @@ namespace MMBot
             Matches = matchResult.Match;
             Match = matchResult.Match == null || matchResult.Match.Count == 0 ? new string[0] : matchResult.Match[0].Groups.Cast<Group>().Select(g => g.Value).ToArray();
             Message = textMessage;
+        }
+
+        public Response(Robot robot, T rosterMessage)
+        {
+            _robot = robot;
+            _envelope = new Envelope(rosterMessage);
+            Message = rosterMessage;
         }
 
         public async Task Send(params string[] messages)

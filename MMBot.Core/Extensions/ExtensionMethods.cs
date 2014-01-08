@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using System.Reflection;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,14 +13,20 @@ namespace MMBot
     /// </summary>
     public static class ExtensionMethods
     {
-        public static int LineCount(this string s)
+        /// <summary>
+        /// Adds the parameter items to this list.
+        /// </summary>
+        public static void AddAll<T>(this List<T> list, params T[] items)
         {
-            var n = 0;
-            foreach (var c in s)
+            list.AddRange(items);
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        {
+            foreach (var item in source)
             {
-                if (c == '\n') n++;
+                action(item);
             }
-            return n + 1;
         }
 
         /// <summary>
@@ -36,63 +39,40 @@ namespace MMBot
             return String.Format("{0:#,##0}", number);
         }
 
-        /// <summary>
-        /// Micro representation of a number
-        /// </summary>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        public static string Micro(this int number)
+        public static string GetDescription<T>(this T? enumerationValue) where T : struct
         {
-
-            if (number >= 1000000)
-            {
-                return String.Format("{0:0.0m}", (double)number / 1000000);
-            }
-
-            if (number >= 100000)
-            {
-                return String.Format("{0:0k}", (double)number / 1000);
-            }
-
-            if (number >= 10000)
-            {
-                return String.Format("{0:0k}", (double)number / 1000);
-
-            }
-
-            if (number >= 1000)
-            {
-                return String.Format("{0:0k}", (double)number / 1000);
-            }
-
-            return String.Format("{0:#,##0}", number);
+            return enumerationValue.HasValue ? enumerationValue.Value.GetDescription() : string.Empty;
         }
 
         /// <summary>
-        /// Adds the parameter items to this list.
+        /// Gets the Description attribute text or the .ToString() of an enum member
         /// </summary>
-        public static void AddAll<T>(this List<T> list, params T[] items)
+        public static string GetDescription<T>(this T enumerationValue) where T : struct
         {
-            list.AddRange(items);
-        }
-
-        public static void Raise(this EventHandler handler, object sender, EventArgs e)
-        {
-            if (handler != null) handler(sender, e);
-        }
-
-        public static void Raise<T>(this EventHandler<T> handler, object sender, T e) where T : EventArgs
-        {
-            if (handler != null) handler(sender, e);
+            var type = enumerationValue.GetType();
+            if (!type.IsEnum) throw new ArgumentException("EnumerationValue must be of Enum type", "enumerationValue");
+            var memberInfo = type.GetMember(enumerationValue.ToString());
+            if (memberInfo.Length > 0)
+            {
+                var attrs = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
+                if (attrs.Length > 0)
+                    return ((DescriptionAttribute)attrs[0]).Description;
+            }
+            return enumerationValue.ToString();
         }
 
         /// <summary>
-        /// Answers true if this String is either null or empty.
+        /// Returns a string with all the DBML-mapped property names and their values. Each tuple will be separated by 'joinSeparator'.
         /// </summary>
-        /// <remarks>I'm so tired of typing String.IsNullOrEmpty(s)</remarks>
-        public static bool IsNullOrEmpty(this string s)
+        public static string GetPropertyNamesAndValues(this object o, string joinSeparator = "\n")
         {
-            return string.IsNullOrEmpty(s);
+            if (o == null)
+                return "";
+
+            var props = o.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).AsEnumerable();
+
+            var strings = props.Select(p => p.Name + ":" + p.GetValue(o, null));
+            return string.Join(joinSeparator, strings);
         }
 
         /// <summary>
@@ -102,6 +82,23 @@ namespace MMBot
         public static bool HasValue(this string s)
         {
             return !string.IsNullOrEmpty(s);
+        }
+
+        /// <summary>
+        /// Returns the default value if given a default(T)
+        /// </summary>
+        public static T IfDefaultReturn<T>(this T val, T dDefault) where T : struct
+        {
+            return val.Equals(default(T)) ? dDefault : val;
+        }
+
+        /// <summary>
+        /// Answers true if this String is either null or empty.
+        /// </summary>
+        /// <remarks>I'm so tired of typing String.IsNullOrEmpty(s)</remarks>
+        public static bool IsNullOrEmpty(this string s)
+        {
+            return string.IsNullOrEmpty(s);
         }
 
         /// <summary>
@@ -123,12 +120,52 @@ namespace MMBot
             return "";
         }
 
-        /// <summary>
-        /// Returns the default value if given a default(T)
-        /// </summary>
-        public static T IfDefaultReturn<T>(this T val, T dDefault) where T : struct
+        public static int LineCount(this string s)
         {
-            return val.Equals(default(T)) ? dDefault : val;
+            var n = 0;
+            foreach (var c in s)
+            {
+                if (c == '\n') n++;
+            }
+            return n + 1;
+        }
+
+        /// <summary>
+        /// Micro representation of a number
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        public static string Micro(this int number)
+        {
+            if (number >= 1000000)
+            {
+                return String.Format("{0:0.0m}", (double)number / 1000000);
+            }
+
+            if (number >= 100000)
+            {
+                return String.Format("{0:0k}", (double)number / 1000);
+            }
+
+            if (number >= 10000)
+            {
+                return String.Format("{0:0k}", (double)number / 1000);
+            }
+
+            if (number >= 1000)
+            {
+                return String.Format("{0:0k}", (double)number / 1000);
+            }
+
+            return String.Format("{0:#,##0}", number);
+        }
+
+        /// <summary>
+        /// Returns true when the next number between 1 and 100 is less than or equal to 'percentChanceToOccur'.
+        /// </summary>
+        public static bool PercentChance(this Random random, int percentChanceToOccur)
+        {
+            return random.Next(1, 100) <= percentChanceToOccur;
         }
 
         /// <summary>
@@ -170,72 +207,15 @@ namespace MMBot
             return number == 1 ? noun : pluralForm.IsNullOrEmptyReturn((noun ?? "") + "s");
         }
 
-        /// <summary>
-        /// force string to be maxlen or smaller
-        /// </summary>
-        public static string Truncate(this string s, int maxLength)
+        public static void Raise(this EventHandler handler, object sender, EventArgs e)
         {
-            if (s.IsNullOrEmpty()) return s;
-            return (s.Length > maxLength) ? s.Remove(maxLength) : s;
+            if (handler != null) handler(sender, e);
         }
 
-        public static string TruncateWithEllipsis(this string s, int maxLength)
+        public static void Raise<T>(this EventHandler<T> handler, object sender, T e) where T : EventArgs
         {
-            if (s.IsNullOrEmpty()) return s;
-            if (s.Length <= maxLength) return s;
-
-            return string.Format("{0}...", Truncate(s, maxLength - 3));
+            if (handler != null) handler(sender, e);
         }
-
-        /// <summary>
-        /// Returns a string with all the DBML-mapped property names and their values. Each tuple will be separated by 'joinSeparator'.
-        /// </summary>
-        public static string GetPropertyNamesAndValues(this object o, string joinSeparator = "\n")
-        {
-            if (o == null)
-                return "";
-
-            var props = o.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).AsEnumerable();
-
-            var strings = props.Select(p => p.Name + ":" + p.GetValue(o, null));
-            return string.Join(joinSeparator, strings);
-        }
-
-        public static string GetDescription<T>(this T? enumerationValue) where T : struct
-        {
-            return enumerationValue.HasValue ? enumerationValue.Value.GetDescription() : string.Empty;
-        }
-
-        /// <summary>
-        /// Gets the Description attribute text or the .ToString() of an enum member
-        /// </summary>
-        public static string GetDescription<T>(this T enumerationValue) where T : struct
-        {
-            var type = enumerationValue.GetType();
-            if (!type.IsEnum) throw new ArgumentException("EnumerationValue must be of Enum type", "enumerationValue");
-            var memberInfo = type.GetMember(enumerationValue.ToString());
-            if (memberInfo.Length > 0)
-            {
-                var attrs = memberInfo[0].GetCustomAttributes(typeof(DescriptionAttribute), false);
-                if (attrs.Length > 0)
-                    return ((DescriptionAttribute)attrs[0]).Description;
-            }
-            return enumerationValue.ToString();
-        }
-
-        public static int ToSecondsFromDays(this int representingDays)
-        {
-            return representingDays * 24 * 60 * 60;
-        }
-
-        /// <summary>
-        /// Returns true when the next number between 1 and 100 is less than or equal to 'percentChanceToOccur'.
-        /// </summary>
-        public static bool PercentChance(this Random random, int percentChanceToOccur)
-        {
-            return random.Next(1, 100) <= percentChanceToOccur;
-        }
-
 
         public static string ToComma(this int? number, string valueIfZero = null)
         {
@@ -257,6 +237,28 @@ namespace MMBot
         {
             if (number == 0 && valueIfZero != null) return valueIfZero;
             return string.Format("{0:n0}", number);
+        }
+
+        public static int ToSecondsFromDays(this int representingDays)
+        {
+            return representingDays * 24 * 60 * 60;
+        }
+
+        /// <summary>
+        /// force string to be maxlen or smaller
+        /// </summary>
+        public static string Truncate(this string s, int maxLength)
+        {
+            if (s.IsNullOrEmpty()) return s;
+            return (s.Length > maxLength) ? s.Remove(maxLength) : s;
+        }
+
+        public static string TruncateWithEllipsis(this string s, int maxLength)
+        {
+            if (s.IsNullOrEmpty()) return s;
+            if (s.Length <= maxLength) return s;
+
+            return string.Format("{0}...", Truncate(s, maxLength - 3));
         }
 
         public static async Task<JToken> ToJsonAsync(this string jsonString)

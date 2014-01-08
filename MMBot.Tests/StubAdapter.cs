@@ -42,6 +42,21 @@ namespace MMBot.Tests
             Robot.Receive(new TextMessage(Robot.GetUser(user, user, "testRoom", Id), message, null));
         }
 
+        public void SimulateEnter(string user)
+        {
+            Robot.Receive(new EnterMessage(Robot.GetUser(user, user, "testRoom", Id)));
+        }
+
+        public void SimulateLeave(string user)
+        {
+            Robot.Receive(new LeaveMessage(Robot.GetUser(user, user, "testRoom", Id)));
+        }
+
+        public void SimulateTopic(string user, string topic)
+        {
+            Robot.Receive(new TopicMessage(Robot.GetUser(user, user, "testRoom", Id), topic));
+        }
+
         public override Task Send(Envelope envelope, params string[] messages)
         {
             var payload = Tuple.Create(envelope, messages);

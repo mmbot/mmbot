@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/PeteGoo/mmbot.png?label=ready)](https://waffle.io/PeteGoo/mmbot)
 # mmbot
 
 ## Overview

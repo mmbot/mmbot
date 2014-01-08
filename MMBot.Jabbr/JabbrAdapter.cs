@@ -80,9 +80,19 @@ namespace MMBot.Jabbr
             _client.UserJoined += OnUserJoined;
 
             _client.UserLeft += OnUserLeft;
-
-            _client.PrivateMessage += OnPrivateMessage;
             
+            _client.PrivateMessage += OnPrivateMessage;
+
+            _client.TopicChanged += OnTopicChanged;
+            
+        }
+
+        void OnTopicChanged(string room, string topic, string who)
+        {
+            Logger.Info(string.Format("{0} has changed the topic for {1} to {2}", who, room, topic));
+
+            var user = Robot.GetUser(who, who, room, Id);
+            Task.Run(() => Robot.Receive(new TopicMessage(user, topic)));
         }
 
         private void OnPrivateMessage(string @from, string to, string message)
@@ -101,11 +111,14 @@ namespace MMBot.Jabbr
         private void OnUserLeft(User user, string room)
         {
             Logger.Info(string.Format("{0} left {1}", user.Name, room));
+
+            Task.Run(() => Robot.Receive(new LeaveMessage(user)));
         }
 
         private void OnUserJoined(User user, string room, bool isOwner)
         {
             Logger.Info(string.Format("{0} joined {1}", user.Name, room));
+            Task.Run(() => Robot.Receive(new EnterMessage(user)));
         }
 
         private void OnClientStateChanged(StateChange state)
