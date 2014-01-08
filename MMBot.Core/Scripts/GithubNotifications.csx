@@ -52,8 +52,12 @@ robot.Router.Post("/github/webhook/", context => {
 	try{
 		robot.Logger.Info("Got a github webhook call!!");
 		var payload = context.Form()["payload"].ToJson();
-		foreach(var sub in subscriptions.Where(s => string.Equals(s.Id, payload["id"]) && s.Events.Contains(context.Request.Headers["X-GitHub-Event"], StringComparer.InvariantCultureIgnoreCase))) {
+		foreach(var sub in subscriptions.Where(s => 
+				string.Equals(s.Owner, payload["repository"]["owner"]["login"].ToString(), StringComparison.InvariantCultureIgnoreCase) &&
+				string.Equals(s.Repo, payload["repository"]["name"].ToString(), StringComparison.InvariantCultureIgnoreCase) &&
+				s.Events.Contains(context.Request.Headers["X-GitHub-Event"], StringComparer.InvariantCultureIgnoreCase))) {
 			PrintCommits(payload, sub.AdapterId, sub.Room);
+			PrintIssues(payload, sub.AdapterId, sub.Room);
 		}	
 	}
 	catch(Exception ex) {
@@ -236,7 +240,7 @@ private Uri GetApiUrl(string owner, string repo, string id = null){
 }
 
 private void PrintCommits(JToken payload, string adapterId, string room) {
-	if(!payload["commits"].Any())
+	if(payload["commits"] == null || !payload["commits"].Any())
 		return;
 
 	var sb = new StringBuilder();
@@ -257,6 +261,21 @@ private void PrintCommits(JToken payload, string adapterId, string room) {
 	robot.Logger.Info(report);
 
 	robot.Speak(adapterId, room, report);	
+}
+
+private void PrintIssues(JToken payload, string adapterId, string room) {
+	if(payload["issue"] == null){
+		robot.Speak(adapterId, room, "Nothing to report");
+		return;
+	}
+		
+	robot.Speak(adapterId, room, string.Format("The issue #{0}:\"{1}\" has been {2} by {3}", 
+		payload["issue"]["number"].ToString(), 
+		payload["issue"]["title"].ToString(), 
+		payload["action"].ToString(),
+		payload["sender"]["login"].ToString()));
+
+	robot.Speak(adapterId, room, payload["issue"]["html_url"].ToString());
 }
 
 private void AddSubscription(MMBot.IResponse<TextMessage> msg, string id, string owner, string repo, params string[] eventNames) {
