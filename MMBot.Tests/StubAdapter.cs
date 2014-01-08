@@ -39,7 +39,7 @@ namespace MMBot.Tests
 
         public void SimulateMessage(string user, string message)
         {
-            Robot.Receive(new TextMessage(Robot.GetUser(user, user, "testRoom", Id), message, null));
+            Robot.Receive(new TextMessage(Robot.GetUser(user, user, "testRoom", Id), message));
         }
 
         public void SimulateEnter(string user)

@@ -14,7 +14,7 @@
 
     public class TextMessage : Message
     {
-        public TextMessage(User user, string text, string id)
+        public TextMessage(User user, string text)
         {
             User = user;
             Text = text;

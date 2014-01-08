@@ -54,6 +54,7 @@ robot.Router.Post("/github/webhook/", context => {
 		var payload = context.Form()["payload"].ToJson();
 		foreach(var sub in subscriptions.Where(s => string.Equals(s.Id, payload["id"]) && s.Events.Contains(context.Request.Headers["X-GitHub-Event"], StringComparer.InvariantCultureIgnoreCase))) {
 			PrintCommits(payload, sub.AdapterId, sub.Room);
+			PrintIssues(payload, sub.AdapterId, sub.Room);
 		}	
 	}
 	catch(Exception ex) {
@@ -257,6 +258,13 @@ private void PrintCommits(JToken payload, string adapterId, string room) {
 	robot.Logger.Info(report);
 
 	robot.Speak(adapterId, room, report);	
+}
+
+private void PrintIssues(JToken payload, string adapterId, string room) {
+	if(!payload["issues"].Any())
+		return;
+
+	robot.Logger.Info(payload.ToString());
 }
 
 private void AddSubscription(MMBot.IResponse<TextMessage> msg, string id, string owner, string repo, params string[] eventNames) {

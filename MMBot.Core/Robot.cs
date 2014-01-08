@@ -232,7 +232,7 @@ namespace MMBot
             {
                 await adapter.Value.Send(
                     new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
-                        string.Join(Environment.NewLine, messages), _name)), messages);
+                        string.Join(Environment.NewLine, messages))), messages);
             }
         }
 
@@ -240,7 +240,7 @@ namespace MMBot
         {
             await Adapters[adapterId].Send(
                     new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapterId),
-                        string.Join(Environment.NewLine, messages), _name)), messages);
+                        string.Join(Environment.NewLine, messages))), messages);
         }
 
         public void Topic(Action<IResponse<TopicMessage>> action)

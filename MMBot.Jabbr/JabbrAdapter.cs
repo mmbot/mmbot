@@ -104,7 +104,7 @@ namespace MMBot.Jabbr
             if (user.Name != _nick)
             {
                 Task.Run(() =>
-                Robot.Receive(new TextMessage(user, string.Format("{0} {1}", to, message), null)));
+                Robot.Receive(new TextMessage(user, string.Format("{0} {1}", to, message))));
             }
         }
 
@@ -150,7 +150,7 @@ namespace MMBot.Jabbr
             if(user.Name != _nick)
             {
                 Task.Run(() => 
-                Robot.Receive(new TextMessage(user, message.Content, message.Id)));
+                Robot.Receive(new TextMessage(user, message.Content)));
             }
         }
 

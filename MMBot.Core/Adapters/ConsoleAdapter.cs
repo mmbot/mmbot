@@ -31,7 +31,7 @@ namespace MMBot.Adapters
                     Environment.Exit(0);
                     return;
                 }
-                Robot.Receive(new TextMessage(_user, message, null));
+                Robot.Receive(new TextMessage(_user, message));
             }
         }
 

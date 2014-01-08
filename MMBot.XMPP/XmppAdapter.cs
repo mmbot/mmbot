@@ -111,7 +111,7 @@ namespace MMBot.XMPP
                 {
                     Task.Run(() =>
                     {
-                        Robot.Receive(new TextMessage(userObj, content, message.Id));
+                        Robot.Receive(new TextMessage(userObj, content));
                     });
                 }
             }
