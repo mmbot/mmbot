@@ -44,7 +44,13 @@ namespace mmbot
 
         public void MMBotWorkerThread()
         {
-            Initializer.StartBot(_options);
+            Initializer.StartBot(_options).Wait();
+
+            while (true)
+            {
+                // sit and spin?
+                Thread.Sleep(2000);
+            }
         }
     }
 }

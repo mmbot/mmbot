@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace MMBot.Tests
 {
-    [TestClass]
+
     public class BrainTests
     {
-        [TestMethod]
+        [Fact]
         public async Task WhenValueIsAddedToBrain_CanBeRetrievedViaGet()
         {
             var robot = Robot.Create<StubAdapter>();
@@ -14,10 +14,10 @@ namespace MMBot.Tests
             var value = "value1";
             await robot.Brain.Set(key, value);
 
-            Assert.AreEqual(value, await robot.Brain.Get<string>(key));
+            Assert.Equal(value, await robot.Brain.Get<string>(key));
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenValueIsRemovedToBrain_GetReturnsDefault()
         {
             var robot = Robot.Create<StubAdapter>();
@@ -25,7 +25,7 @@ namespace MMBot.Tests
             var value = "value1";
             await robot.Brain.Set(key, value);
             await robot.Brain.Remove<string>(key);
-            Assert.IsNull(await robot.Brain.Get<string>(key));
+            Assert.Null(await robot.Brain.Get<string>(key));
         }
     }
 }

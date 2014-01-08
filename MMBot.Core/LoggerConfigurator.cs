@@ -2,9 +2,7 @@
 using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
-using System.Text;
 using Common.Logging.Log4Net;
-using log4net;
 using log4net.Appender;
 using log4net.Core;
 using log4net.Layout;
@@ -18,7 +16,7 @@ namespace MMBot
     {
         private const string ThreadPattern = " Thread[%thread]";
         private const string Pattern = "%-5level{threadLevel}: %message%newline";
-        private const string LoggerName = "scriptcs";
+        private const string LoggerName = "mmbot";
 
         private readonly LogLevel _logLevel;
 
@@ -38,6 +36,11 @@ namespace MMBot
         public void ConfigureForRobot(Robot robot)
         {
             AddAppender(new RobotLogAppender(robot));
+        }
+
+        public void AddTraceListener()
+        {
+            AddAppender(new TraceAppender());
         }
 
         public void ConfigureForFile(string logFile)

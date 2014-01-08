@@ -40,7 +40,14 @@ namespace mmbot
                 }
                 else
                 {
-                    Initializer.StartBot(options);
+                    Initializer.StartBot(options).Wait();
+
+                    while (true)
+                    {
+                        // sit and spin?
+                        Thread.Sleep(2000);
+                    }
+
                 }
             }
             else

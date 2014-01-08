@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Common.Logging;
@@ -96,7 +97,7 @@ namespace MMBot
         {
             try
             {
-                var response = await GetResponseMessage();
+                var response = await DoGet();
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
                 HtmlDocument doc = new HtmlDocument();
@@ -115,7 +116,7 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                response = await GetResponseMessage();
+                response = await DoGet();
 
                 response.EnsureSuccessStatusCode();
 
@@ -135,7 +136,7 @@ namespace MMBot
         {
             try
             {
-                var response = await GetResponseMessage();
+                var response = await DoGet();
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
                 return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
@@ -152,22 +153,13 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                response = await GetResponseMessage();
+                response = await DoGet();
 
                 response.EnsureSuccessStatusCode();
 
                 string result = await response.Content.ReadAsStringAsync();
 
-                JToken body;
-
-                if (result != null && result.StartsWith("["))
-                {
-                    body = await JsonConvert.DeserializeObjectAsync<JArray>(result);
-                }
-                else
-                {
-                    body = await JsonConvert.DeserializeObjectAsync<JObject>(result);
-                }
+                var body = await result.ToJsonAsync();
                 
                 callback(null, response, body);
             }
@@ -178,7 +170,7 @@ namespace MMBot
             }
         }
 
-        private async Task<HttpResponseMessage> GetResponseMessage()
+        private async Task<HttpResponseMessage> DoGet()
         {
             var uri = BuildUri();
             var client = new HttpClient(_httpMessageHandler);
@@ -191,7 +183,7 @@ namespace MMBot
 
         public async Task<XmlDocument> GetXml()
         {
-            var response = await GetResponseMessage();
+            var response = await DoGet();
 
             response.EnsureSuccessStatusCode();
 
@@ -207,7 +199,7 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                response = await GetResponseMessage();
+                response = await DoGet();
 
                 response.EnsureSuccessStatusCode();
 
@@ -228,7 +220,7 @@ namespace MMBot
         {
             try
             {
-                return await GetResponseMessage();
+                return await DoGet();
             }
             catch (Exception e)
             {
@@ -242,7 +234,7 @@ namespace MMBot
             HttpResponseMessage response = null;
             try
             {
-                response = await GetResponseMessage();
+                response = await DoGet();
                 response.EnsureSuccessStatusCode();
                 callback(null, response);
             }
@@ -251,7 +243,46 @@ namespace MMBot
                 _logger.Error("Http Get error", e);
                 callback(e, response);
             }
-            
+        }
+
+        public async Task Post(JToken json, Action<Exception, HttpResponseMessage> callback)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await DoPost(json);
+                response.EnsureSuccessStatusCode();
+                callback(null, response);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http Post error", e);
+                callback(e, response);
+            }
+        }
+
+        public async Task<HttpResponseMessage> Post(object json)
+        {
+            try
+            {
+                return await DoPost(json);
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Http Post error", e);
+                throw;
+            }
+        }
+
+        private async Task<HttpResponseMessage> DoPost(object json)
+        {
+            var uri = BuildUri();
+            var client = new HttpClient(_httpMessageHandler);
+            _headers.ForEach(h => client.DefaultRequestHeaders.Add(h.Key, h.Value));
+
+            return await
+                client.PostAsync(uri,
+                new StringContent(json is string ? (string)json : JsonConvert.SerializeObject(json), Encoding.UTF8, "application/json"));
         }
     }
 

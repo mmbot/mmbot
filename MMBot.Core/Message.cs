@@ -14,10 +14,10 @@
 
     public class TextMessage : Message
     {
-        public TextMessage(User user, string content, string id)
+        public TextMessage(User user, string text, string id)
         {
             User = user;
-            Text = content;
+            Text = text;
         }
 
         public string Text { get; private set; }

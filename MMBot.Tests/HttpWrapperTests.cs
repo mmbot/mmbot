@@ -5,16 +5,15 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Xunit;
 
 namespace MMBot.Tests
 {
-    [TestClass]
     public class HttpWrapperTests
     {
-        [TestMethod]
+        [Fact]
         public async Task WhenQueryParametersAreAddedByAnonymousType_UrlIsCorrectlyConstructed()
         {
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
@@ -31,7 +30,7 @@ namespace MMBot.Tests
 
             await http.Get();
 
-            Assert.AreEqual("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
+            Assert.Equal("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
         }
 
         private static User CreateTestUser()
@@ -39,7 +38,7 @@ namespace MMBot.Tests
             return new User("foo", "foo", new string[0], "testRoom", "stubAdapter");
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenQueryParametersAreAddedindividually_UrlIsCorrectlyConstructed()
         {
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
@@ -53,10 +52,10 @@ namespace MMBot.Tests
 
             await http.Get();
 
-            Assert.AreEqual("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
+            Assert.Equal("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenQueryParametersAreAddedViaDictionary_UrlIsCorrectlyConstructed()
         {
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
@@ -69,11 +68,11 @@ namespace MMBot.Tests
             
             await http.Get();
 
-            Assert.AreEqual("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
+            Assert.Equal("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
         }
 
 
-        [TestMethod]
+        [Fact]
         public async Task WhenGetJsonIsCalled_ResponseContentIsDeserialized()
         {
             var expectedString = JsonConvert.SerializeObject(new {Id=4, Foo = "Foo", Bar = "Bar", Date = DateTime.Now});
@@ -91,11 +90,11 @@ namespace MMBot.Tests
             var actual = await http.GetJson();
 
 
-            Assert.IsTrue(new JTokenEqualityComparer().Equals((JToken)expected, (JToken)actual));
+            Assert.True(new JTokenEqualityComparer().Equals((JToken)expected, (JToken)actual));
         }
 
 
-        [TestMethod]
+        [Fact]
         public async Task WhenGetJsonWithCallbackReturnsErrorHttpStatusCode_CodeIsAccessibleViaResponseParameter()
         {
             var expectedString = JsonConvert.SerializeObject(new { Id = 4, Foo = "Foo", Bar = "Bar", Date = DateTime.Now });
@@ -114,14 +113,13 @@ namespace MMBot.Tests
             await http.GetJson((err, res, body) =>
             {
                 callback = true;
-                Assert.AreEqual(HttpStatusCode.NotFound, res.StatusCode);
+                Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
             });
-            Assert.IsTrue(callback);
+            Assert.True(callback);
 
         }
 
-        [ExpectedException(typeof(JsonReaderException))]
-        [TestMethod]
+        [Fact]
         public async Task WhenGetJson_AndContentContainsGarbage_ThrowsException()
         {
             var expected = "dfsgsdf%#@$%^&*()";
@@ -135,12 +133,10 @@ namespace MMBot.Tests
                 new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
-            await http.GetJson();
-            Assert.Fail("Should have thrown");
-            
+            Assert.Throws<AggregateException>(() => http.GetJson().Result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenGetJsonWithCallback_AndContentContainsGarbage_ThrowsException()
         {
             var expected = "dfsgsdf%#@$%^&*()";
@@ -158,16 +154,16 @@ namespace MMBot.Tests
             await http.GetJson((err, res, body) =>
             {
                 callback = true;
-                Assert.IsNotNull(err);
-                Assert.IsInstanceOfType(err, typeof(Exception));
+                Assert.NotNull(err);
+                Assert.IsType<JsonReaderException>(err);
                 
             });
 
-            Assert.IsTrue(callback);
+            Assert.True(callback);
         }
 
 
-        [TestMethod]
+        [Fact]
         public async Task WhenGetXmlIsCalled_ResponseContentIsDeserialized()
         {
             var expectedString = "<root><foo>Foo</foo><bar>Bar</bar></root>";
@@ -185,10 +181,10 @@ namespace MMBot.Tests
 
             var actual = await http.GetXml();
 
-            Assert.AreEqual(expected.ToString(), actual.ToString());
+            Assert.Equal(expected.ToString(), actual.ToString());
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenGetXmlWithCallbackReturnsErrorHttpStatusCode_CodeIsAccessibleViaResponseParameter()
         {
             var expectedString = "<root><foo>Foo</foo><bar>Bar</bar></root>";
@@ -208,14 +204,13 @@ namespace MMBot.Tests
             await http.GetXml((err, res, body) =>
             {
                 callback = true;
-                Assert.AreEqual(HttpStatusCode.NotFound, res.StatusCode);
+                Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
             });
-            Assert.IsTrue(callback);
+            Assert.True(callback);
 
         }
 
-        [ExpectedException(typeof(XmlException))]
-        [TestMethod]
+        [Fact]
         public async Task WhenGetXmlIsCalled_AndContentIsGarbage_ExceptionIsThrown()
         {
             var expectedString = "!@#$%^&*()_+<root><foo@#$%^&*()_>$%^&*(OP)_Foo</foo><bar>Bar</bar></root>";
@@ -229,12 +224,10 @@ namespace MMBot.Tests
                 new Envelope(new TextMessage(CreateTestUser(), "test", "id")),
                 stubHandler);
 
-            await http.GetXml();
-
-            Assert.Fail("Should have thrown");
+            Assert.Throws<AggregateException>(() => http.GetXml().Result);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task WhenGetXmlWithCallback_AndContentIsGarbage_ErrContainsException()
         {
             var expectedString = "!@#$%^&*()_+<root><foo@#$%^&*()_>$%^&*(OP)_Foo</foo><bar>Bar</bar></root>";
@@ -252,10 +245,10 @@ namespace MMBot.Tests
             await http.GetXml((err, res, body) =>
             {
                 callback = true;
-                Assert.IsNotNull(err);
-                Assert.IsInstanceOfType(err, typeof(Exception));
+                Assert.NotNull(err);
+                Assert.IsType<HttpRequestException>(err);
             });
-            Assert.IsTrue(callback);
+            Assert.True(callback);
 
         }
     }

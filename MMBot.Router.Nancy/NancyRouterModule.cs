@@ -15,19 +15,19 @@ namespace MMBot.Router.Nancy
                 switch (route.Key.Method)
                 {
                     case Route.RouteMethod.Get:
-                        Get[route.Key.Path] = x => (route.Value(OwinContext));
+                        Get[route.Key.Path] = x => (route.Value(CreateOwinContext()));
                         break;
                     case Route.RouteMethod.Delete:
-                        Delete[route.Key.Path] = x => (route.Value(OwinContext));
+                        Delete[route.Key.Path] = x => (route.Value(CreateOwinContext()));
                         break;
                     case Route.RouteMethod.Patch:
-                        Patch[route.Key.Path] = x => (route.Value(OwinContext));
+                        Patch[route.Key.Path] = x => (route.Value(CreateOwinContext()));
                         break;
                     case Route.RouteMethod.Post:
-                        Post[route.Key.Path] = x => (route.Value(OwinContext));
+                        Post[route.Key.Path] = x => (route.Value(CreateOwinContext()));
                         break;
                     case Route.RouteMethod.Put:
-                        Put[route.Key.Path] = x => (route.Value(OwinContext));
+                        Put[route.Key.Path] = x => (route.Value(CreateOwinContext()));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -35,9 +35,11 @@ namespace MMBot.Router.Nancy
             }
         }
 
-        private OwinContext OwinContext
+        private OwinContext CreateOwinContext()
         {
-            get { return new OwinContext((IDictionary<string, object>)Context.Items[NancyOwinHost.RequestEnvironmentKey]); }
+            var owinContext = new OwinContext((IDictionary<string, object>)Context.Items[NancyOwinHost.RequestEnvironmentKey]);
+            owinContext.Request.Body = Context.Request.Body;
+            return owinContext;
         }
     }
 }
