@@ -67,27 +67,27 @@ namespace MMBot.Tests
 
             adapter.SimulateMessage("tester", "test message");
 
-            var messages = adapter.Messages.Select(m => m.Item2);
+            var messages = await adapter.GetEmittedMessages(1);
             Assert.Equal(1, messages.Count());
-            Assert.Equal("Caught msg test message from tester", messages.First().First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Caught msg test message from tester", messages.First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
 
             adapter.SimulateEnter("tester");
 
-            messages = adapter.Messages.Select(m => m.Item2);
+            messages = await adapter.GetEmittedMessages(2);
             Assert.Equal(2, messages.Count());
-            Assert.Equal("Caught msg tester joined testRoom from tester", messages.Skip(1).First().First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Caught msg tester joined testRoom from tester", messages.Skip(1).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
 
             adapter.SimulateLeave("tester");
 
-            messages = adapter.Messages.Select(m => m.Item2);
+            messages = await adapter.GetEmittedMessages(3);
             Assert.Equal(3, messages.Count());
-            Assert.Equal("Caught msg tester left testRoom from tester", messages.Skip(2).First().First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Caught msg tester left testRoom from tester", messages.Skip(2).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
 
             adapter.SimulateTopic("tester", "new topic");
 
-            messages = adapter.Messages.Select(m => m.Item2);
+            messages = await adapter.GetEmittedMessages(4);
             Assert.Equal(4, messages.Count());
-            Assert.Equal("Caught msg new topic from tester", messages.Skip(3).First().First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Caught msg new topic from tester", messages.Skip(3).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
         }
 
     }
