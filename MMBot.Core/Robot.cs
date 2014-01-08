@@ -75,6 +75,8 @@ namespace MMBot
         }
 
         protected Robot() : this(null, null)
+        {
+        }
 
         protected Robot(ILog logger, LoggerConfigurator logConfig)
         {
