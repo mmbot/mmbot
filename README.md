@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/PeteGoo/mmbot.png?label=ready)](https://waffle.io/PeteGoo/mmbot)
+[![Stories in You Take It](https://badge.waffle.io/PeteGoo/mmbot.png?label=you%20take%20it)](https://waffle.io/PeteGoo/mmbot)
 # mmbot
 
 ## Overview
