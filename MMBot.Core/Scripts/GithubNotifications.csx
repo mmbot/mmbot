@@ -56,8 +56,10 @@ robot.Router.Post("/github/webhook/", context => {
 				string.Equals(s.Owner, payload["repository"]["owner"]["login"].ToString(), StringComparison.InvariantCultureIgnoreCase) &&
 				string.Equals(s.Repo, payload["repository"]["name"].ToString(), StringComparison.InvariantCultureIgnoreCase) &&
 				s.Events.Contains(context.Request.Headers["X-GitHub-Event"], StringComparer.InvariantCultureIgnoreCase))) {
+			
 			PrintCommits(payload, sub.AdapterId, sub.Room);
 			PrintIssues(payload, sub.AdapterId, sub.Room);
+			PrintPullRequests(payload, sub.AdapterId, sub.Room);
 		}	
 	}
 	catch(Exception ex) {
@@ -265,7 +267,6 @@ private void PrintCommits(JToken payload, string adapterId, string room) {
 
 private void PrintIssues(JToken payload, string adapterId, string room) {
 	if(payload["issue"] == null){
-		robot.Speak(adapterId, room, "Nothing to report");
 		return;
 	}
 		
@@ -276,6 +277,20 @@ private void PrintIssues(JToken payload, string adapterId, string room) {
 		payload["sender"]["login"].ToString()));
 
 	robot.Speak(adapterId, room, payload["issue"]["html_url"].ToString());
+}
+
+private void PrintPullRequests(JToken payload, string adapterId, string room) {
+	if(payload["pull_request"] == null){
+		return;
+	}
+		
+	robot.Speak(adapterId, room, string.Format("The pull request #{0}:\"{1}\" has been {2} by {3}", 
+		payload["number"].ToString(), 
+		payload["pull_request"]["title"].ToString(), 
+		payload["action"].ToString(),
+		payload["pull_request"]["user"]["login"].ToString()));
+
+	robot.Speak(adapterId, room, payload["pull_request"]["html_url"].ToString());
 }
 
 private void AddSubscription(MMBot.IResponse<TextMessage> msg, string id, string owner, string repo, params string[] eventNames) {
