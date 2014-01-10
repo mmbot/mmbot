@@ -14,7 +14,46 @@
 
 var robot = Require<Robot>();
 
-robot.Respond("scripts ?(.*)", (msg) =>
+robot.Respond("download script (.*)", (msg) => {
+  var scriptName = "";
+  var link = "";
+  msg.Http("http://petegoo.github.io/mmbot.scripts/catalog.json").GetJson((err, res, body) => {
+		if(err != null)
+    	{
+    		msg.Send("Could not retrieve");
+    	}
+    	else
+    	{
+    		var script = msg.Match[1];
+    		var scriptData = body.Where(d => ((string)d["name"]).ToLower().Trim() == script.ToLower().Trim()).FirstOrDefault();
+			if (scriptData != null)
+			{
+				scriptName = script;
+				link = (string)scriptData["link"];
+			}
+    	}
+
+	});
+
+
+	if (link.HasValue())
+	{
+		msg.Http(link).GetString((ex, resp, data) => {
+			string filePath = Path.Combine(Environment.CurrentDirectory, Path.Combine("scripts", string.Format("{0}.{1}", scriptName, "csx")));
+			File.WriteAllText(filePath, data);
+			robot.LoadScriptFile(scriptName, filePath);
+			msg.Send(string.Format("Successfully added script: {0}", scriptName));
+		});
+	}
+	else
+	{
+		msg.Send(string.Format("Could not find a script named {0}", msg.Match[1]));
+	}
+});
+
+
+
+robot.Respond(@"scripts ?([\w\d_-]*)( detailed)?", (msg) =>
   msg.Http("http://petegoo.github.io/mmbot.scripts/catalog.json")
     .GetJson((err, res, body) => {
 		if(err != null)
@@ -24,6 +63,8 @@ robot.Respond("scripts ?(.*)", (msg) =>
     	else
     	{
     		var query = msg.Match[1];
+    		var detailed = msg.Match[2].HasValue();
+    		if (query.ToLower().Trim() == "detailed") {query = null; detailed = true;}
     		foreach (var script in body)
     		{
     			var name = (string)script["name"];
@@ -52,7 +93,12 @@ Notes:
 Author:
   {5}
 ";
-				var details = string.Format(detailsFormat, name, description, configuration, commands, notes, author);
+				var details = "";
+				if (detailed)
+					details = string.Format(detailsFormat, name, description, configuration, commands, notes, author);
+				else
+					details = string.Format("{0} - {1}", name, description);
+
 				if (query.HasValue() && details.ToLower().Contains(query))
 				{
 					msg.Send(details);
