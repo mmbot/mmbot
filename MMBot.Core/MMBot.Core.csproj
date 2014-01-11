@@ -216,6 +216,9 @@
     <None Include="Scripts\GithubNotifications.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\MMBotScripts.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\Scheduler.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

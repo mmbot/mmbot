@@ -216,6 +216,24 @@ namespace MMBot
             }
         }
 
+        public async Task GetString(Action<Exception, HttpResponseMessage, string> callback)
+        {
+            HttpResponseMessage response = null;
+            try
+            {
+                response = await DoGet();
+                response.EnsureSuccessStatusCode();
+
+                string result = await response.Content.ReadAsStringAsync();
+
+                callback(null, response, result);
+            }
+            catch (Exception e)
+            {
+                callback(e, response, null);
+            }
+        }
+
         public async Task<HttpResponseMessage> Get()
         {
             try
