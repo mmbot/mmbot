@@ -69,6 +69,7 @@ robot.Respond(@"scripts ?([\w\d_-]*)( detailed)?", (msg) =>
     		var query = msg.Match[1];
     		var detailed = msg.Match[2].HasValue();
     		if (query.ToLower().Trim() == "detailed") {query = null; detailed = true;}
+    		bool scriptSent = false;
     		foreach (var script in body)
     		{
     			var name = (string)script["name"];
@@ -106,15 +107,17 @@ Author:
 				if (query.HasValue() && details.ToLower().Contains(query))
 				{
 					msg.Send(details);
-				}
-				else if (query.HasValue())
-				{
-					msg.Send("Could not find a script with that query");
+					scriptSent = true;
 				}
 				else if (!query.HasValue())
 				{
 					msg.Send(details);
-				}
+					scriptSent = true;
+				}				
+    		}
+    		if (!scriptSent)
+    		{
+    			msg.Send("Could not find a script matching that query");
     		}
     	}
      })
