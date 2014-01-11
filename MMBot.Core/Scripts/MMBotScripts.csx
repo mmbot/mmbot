@@ -15,9 +15,10 @@
 var robot = Require<Robot>();
 
 robot.Respond("download script (.*)", (msg) => {
-  var scriptName = "";
-  var link = "";
+
   msg.Http("http://petegoo.github.io/mmbot.scripts/catalog.json").GetJson((err, res, body) => {
+  	  	var scriptName = "";
+  		var link = "";
 		if(err != null)
     	{
     		msg.Send("Could not retrieve");
@@ -33,22 +34,24 @@ robot.Respond("download script (.*)", (msg) => {
 			}
     	}
 
+    	if (link.HasValue())
+		{
+			msg.Http(link).GetString((ex, resp, data) => {
+				string filePath = Path.Combine(Environment.CurrentDirectory, Path.Combine("scripts", string.Format("{0}.{1}", scriptName, "csx")));
+				File.WriteAllText(filePath, data);
+				robot.LoadScriptFile(scriptName, filePath);
+				msg.Send(string.Format("Added script: {0}", scriptName));
+			});
+		}
+		else
+		{
+			msg.Send(string.Format("Could not find a script named {0}", msg.Match[1]));
+		}
+
 	});
 
 
-	if (link.HasValue())
-	{
-		msg.Http(link).GetString((ex, resp, data) => {
-			string filePath = Path.Combine(Environment.CurrentDirectory, Path.Combine("scripts", string.Format("{0}.{1}", scriptName, "csx")));
-			File.WriteAllText(filePath, data);
-			robot.LoadScriptFile(scriptName, filePath);
-			msg.Send(string.Format("Successfully added script: {0}", scriptName));
-		});
-	}
-	else
-	{
-		msg.Send(string.Format("Could not find a script named {0}", msg.Match[1]));
-	}
+	
 });
 
 
