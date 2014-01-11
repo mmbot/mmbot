@@ -107,6 +107,10 @@ Author:
 				{
 					msg.Send(details);
 				}
+				else if (query.HasValue())
+				{
+					msg.Send("Could not find a script with that query");
+				}
 				else if (!query.HasValue())
 				{
 					msg.Send(details);
