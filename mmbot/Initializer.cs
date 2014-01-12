@@ -155,7 +155,7 @@ namespace mmbot
                 if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "scripts")))
                 {
                     logger.Warn(
-                        "There is no scripts folder. Have you forgotten to run 'mmbot init' to initialise the current running directory?");
+                        "There is no scripts folder. Have you forgotten to run 'mmbot --init' to initialise the current running directory?");
                 }
             }
         }
