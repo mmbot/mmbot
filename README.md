@@ -53,7 +53,7 @@ scriptcs install mmbot.scriptit
 For more info read the [getting started guide](https://github.com/PeteGoo/mmbot/wiki/Getting-Started)
 
 ## Adapters
-Currently the only implemented adapter is for [jabbr](https://jabbr.net) but the implementation is extremely similar to Hubot so other adapters could easily be added.
+Currently adapters exist for [jabbr](https://jabbr.net), [HipChat](https://www.hipchat.com/) and one-to-one Google Talk but with plans to add a CampFire adapter soon. The implementation is extremely similar to Hubot so other adapters could easily be added.
 
 ## Scripts
 Writing scripts is easy. You can either implement the IMMBotScript interface and register your script or you can write a simple [scriptcs](http://www.scriptcs.net) script and drop it into a scripts folder beside the MMBot runner executable.
@@ -108,54 +108,17 @@ robot.AddHelp(
 
 ## Current Script Implementations
 
+The script catalog is available at http://mmbot.github.io/mmbot.scripts
 
-    mmbot animate me <query> - The same thing as `image me`, except adds a few parameters to try to return an animated GIF instead.
-    mmbot ascii me <query> - Returns ASCII art of the query text.
-    mmbot convert me <expression> to <units> - Convert expression to given units.
-    mmbot die - End mmbot process
-    mmbot echo <text> - Reply back with <text>
-    mmbot gif me <query> - Returns an animated gif matching the requested search term.
-    mmbot help - Displays all of the help commands that mmbot knows about.
-    mmbot help <query> - Displays all help commands that match <query>.
-    mmbot image me <query> - The Original. Queries Google Images for <query> and returns a random top result.
-    mmbot map me <query> - Returns a map view of the area returned by `query`.
-    mmbot math me <expression> - Calculate the given expression.
-    mmbot mustache me <query> - Searches Google Images for the specified query and mustaches it.
-    mmbot mustache me <url> - Adds a mustache to the specified URL.
-    mmbot mute/unmute - turn the volume on/off
-    mmbot ping -  Reply with pong
-    mmbot pug bomb N - get N pugs
-    mmbot pug me - Receive a pug
-    mmbot spot me <query> - Show the top spotify track result for my query
-    mmbot spot me winning - Show the best track ever on spotify
-    mmbot spotify clear queue - clears the play queue
-    mmbot spotify next - Skips to the next track in the queue.
-    mmbot spotify pause - Pauses playback
-    mmbot spotify play <query> -  Plays the first matching track from spotify.
-    mmbot spotify play <spotifyUri> -  Plays the track(s) from the spotify URI (supports tracks, albums and playlists).
-    mmbot spotify play album <query> -  Plays the first matching album from spotify.
-    mmbot spotify queue <query> -  Queues the first matching track from spotify.
-    mmbot spotify queue <spotifyUri> -  Queues the track(s) from the spotify URI (supports tracks, albums and playlists).
-    mmbot spotify queue album <query> -  Queues the first matching album from spotify.
-    mmbot spotify remove <query> from queue - Removes matching tracks from the queue
-    mmbot spotify show artist|album|playlist <name> - Shows the details of the first matching artist, album or playlist
-    mmbot spotify show queue
-    mmbot spotify shuffle on|off - turn on or off shuffle mode
-    mmbot the rules - Make sure mmbot still knows the rules.
-    mmbot time - Reply with current time
-    mmbot translate me <phrase> - Searches for a translation for the <phrase> and then prints that bad boy out.
-    mmbot translate me from <source> into <target> <phrase> - Translates <phrase> from <source> into <target>. Both <source> and <target> are optional
-    mmbot turn it down [to 11] - shhhh I'm thinking, optionally provide the volume out of 100
-    mmbot turn it up [to 66] - crank it baby, optionally provide the volume out of 100
-    mmbot urban define me <term>  - Searches Urban Dictionary and returns definition
-    mmbot urban example me <term> - Searches Urban Dictionary and returns example
-    mmbot urban me <term>         - Searches Urban Dictionary and returns definition
-    mmbot what is <term>?         - Searches Urban Dictionary and returns definition
-    mmbot xkcd [latest]- The latest XKCD comic
-    mmbot xkcd <num> - XKCD comic <num>
-    mmbot xkcd random - fetch a random XKCD comic
-    mmbot youtube me <query> - Searches YouTube for the query and returns the video embed link.
+You can also search the script catalog from within mmbot and even install scripts from there.
 
+```
+# List the scripts in the catalog
+mmbot scripts
+
+# Install a script (Pug)
+mmbot download script Pug
+```
 
 
 
