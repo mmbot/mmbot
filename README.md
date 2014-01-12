@@ -108,7 +108,7 @@ robot.AddHelp(
 
 ## Current Script Implementations
 
-The script catalog is available at http://mmbot.github.io/mmbot.scripts
+The script catalog is available at [mmbot.github.io/mmbot.scripts](http://mmbot.github.io/mmbot.scripts)
 
 You can also search the script catalog from within mmbot and even install scripts from there.
 
