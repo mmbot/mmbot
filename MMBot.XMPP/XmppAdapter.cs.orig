@@ -70,9 +70,11 @@ namespace MMBot.XMPP
             _xmppConnection.OnMessage += OnMessage;
             _xmppConnection.OnPresence += XmppConnectionOnOnPresence;
             _xmppConnection.OnRosterItem += OnClientRosterItem;
- 
+<<<<<<< HEAD
             
+=======
             _xmppConnection.OnXmppConnectionStateChanged += OnXmppConnectionStateChanged;
+>>>>>>> a5465cefe3e400bc638987fb855d77726e7db6da
 
             CancelPreviousLogin();
 
