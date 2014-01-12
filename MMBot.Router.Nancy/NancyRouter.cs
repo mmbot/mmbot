@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Contexts;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
 using Owin;
@@ -15,12 +14,12 @@ namespace MMBot.Router.Nancy
         private bool _isConfigured;
         private readonly IDictionary<Route, Func<OwinContext, object>> _routes = new Dictionary<Route, Func<OwinContext, object>>();
 
-        public IDictionary<Route, Func<OwinContext, object>> Routes
+        public virtual IDictionary<Route, Func<OwinContext, object>> Routes
         {
             get { return _routes; }
         }
 
-        public void Configure(Robot robot, int port)
+        public virtual void Configure(Robot robot, int port)
         {
             _robot = robot;
             _port = port;
@@ -40,7 +39,7 @@ namespace MMBot.Router.Nancy
             _robot.Logger.Info(string.Format("Router (Nancy) is running on http://localhost:{0}", _port));
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             if (_webappDisposable == null)
             {
@@ -51,25 +50,25 @@ namespace MMBot.Router.Nancy
             _webappDisposable = null;
         }
 
-        public void Get(string path, Func<OwinContext, object> actionFunc)
+        public virtual void Get(string path, Func<OwinContext, object> actionFunc)
         {
             Routes.Add(new Route{ Method = Route.RouteMethod.Get, Path = path}, actionFunc);
         }
 
-        public void Get(string path, Action<OwinContext> action)
+        public virtual void Get(string path, Action<OwinContext> action)
         {
             Routes.Add(new Route { Method = Route.RouteMethod.Get, Path = path }, context => { action(context);
                                                                                                  return null;
             } );
         }
 
-        public void Post(string path, Func<OwinContext, object> actionFunc)
+        public virtual void Post(string path, Func<OwinContext, object> actionFunc)
         {
             Routes.Add(new Route { Method = Route.RouteMethod.Post, Path = path }, actionFunc);
         }
 
 
-        public void Post(string path, Action<OwinContext> action)
+        public virtual void Post(string path, Action<OwinContext> action)
         {
             Routes.Add(new Route { Method = Route.RouteMethod.Post, Path = path }, context =>
             {

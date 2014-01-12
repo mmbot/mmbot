@@ -165,7 +165,7 @@ namespace mmbot
             var robotEnabledVar = robot.GetConfigVariable("MMBOT_ROUTER_ENABLED");
             if (robotEnabledVar != null && robotEnabledVar.ToLower() == "true" || robotEnabledVar == "yes")
             {
-                var routerType = nugetResolver.GetCompiledRouterFromPackages();
+                var routerType = nugetResolver.GetCompiledRouterFromPackages(robot.GetConfigVariable("MMBOT_ROUTER_NAME"));
                 if (routerType != null)
                 {
                     robot.Logger.Info(string.Format("Loading router '{0}'", routerType.Name));

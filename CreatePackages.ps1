@@ -12,5 +12,6 @@ msbuild .\mmbot.sln /property:Configuration=Release
 .\.nuget\nuget.exe pack .\mmbot.XMPP\mmbot.XMPP.csproj -Version $version -Properties Configuration=Release
 .\.nuget\nuget.exe pack .\mmbot.ScriptIt\mmbot.ScriptIt.csproj -Version $version -Properties Configuration=Release
 .\.nuget\nuget.exe pack .\mmbot.Spotify\mmbot.Spotify.csproj -Version $version -Properties Configuration=Release
+.\.nuget\nuget.exe pack .\mmbot.Router.Nancy\mmbot.Router.Nancy.csproj -Version $version -Properties Configuration=Release
 
 .\.nuget\nuget.exe pack .\mmbot.chocolatey.nuspec -Version $version -Properties Configuration=Release

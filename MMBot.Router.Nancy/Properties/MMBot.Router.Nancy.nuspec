@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.Router.Nancy</id>
+        <version>0.1.0</version>
+        <authors>Peter Goodman</authors>
+        <owners>Peter Goodman</owners>
+        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A Nancy Router implementation for mmbot, a C# port of Github's Hubot chat bot</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot petegoo chat robot bot nancy router</tags>
+    </metadata>
+</package>
