@@ -20,8 +20,13 @@ namespace mmbot
         private static readonly string[] _blacklistedPackages =
         {
             "Akavache",
+            "reactiveui-core",
+            "ScriptCs.Core",
             "ScriptCs.Hosting",
-            "ScriptCs.Contracts"
+            "ScriptCs.Contracts",
+            "Rx-WindowStoreApps",
+            "Rx-WinRT",
+            "MMBot.Core"
         };
 
         public NuGetPackageAssemblyResolver(ILog log)

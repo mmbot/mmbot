@@ -115,8 +115,10 @@ namespace mmbot
             {
                 logConfig.ConfigureForConsole();
             }
-
-            logConfig.AddTraceListener();
+            else
+            {
+                logConfig.AddTraceListener();
+            }
 
             var logger = logConfig.GetLogger();
 
