@@ -58,7 +58,7 @@ robot.Respond("download script (.*)", (msg) => {
 
 
 robot.Respond(@"scripts ?([\w\d_-]*)( detailed)?", (msg) =>
-  msg.Http("http://petegoo.github.io/mmbot.scripts/catalog.json")
+  msg.Http("http://mmbot.github.io/mmbot.scripts/catalog.json")
     .GetJson((err, res, body) => {
 		if(err != null)
     	{
