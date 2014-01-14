@@ -17,7 +17,7 @@ var robot = Require<Robot>();
 
 robot.Respond("download script (.*)", (msg) => {
 
-  msg.Http("http://petegoo.github.io/mmbot.scripts/catalog.json").GetJson((err, res, body) => {
+  msg.Http("http://mmbot.github.io/mmbot.scripts/catalog.json").GetJson((err, res, body) => {
   	  	var scriptName = "";
   		var link = "";
 		if(err != null)
