@@ -115,8 +115,10 @@ namespace mmbot
             {
                 logConfig.ConfigureForConsole();
             }
-
-            logConfig.AddTraceListener();
+            else
+            {
+                logConfig.AddTraceListener();
+            }
 
             var logger = logConfig.GetLogger();
 
@@ -155,7 +157,7 @@ namespace mmbot
                 if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "scripts")))
                 {
                     logger.Warn(
-                        "There is no scripts folder. Have you forgotten to run 'mmbot init' to initialise the current running directory?");
+                        "There is no scripts folder. Have you forgotten to run 'mmbot --init' to initialise the current running directory?");
                 }
             }
         }
@@ -165,7 +167,7 @@ namespace mmbot
             var robotEnabledVar = robot.GetConfigVariable("MMBOT_ROUTER_ENABLED");
             if (robotEnabledVar != null && robotEnabledVar.ToLower() == "true" || robotEnabledVar == "yes")
             {
-                var routerType = nugetResolver.GetCompiledRouterFromPackages();
+                var routerType = nugetResolver.GetCompiledRouterFromPackages(robot.GetConfigVariable("MMBOT_ROUTER_NAME"));
                 if (routerType != null)
                 {
                     robot.Logger.Info(string.Format("Loading router '{0}'", routerType.Name));

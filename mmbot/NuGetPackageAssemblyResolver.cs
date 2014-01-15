@@ -20,8 +20,13 @@ namespace mmbot
         private static readonly string[] _blacklistedPackages =
         {
             "Akavache",
+            "reactiveui-core",
+            "ScriptCs.Core",
             "ScriptCs.Hosting",
-            "ScriptCs.Contracts"
+            "ScriptCs.Contracts",
+            "Rx-WindowStoreApps",
+            "Rx-WinRT",
+            "MMBot.Core"
         };
 
         public NuGetPackageAssemblyResolver(ILog log)
@@ -86,9 +91,12 @@ namespace mmbot
             return ProbeForType(typeof(Adapter));
         }
 
-        public Type GetCompiledRouterFromPackages()
+        public Type GetCompiledRouterFromPackages(string name = null)
         {
-            return ProbeForType(typeof(IRouter)).FirstOrDefault(t => t != typeof(NullRouter));
+            return ProbeForType(typeof(IRouter))
+                .FirstOrDefault(t => t != typeof(NullRouter) && 
+                    (string.IsNullOrEmpty(name) ||
+                    string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         private IEnumerable<Type> ProbeForType(Type type)
