@@ -1,4 +1,4 @@
-[![Stories in You Take It](https://badge.waffle.io/mmbot/mmbot.png?label=you%20take%20it)](https://waffle.io/PeteGoo/mmbot)
+[![Stories in You Take It](https://badge.waffle.io/mmbot/mmbot.png?label=you%20take%20it)](https://waffle.io/mmbot/mmbot)
 # mmbot
 
 ## Overview

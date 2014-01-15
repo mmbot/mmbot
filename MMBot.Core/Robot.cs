@@ -490,12 +490,14 @@ namespace MMBot
 
         public async Task Reset()
         {
+            Emit("Resetting", true);
             await Shutdown();
             LoadAdapter();
 
             _loadedScriptTypes.ForEach(LoadScript);
             await Run();
             _brain.Initialize();
+            Emit("ResetComplete", true);
         }
 
         public virtual async Task Run()
@@ -508,6 +510,7 @@ namespace MMBot
             if (AutoLoadScripts)
             {
                 LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
+                Emit("ScriptsLoaded", this.ScriptData.Select(d => d.Name));
             }
 
             try
@@ -524,6 +527,7 @@ namespace MMBot
                 try
                 {
                     await adapter.Run();
+                    Emit("AdapterRunning", adapter.Id);
                 }
                 catch (AdapterNotConfiguredException)
                 {
@@ -546,10 +550,12 @@ namespace MMBot
             }
 
             _isReady = true;
+            Emit("RobotReady", true);
         }
 
         public async Task Shutdown()
         {
+            Emit("ShuttingDown", true);
             _isReady = false;
             _cleanup.Keys.ToList().ForEach(CleanupScript);
             _cleanup.Clear();
@@ -562,6 +568,7 @@ namespace MMBot
             {
                 await _brain.Close();
             }
+            Emit("ShutdownComplete", true);
         }
 
         protected IContainer CreateContainer()
