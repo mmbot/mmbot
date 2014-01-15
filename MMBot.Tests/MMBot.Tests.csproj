@@ -142,7 +142,6 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="AdapterTests.cs" />
     <Compile Include="BrainTests.cs" />
     <Compile Include="CompiledScripts\Ascii.cs" />
     <Compile Include="CompiledScripts\CatchAllTest.cs" />

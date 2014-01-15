@@ -109,8 +109,6 @@ namespace MMBot.XMPP
                 throw new TimeoutException("XMPP adapter timed out while trying to login");
 
             return _loginTcs.Task;
-            //return _loginTcs == null ? Task.FromResult(false) :  _loginTcs.Task;
-            //return Task.FromResult(true);
         }
 
 
