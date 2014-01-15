@@ -7,6 +7,10 @@ using Common.Logging;
 using MMBot.Adapters;
 using Xunit;
 
+using MMBot.XMPP;
+using MMBot;
+using System.Threading;
+
 namespace MMBot.Tests
 {
     
@@ -165,6 +169,58 @@ namespace MMBot.Tests
             
             robot.Emit("Test", "Emitted");
         }
+
+        [Fact]
+        public async Task WhenEmitReadyInvokeOn()
+        {
+            var robot = Robot.Create<StubAdapter>();
+            robot.AutoLoadScripts = false;
+            bool onInvoked = false;
+            robot.On<bool>("RobotReady", result =>
+            {
+                onInvoked = result;
+            });
+
+            await robot.Run();
+            Assert.True(onInvoked);
+        }
+
+        [Fact]
+        public async Task XmppRobot()
+        {
+            var config = new Dictionary<string, string>();
+            config.Add("MMBOT_XMPP_HOST", "userver");
+            config.Add("MMBOT_XMPP_CONNECT_HOST", "userver");
+            config.Add("MMBOT_XMPP_USERNAME", "mmbot");
+            config.Add("MMBOT_XMPP_PASSWORD", "password");
+
+            var logConfig = new LoggerConfigurator(LogLevel.Trace);
+            logConfig.AddTraceListener();
+            var logger = logConfig.GetLogger();
+
+            var robot = Robot.Create<XmppAdapter>("mmbot", config, logger);
+            robot.AutoLoadScripts = false;
+            robot.LoadScript<CompiledScripts.Ping>();
+
+            bool robotReady = false;
+            robot.On<bool>("RobotReady", result =>
+            {
+                robotReady = result;
+            });
+
+            await robot.Run();
+
+            Assert.True(robotReady);
+
+            bool msgReceived = false;
+            robot.Hear("mmbot", msg => { msgReceived = true; });
+
+            while (!msgReceived)
+                Thread.Sleep(500);
+
+        }
+
+
     }
 }
 

@@ -142,6 +142,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="AdapterTests.cs" />
     <Compile Include="BrainTests.cs" />
     <Compile Include="CompiledScripts\Ascii.cs" />
     <Compile Include="CompiledScripts\CatchAllTest.cs" />
@@ -188,6 +189,10 @@
     <ProjectReference Include="..\MMBot.Router.Nancy\MMBot.Router.Nancy.csproj">
       <Project>{87ae89e5-9bcd-42c0-b9a0-cbae18cfd74e}</Project>
       <Name>MMBot.Router.Nancy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMBot.XMPP\MMBot.XMPP.csproj">
+      <Project>{ad4b187e-a1eb-48e9-8e94-110ac78d23a3}</Project>
+      <Name>MMBot.XMPP</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
