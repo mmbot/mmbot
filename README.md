@@ -1,11 +1,12 @@
 [![Stories in You Take It](https://badge.waffle.io/mmbot/mmbot.png?label=you%20take%20it)](https://waffle.io/mmbot/mmbot)
-
 ![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt1169\)/statusIcon)
 
 # mmbot
 
 ## Overview
-mmbot is an attempt to port github's [Hubot](http://www.github.com/github/hubot) to C#.
+mmbot is a port of github's [Hubot](http://www.github.com/github/hubot) to C#.
+
+![mmbot](Docs/Images/mmbot.avatar.png)
 
 ## Goals
 1.  __Provide a chat bot written in C# with all the functionality of Hubot but with a script environment more familiar to .Net devs.__ (done)
