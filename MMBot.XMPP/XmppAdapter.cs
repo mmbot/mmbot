@@ -119,10 +119,26 @@ namespace MMBot.XMPP
                     try
                     {
                         muc.JoinRoom(string.Format("{0}@{1}", room, _confServer), _username, _password, true);
+                        Logger.Info(string.Format("Successfully joined room {0}", room));
+                        Rooms.Add(string.Format("{0}@{1}", room, _confServer));
                     }
                     catch (Exception ex)
                     {
-                        Logger.Error("XMPP Error - " + ex.Message);
+                        Logger.Error("Failed to join room - " + ex.Message);
+                    }
+                }
+
+                foreach (var logroom in _logRooms)
+                {
+                    try
+                    {
+                        muc.JoinRoom(string.Format("{0}@{1}", logroom, _confServer), _username, _password, true);
+                        Logger.Info(string.Format("Successfully joined room {0}", logroom));
+                        LogRooms.Add(string.Format("{0}@{1}", logroom, _confServer));
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("Failed to join room - " + ex.Message);
                     }
                 }
             }

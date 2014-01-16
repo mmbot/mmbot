@@ -195,12 +195,15 @@ namespace MMBot.Tests
             config.Add("MMBOT_XMPP_PASSWORD", "password");
             config.Add("MMBOT_XMPP_CONFERENCE_SERVER", "conference.userver");
             config.Add("MMBOT_XMPP_ROOMS", "testroom");
+            config.Add("MMBOT_XMPP_LOGROOMS", "logroom");
 
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.AddTraceListener();
             var logger = logConfig.GetLogger();
 
-            var robot = Robot.Create<XmppAdapter>("mmbot", config, logger);
+            var robot = Robot.Create("mmbot", config, logConfig, (new[] { typeof(XmppAdapter) }).ToArray());
+            //var robot = Robot.Create("mmbot", config, logger, (new[] { typeof(XmppAdapter) }).ToArray());
+            
             robot.AutoLoadScripts = false;
             robot.LoadScript<CompiledScripts.Ping>();
 
