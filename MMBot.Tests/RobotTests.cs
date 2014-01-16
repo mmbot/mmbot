@@ -193,6 +193,8 @@ namespace MMBot.Tests
             config.Add("MMBOT_XMPP_CONNECT_HOST", "userver");
             config.Add("MMBOT_XMPP_USERNAME", "mmbot");
             config.Add("MMBOT_XMPP_PASSWORD", "password");
+            config.Add("MMBOT_XMPP_CONFERENCE_SERVER", "conference.userver");
+            config.Add("MMBOT_XMPP_ROOMS", "testroom");
 
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.AddTraceListener();
@@ -215,8 +217,11 @@ namespace MMBot.Tests
             bool msgReceived = false;
             robot.Hear("mmbot", msg => { msgReceived = true; });
 
-            while (!msgReceived)
+            while (true)
                 Thread.Sleep(500);
+
+            //while (!msgReceived)
+            //    Thread.Sleep(500);
 
         }
 

@@ -7,6 +7,7 @@ using System.Threading;
 using agsXMPP;
 using agsXMPP.protocol.client;
 using agsXMPP.protocol.iq.roster;
+using agsXMPP.protocol.x.muc;
 using agsXMPP.sasl;
 using Common.Logging;
 
@@ -21,6 +22,8 @@ namespace MMBot.XMPP
         private string[] _rooms;
         private string[] _logRooms;
         private int _port;
+        private string _confServer;
+        private const int CONNECT_TIMEOUT = 8000;
         private bool _isConfigured;
         private XmppClientConnection _xmppConnection;
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
@@ -48,6 +51,7 @@ namespace MMBot.XMPP
                 .Select(s => s.Trim())
                 .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
             int.TryParse(Robot.GetConfigVariable("MMBOT_XMPP_PORT"), out _port);
+            _confServer = Robot.GetConfigVariable("MMBOT_XMPP_CONFERENCE_SERVER");
 
             
             if (_host == null || _connectHost == null | _username == null  || _password == null)
@@ -101,12 +105,27 @@ namespace MMBot.XMPP
             Task.Factory.StartNew(() =>
             {
                 _xmppConnection.Open();
-                Thread.Sleep(8000);
+                Thread.Sleep(CONNECT_TIMEOUT);
                 _loginTcs.TrySetResult(false);
             });
 
             if (!connect.Result)
                 throw new TimeoutException("XMPP adapter timed out while trying to login");
+            else
+            {
+                MucManager muc = new MucManager(_xmppConnection);
+                foreach (var room in _rooms)
+                {
+                    try
+                    {
+                        muc.JoinRoom(string.Format("{0}@{1}", room, _confServer), _username, _password, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error("XMPP Error - " + ex.Message);
+                    }
+                }
+            }
 
             return _loginTcs.Task;
         }
@@ -120,16 +139,13 @@ namespace MMBot.XMPP
 
         private void OnMessage(object sender, agsXMPP.protocol.client.Message message)
         {
-            if (!String.IsNullOrEmpty(message.Body))
+            if (!String.IsNullOrEmpty(message.Body) && message.From.Resource != _username)
             {
-                Console.WriteLine("Message : {0} - from {1}", message.Body, message.From);
-
                 string user = string.Format("{0}@{1}/{2}", message.From.User, message.From.Server, message.From.Resource);
 
                 var content = message.Body.Trim();
 
-                // Prefix with the alias if we do not have one. Presume that XMPP is chatting just to us
-                if (!content.StartsWith(Robot.Alias ?? Robot.Name, StringComparison.OrdinalIgnoreCase))
+                if (message.From.Server != _confServer && !content.StartsWith(Robot.Alias ?? Robot.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     content = string.Concat(Robot.Alias ?? Robot.Name, " ", content);
                 }
@@ -151,11 +167,6 @@ namespace MMBot.XMPP
         private void OnError(object sender, Exception ex)
         {
             Logger.Error("XMPP Error - " + ex.Message);
-            //if (_loginTcs != null)
-            //{
-            //    _loginTcs.SetException(ex);
-            //    _loginTcs = null;
-            //}
         }
 
         private void OnLogin(object sender)
@@ -201,7 +212,15 @@ namespace MMBot.XMPP
         public override async Task Send(Envelope envelope, params string[] messages)
         {
             await base.Send(envelope, messages);
-            _xmppConnection.Send(new agsXMPP.protocol.client.Message(new Jid(envelope.User.Name), MessageType.chat, string.Join(Environment.NewLine, messages)));
+            if (envelope.User.Room.Contains(_confServer))
+            {
+                _xmppConnection.Send(new agsXMPP.protocol.client.Message(envelope.User.Room, MessageType.groupchat, string.Join(Environment.NewLine, messages)));
+            }
+            else
+            {
+                _xmppConnection.Send(new agsXMPP.protocol.client.Message(new Jid(envelope.User.Name), MessageType.chat, string.Join(Environment.NewLine, messages)));
+            }
+                
         }
     }
 }
