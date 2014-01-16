@@ -106,7 +106,9 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenMultipleAdaptersAreConfigured_ResponsesAreOnlySentToTheOriginatingAdapter()
         {
-            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), new TestLogger(), new[]{typeof(StubAdapter), typeof(StubAdapter2)});
+            var logConfig = new LoggerConfigurator(LogLevel.Trace);
+            logConfig.ConfigureForConsole();
+            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), logConfig, new[]{typeof(StubAdapter), typeof(StubAdapter2)});
             robot.AutoLoadScripts = false;
 
             var adapter1 = robot.Adapters.First().Value as StubAdapter;
@@ -199,10 +201,8 @@ namespace MMBot.Tests
 
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.AddTraceListener();
-            var logger = logConfig.GetLogger();
 
-            var robot = Robot.Create("mmbot", config, logConfig, (new[] { typeof(XmppAdapter) }).ToArray());
-            //var robot = Robot.Create("mmbot", config, logger, (new[] { typeof(XmppAdapter) }).ToArray());
+            var robot = Robot.Create("mmbot", config, logConfig, new[] { typeof(XmppAdapter) });
             
             robot.AutoLoadScripts = false;
             robot.LoadScript<CompiledScripts.Ping>();
@@ -217,14 +217,11 @@ namespace MMBot.Tests
 
             Assert.True(robotReady);
 
-            bool msgReceived = false;
-            robot.Hear("mmbot", msg => { msgReceived = true; });
+            int cmdReceived = 0;
+            robot.Hear("mmbot", msg => { cmdReceived++; });
 
-            while (true)
-                Thread.Sleep(500);
-
-            //while (!msgReceived)
-            //    Thread.Sleep(500);
+            
+            Thread.Sleep(60000);
 
         }
 

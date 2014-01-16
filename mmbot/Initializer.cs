@@ -64,7 +64,8 @@ namespace mmbot
                 return null;
             }
 
-            var logger = CreateLogger(options);
+            var logConfig = CreateLogConfig(options);
+            var logger = logConfig.GetLogger();
 
             ConfigurePath(options, logger);
 
@@ -76,7 +77,7 @@ namespace mmbot
 
             var configuration = GetConfiguration(options);
             string name;
-            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logger, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
+            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
             
             ConfigureRouter(robot, nugetResolver);
 
@@ -108,7 +109,7 @@ namespace mmbot
             }
         }
 
-        private static ILog CreateLogger(Options options)
+        private static LoggerConfigurator CreateLogConfig(Options options)
         {
             var logConfig = new LoggerConfigurator(options.Verbose ? LogLevel.Debug : LogLevel.Info);
             if (Environment.UserInteractive)
@@ -129,7 +130,7 @@ namespace mmbot
                 else
                     logger.Warn(string.Format("Failed to load log file.  Path for {0} does not exist.", options.LogFile));
             }
-            return logger;
+            return logConfig;
         }
 
         private static IEnumerable<Type> DiscoverAdapters(Options options, NuGetPackageAssemblyResolver nugetResolver, ILog logger)
