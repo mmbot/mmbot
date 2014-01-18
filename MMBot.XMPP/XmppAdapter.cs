@@ -255,7 +255,10 @@ namespace MMBot.XMPP
 
         private void CancelPreviousLogin()
         {
-            _loginTcs.TrySetCanceled();
+            if (_loginTcs != null)
+            {
+                _loginTcs.TrySetCanceled();
+            }
         }
 
         private void OnClientRosterItem(object sender, RosterItem item)
