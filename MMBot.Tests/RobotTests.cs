@@ -190,14 +190,18 @@ namespace MMBot.Tests
         [Fact]
         public async Task XmppRobot()
         {
-            var config = new Dictionary<string, string>();
-            config.Add("MMBOT_XMPP_HOST", "userver");
-            config.Add("MMBOT_XMPP_CONNECT_HOST", "userver");
-            config.Add("MMBOT_XMPP_USERNAME", "mmbot");
-            config.Add("MMBOT_XMPP_PASSWORD", "password");
-            config.Add("MMBOT_XMPP_CONFERENCE_SERVER", "conference.userver");
-            config.Add("MMBOT_XMPP_ROOMS", "testroom");
-            config.Add("MMBOT_XMPP_LOGROOMS", "logroom");
+            //enter config values to enable this test
+            var config = new Dictionary<string, string>();         
+            //config.Add("MMBOT_XMPP_HOST", "userver");
+            //config.Add("MMBOT_XMPP_CONNECT_HOST", "userver");
+            //config.Add("MMBOT_XMPP_USERNAME", "mmbot");
+            //config.Add("MMBOT_XMPP_PASSWORD", "password");
+            //config.Add("MMBOT_XMPP_CONFERENCE_SERVER", "conference.userver");
+            //config.Add("MMBOT_XMPP_ROOMS", "testroom");
+            //config.Add("MMBOT_XMPP_LOGROOMS", "logroom");
+
+            if (config.Count() == 0)
+                return;
 
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.AddTraceListener();
@@ -220,9 +224,9 @@ namespace MMBot.Tests
             int cmdReceived = 0;
             robot.Hear("mmbot", msg => { cmdReceived++; });
 
-            while (true)
-            Thread.Sleep(60000);
-
+            //will wait for two commands
+            while (cmdReceived < 2)
+                Thread.Sleep(1000);            
         }
 
 

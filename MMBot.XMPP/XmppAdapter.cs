@@ -271,7 +271,7 @@ namespace MMBot.XMPP
         public override async Task Send(Envelope envelope, params string[] messages)
         {
             await base.Send(envelope, messages);
-            if (envelope.User.Room.Contains(_confServer))
+            if (_confServer.HasValue() && envelope.User.Room.Contains(_confServer))
             {
                 _xmppConnection.Send(new agsXMPP.protocol.client.Message(envelope.User.Room, MessageType.groupchat, string.Join(Environment.NewLine, messages)));
             }
