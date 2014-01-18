@@ -7,6 +7,10 @@ using Common.Logging;
 using MMBot.Adapters;
 using Xunit;
 
+using MMBot.XMPP;
+using MMBot;
+using System.Threading;
+
 namespace MMBot.Tests
 {
     
@@ -102,7 +106,9 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenMultipleAdaptersAreConfigured_ResponsesAreOnlySentToTheOriginatingAdapter()
         {
-            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), new TestLogger(), new[]{typeof(StubAdapter), typeof(StubAdapter2)});
+            var logConfig = new LoggerConfigurator(LogLevel.Trace);
+            logConfig.ConfigureForConsole();
+            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), logConfig, new[]{typeof(StubAdapter), typeof(StubAdapter2)});
             robot.AutoLoadScripts = false;
 
             var adapter1 = robot.Adapters.First().Value as StubAdapter;
@@ -165,6 +171,65 @@ namespace MMBot.Tests
             
             robot.Emit("Test", "Emitted");
         }
+
+        [Fact]
+        public async Task WhenEmitReadyInvokeOn()
+        {
+            var robot = Robot.Create<StubAdapter>();
+            robot.AutoLoadScripts = false;
+            bool onInvoked = false;
+            robot.On<bool>("RobotReady", result =>
+            {
+                onInvoked = result;
+            });
+
+            await robot.Run();
+            Assert.True(onInvoked);
+        }
+
+        [Fact]
+        public async Task XmppRobot()
+        {
+            //enter config values to enable this test
+            var config = new Dictionary<string, string>();         
+            //config.Add("MMBOT_XMPP_HOST", "userver");
+            //config.Add("MMBOT_XMPP_CONNECT_HOST", "userver");
+            //config.Add("MMBOT_XMPP_USERNAME", "mmbot");
+            //config.Add("MMBOT_XMPP_PASSWORD", "password");
+            //config.Add("MMBOT_XMPP_CONFERENCE_SERVER", "conference.userver");
+            //config.Add("MMBOT_XMPP_ROOMS", "testroom");
+            //config.Add("MMBOT_XMPP_LOGROOMS", "logroom");
+
+            if (config.Count() == 0)
+                return;
+
+            var logConfig = new LoggerConfigurator(LogLevel.Trace);
+            logConfig.AddTraceListener();
+
+            var robot = Robot.Create("mmbot", config, logConfig, new[] { typeof(XmppAdapter) });
+            
+            robot.AutoLoadScripts = false;
+            robot.LoadScript<CompiledScripts.Ping>();
+
+            bool robotReady = false;
+            robot.On<bool>("RobotReady", result =>
+            {
+                robotReady = result;
+            });
+
+            await robot.Run();
+
+            Assert.True(robotReady);
+
+            int cmdReceived = 0;
+            robot.Hear("mmbot", msg => { cmdReceived++; });
+
+            //will wait for two commands
+            while (cmdReceived < 2)
+                Thread.Sleep(1000);            
+        }
+
+
     }
 }
 

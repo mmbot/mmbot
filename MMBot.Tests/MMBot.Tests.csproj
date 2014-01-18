@@ -189,6 +189,10 @@
       <Project>{87ae89e5-9bcd-42c0-b9a0-cbae18cfd74e}</Project>
       <Name>MMBot.Router.Nancy</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MMBot.XMPP\MMBot.XMPP.csproj">
+      <Project>{ad4b187e-a1eb-48e9-8e94-110ac78d23a3}</Project>
+      <Name>MMBot.XMPP</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

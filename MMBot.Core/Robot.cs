@@ -48,24 +48,14 @@ namespace MMBot
             return Create<TAdapter>(name, config, null);
         }
 
-        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, ILog logger) where TAdapter : Adapter
+        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, LoggerConfigurator logConfig) where TAdapter : Adapter
         {
-            return Create(name, config, logger, new Type[] {typeof (TAdapter)});
-        }
-
-        public static Robot Create(string name, IDictionary<string, string> config, ILog logger, params Type[] adapterTypes)
-        {
-            return Create(name, config, logger, null, adapterTypes);
+            return Create(name, config, logConfig, new Type[] { typeof(TAdapter) });
         }
 
         public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, params Type[] adapterTypes)
         {
-            return Create(name, config, null, logConfig, adapterTypes);
-        }
-
-        private static Robot Create(string name, IDictionary<string, string> config, ILog logger, LoggerConfigurator logConfig, params Type[] adapterTypes)
-        {
-            var robot = new Robot(logger, logConfig);
+            var robot = new Robot(logConfig);
 
             robot.Configure(name, config, adapterTypes);
 
@@ -74,19 +64,18 @@ namespace MMBot
             return robot;
         }
 
-        protected Robot() : this(null, null)
+        protected Robot() : this(null)
         {
         }
 
-        protected Robot(ILog logger, LoggerConfigurator logConfig)
+        protected Robot(LoggerConfigurator logConfig)
         {
             LogConfig = logConfig;
-            Logger = logger ?? (logConfig == null
+            Logger = logConfig == null
                 ? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F")
-                : logConfig.GetLogger());
+                : logConfig.GetLogger();
             AutoLoadScripts = true;
         }
-
 
         public Dictionary<string, Adapter> Adapters
         {
