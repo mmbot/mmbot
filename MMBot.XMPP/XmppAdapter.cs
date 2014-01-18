@@ -23,11 +23,16 @@ namespace MMBot.XMPP
         private string[] _logRooms;
         private int _port;
         private string _confServer;
-        private const int CONNECT_TIMEOUT = 8000;
-        private bool _isConfigured;
         private XmppClientConnection _xmppConnection;
-        private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
         private TaskCompletionSource<bool> _loginTcs;
+        private TaskCompletionSource<bool> _reconnectTcs;
+
+        private bool _isConfigured = false;
+        private object _connectSync = new object();
+        private const int CONNECT_TIMEOUT = 8000;
+        private const int RECONNECT_TIMEOUT = 20000;
+        private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
+        
 
         public XmppAdapter(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
         {
@@ -62,7 +67,8 @@ namespace MMBot.XMPP
                 helpSb.AppendLine("  MMBOT_XMPP_CONNECT_HOST - in the case of GTalk this is always talk.google.com. Defaults to talk.google.com");
                 helpSb.AppendLine("  MMBOT_XMPP_USERNAME - the part of mmbot's email address before the @");
                 helpSb.AppendLine("  MMBOT_XMPP_PASSWORD - the password");
-                helpSb.AppendLine("  MMBOT_XMPP_ROOMS: A comma separated list of room names that mmbot should join");
+                helpSb.AppendLine("  MMBOT_XMPP_CONFERENCE_SERVER - a conference server to use when connecting to rooms");
+                helpSb.AppendLine("  MMBOT_XMPP_ROOMS - A comma separated list of room names that mmbot should join");
                 helpSb.AppendLine( "More info on these values and how to create the mmbot.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
@@ -146,13 +152,11 @@ namespace MMBot.XMPP
             return _loginTcs.Task;
         }
 
-
         private void XmppConnectionOnOnPresence(object sender, Presence pres)
         {
             //TODO do something for autojoin
         }
-
-
+        
         private void OnMessage(object sender, agsXMPP.protocol.client.Message message)
         {
             if (!String.IsNullOrEmpty(message.Body) && message.From.Resource != _username)
@@ -193,13 +197,52 @@ namespace MMBot.XMPP
 
         private void OnXmppConnectionStateChanged(object sender, XmppConnectionState state)
         {
-            Logger.Info("XMPP connection changed - " + state.GetDescription());
+            if (state == XmppConnectionState.Disconnected)
+            {
+                Logger.Warn("XMPP connection is disconnected");
+                if (_loginTcs.Task.IsCompleted)
+                {
+                    lock (_connectSync)
+                    {
+                        AttemptReconnect();
+                    }
+                }
+            }
+            else if (state != XmppConnectionState.Connecting)
+            {
+                Logger.Info("XMPP connection changed - " + state.GetDescription());
+            }
+        }
+
+        private void AttemptReconnect()
+        {
+            while (_xmppConnection == null || (_xmppConnection != null && !_xmppConnection.Authenticated) || _xmppConnection.XmppConnectionState == XmppConnectionState.Disconnected)
+            {
+                try
+                {
+                    Close();
+                }
+                catch { }
+
+                try
+                {
+                    Run();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("Failed to reconnect - " + ex.Message);
+                }
+                Thread.Sleep(RECONNECT_TIMEOUT);
+            }
+            
         }
 
         public override Task Close()
         {
             CancelPreviousLogin();
 
+            Rooms.Clear();
+            LogRooms.Clear();
             _xmppConnection.OnRosterItem -= OnClientRosterItem;
             _xmppConnection.OnLogin -= OnLogin;
             _xmppConnection.OnError -= OnError;

@@ -220,7 +220,7 @@ namespace MMBot.Tests
             int cmdReceived = 0;
             robot.Hear("mmbot", msg => { cmdReceived++; });
 
-            
+            while (true)
             Thread.Sleep(60000);
 
         }
