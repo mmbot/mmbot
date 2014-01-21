@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Owin;
 using Nancy;
 using Nancy.Owin;
@@ -38,6 +39,12 @@ namespace MMBot.Router.Nancy
         private OwinContext CreateOwinContext()
         {
             var owinContext = new OwinContext((IDictionary<string, object>)Context.Items[NancyOwinHost.RequestEnvironmentKey]);
+            var parameters = Context.Parameters as DynamicDictionary;
+            if (parameters != null)
+            {
+                owinContext.Environment["mmbot.RequestParams"] = (from k in parameters.Keys
+                                                                 select new {Key = k, Value = (string)parameters[k]}).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            }
             owinContext.Request.Body = Context.Request.Body;
             return owinContext;
         }

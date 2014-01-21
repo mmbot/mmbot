@@ -62,6 +62,26 @@ namespace MMBot.Tests
             Assert.Equal(expected, actual);
         }
 
+        [Fact]
+        public async Task WhenRouteDefinitionHasParameter_CanReadParameterFromContext()
+        {
+            string expectedRoom = "theroom";
+            JToken expected = new JObject(new JProperty("foo", "The Foo"));
+            string actualRoom = null;
+            var client = await SetupRoute(robot => robot.Router.Post("/route/test/{room}", context =>
+            {
+                var requestBody = context.ReadBodyAsJson();
+                actualRoom = context.Request.Params()["room"];
+                context.Response.StatusCode = 200;
+            }));
+
+            var response =
+                await client.PostAsync("/route/test/" + expectedRoom, new StringContent(JsonConvert.SerializeObject(expected), Encoding.UTF8, "application/json"));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal(expectedRoom, actualRoom);
+        }
+
         public async Task WhenGithubWebHook_BodyIsParsed()
         {
             JToken actualPayload = null;

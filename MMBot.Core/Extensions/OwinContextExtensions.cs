@@ -66,5 +66,14 @@ namespace MMBot
         {
             return context.FormAsync().Result;
         }
+
+        public static IDictionary<string, string> Params(this IOwinRequest request)
+        {
+            if (request.Environment.ContainsKey("mmbot.RequestParams"))
+            {
+                return request.Environment["mmbot.RequestParams"] as IDictionary<string, string>;
+            }
+            return new Dictionary<string, string>();
+        }
     }
 }
