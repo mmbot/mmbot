@@ -14,6 +14,9 @@ namespace mmbot
         [Option('v', "verbose", HelpText = "Display logging in verbose mode")]
         public bool Verbose { get; set; }
 
+        [Option('s', "runAsService", HelpText = "Runs mmbot as a Windows Service")]
+        public bool RunAsService { get; set; }
+
         [Option('n', "noconfig", HelpText = "Do not process the mmbot.ini config file if present.")]
         public bool SkipConfiguration { get; set; }
 
