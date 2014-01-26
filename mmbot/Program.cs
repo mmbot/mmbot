@@ -19,9 +19,15 @@ namespace mmbot
 
         static void Main(string[] args)
         {
-            if (Environment.UserInteractive)
+            var options = new Options();
+            CommandLine.Parser.Default.ParseArguments(args, options);
+
+            if (options.RunAsService)
             {
-                var options = new Options();
+                ServiceBase.Run(new ServiceBase[] { new Service(options) });
+            }
+            else
+            {
                 CommandLine.Parser.Default.ParseArguments(args, options);
 
                 if (options.LastParserState != null && options.LastParserState.Errors.Any())
@@ -50,13 +56,6 @@ namespace mmbot
 
                 }
             }
-            else
-            {
-                var options = new Options();
-                CommandLine.Parser.Default.ParseArguments(args, options);
-                ServiceBase.Run(new ServiceBase[] { new Service(options) });
-            }            
-
         }
 
     }
