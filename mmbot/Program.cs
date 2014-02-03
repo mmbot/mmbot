@@ -22,14 +22,17 @@ namespace mmbot
             var options = new Options();
             CommandLine.Parser.Default.ParseArguments(args, options);
 
+            if (options.ShowHelp)
+            {
+                return;
+            }
+
             if (options.RunAsService)
             {
                 ServiceBase.Run(new ServiceBase[] { new Service(options) });
             }
             else
             {
-                CommandLine.Parser.Default.ParseArguments(args, options);
-
                 if (options.LastParserState != null && options.LastParserState.Errors.Any())
                 {
                     return;

@@ -38,6 +38,8 @@ namespace mmbot
         [ParserState]
         public IParserState LastParserState { get; set; }
 
+        public bool ShowHelp { get; set; }
+
 
         [OptionArray('p', "parameters", HelpText = "A list of configuration parameters and their values e.g. -p PARAM1=VALUE1 PARAM2=VALUE2", DefaultValue = new string[0])]
         public string[] Parameters { get; set; }
@@ -46,6 +48,7 @@ namespace mmbot
         [HelpOption]
         public string GetUsage()
         {
+            ShowHelp = true;
             var help = new HelpText
             {
                 AdditionalNewLineAfterOption = true,

@@ -5,8 +5,8 @@
         <version>0.9</version>
         <authors>Peter Goodman</authors>
         <owners>Peter Goodman</owners>
-        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
-        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <licenseUrl>https://github.com/mmbot/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/mmbot/mmbot/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>mmbot is a C# port of Github's Hubot chat bot</description>
         <releaseNotes>Initial pre-release version.</releaseNotes>

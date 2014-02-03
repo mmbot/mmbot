@@ -65,7 +65,7 @@ namespace MMBot.HipChat
                 helpSb.AppendLine("  MMBOT_HIPCHAT_USERNAME: The username of the bot account on HipChat, e.g. 70126_494074");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_PASSWORD: The password of the bot account on HipChat");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_ROOMS: A comma separated list of room names that mmbot should join");
-                helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
             }

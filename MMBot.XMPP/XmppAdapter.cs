@@ -69,7 +69,7 @@ namespace MMBot.XMPP
                 helpSb.AppendLine("  MMBOT_XMPP_PASSWORD - the password");
                 helpSb.AppendLine("  MMBOT_XMPP_CONFERENCE_SERVER - a conference server to use when connecting to rooms");
                 helpSb.AppendLine("  MMBOT_XMPP_ROOMS - A comma separated list of room names that mmbot should join");
-                helpSb.AppendLine( "More info on these values and how to create the mmbot.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                helpSb.AppendLine( "More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
             }

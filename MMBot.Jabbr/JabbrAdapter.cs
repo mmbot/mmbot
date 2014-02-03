@@ -47,7 +47,7 @@ namespace MMBot.Jabbr
                 helpSb.AppendLine("  MMBOT_JABBR_NICK: The login name of the bot account on Jabbr, e.g. mmbot");
                 helpSb.AppendLine("  MMBOT_JABBR_PASSWORD: The password of the bot account on Jabbr");
                 helpSb.AppendLine("  MMBOT_JABBR_ROOMS: A comma separated list of room names that mmbot should join");
-                helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/PeteGoo/mmbot/wiki/Configuring-mmbot");
+                helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
             }

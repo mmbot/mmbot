@@ -144,7 +144,7 @@
             ],
             "removed": [],
             "timestamp": "2013-12-31T04:50:37-08:00",
-            "url": "https://github.com/PeteGoo/mmbot/commit/35ffdc2fbe1bf6caf3fdf099bbb4e432b8cd20e1"
+            "url": "https://github.com/mmbot/mmbot/commit/35ffdc2fbe1bf6caf3fdf099bbb4e432b8cd20e1"
         },
         {
             "added": [
@@ -175,7 +175,7 @@
                 "MMBot.Core/Extensions/ExtensionMethos.cs"
             ],
             "timestamp": "2013-12-31T22:24:43-08:00",
-            "url": "https://github.com/PeteGoo/mmbot/commit/bedcec7ad4791e6d5da3b1273f39006916362d56"
+            "url": "https://github.com/mmbot/mmbot/commit/bedcec7ad4791e6d5da3b1273f39006916362d56"
         },
         {
             "added": [
@@ -228,10 +228,10 @@
             ],
             "removed": [],
             "timestamp": "2014-01-01T01:30:52-08:00",
-            "url": "https://github.com/PeteGoo/mmbot/commit/76c6c2e28e4833cf2524a4b5730132940a2e05af"
+            "url": "https://github.com/mmbot/mmbot/commit/76c6c2e28e4833cf2524a4b5730132940a2e05af"
         }
     ],
-    "compare": "https://github.com/PeteGoo/mmbot/compare/d979f44796e7...76c6c2e28e48",
+    "compare": "https://github.com/mmbot/mmbot/compare/d979f44796e7...76c6c2e28e48",
     "created": false,
     "deleted": false,
     "forced": false,
@@ -286,7 +286,7 @@
         ],
         "removed": [],
         "timestamp": "2014-01-01T01:30:52-08:00",
-        "url": "https://github.com/PeteGoo/mmbot/commit/76c6c2e28e4833cf2524a4b5730132940a2e05af"
+        "url": "https://github.com/mmbot/mmbot/commit/76c6c2e28e4833cf2524a4b5730132940a2e05af"
     },
     "pusher": {
         "name": "none"
@@ -313,7 +313,7 @@
         "pushed_at": 1388579605,
         "size": 7582,
         "stargazers": 42,
-        "url": "https://github.com/PeteGoo/mmbot",
+        "url": "https://github.com/mmbot/mmbot",
         "watchers": 42
     }
 }</value>

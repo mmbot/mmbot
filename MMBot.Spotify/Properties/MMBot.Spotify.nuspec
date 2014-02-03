@@ -5,8 +5,8 @@
         <version>0.9</version>
         <authors>Peter Goodman</authors>
         <owners>Peter Goodman</owners>
-        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
-        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <licenseUrl>https://github.com/mmbot/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/mmbot/mmbot/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>A set of scripts for mmbot that can play and queue tracks from spotify through the local speakers</description>
         <releaseNotes>Initial pre-release version.</releaseNotes>

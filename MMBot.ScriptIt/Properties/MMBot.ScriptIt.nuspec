@@ -5,8 +5,8 @@
         <version>0.9</version>
         <authors>Damian Karzon</authors>
         <owners>Damian Karzon</owners>
-        <licenseUrl>https://github.com/PeteGoo/mmbot/blob/master/LICENSE.md</licenseUrl>
-        <projectUrl>https://github.com/PeteGoo/mmbot/</projectUrl>
+        <licenseUrl>https://github.com/mmbot/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/mmbot/mmbot/</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>An script for mmbot that can execute scripts on the fly from messages or gists</description>
         <releaseNotes>Initial pre-release version.</releaseNotes>
