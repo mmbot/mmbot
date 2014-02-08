@@ -604,7 +604,7 @@ namespace MMBot
         {
             script.Register(this);
 
-            HelpCommands.AddRange(script.GetHelp());
+            AddHelp(script.GetHelp().ToArray());
         }
 
         private class EventEmitItem
