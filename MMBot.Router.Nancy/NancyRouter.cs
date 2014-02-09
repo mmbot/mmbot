@@ -12,23 +12,27 @@ namespace MMBot.Router.Nancy
 {
     public class NancyRouter : IRouter
     {
+        
         private int _port;
         private IDisposable _webappDisposable;
         private Robot _robot;
         private bool _isConfigured;
         private readonly IDictionary<Route, Func<OwinContext, object>> _routes = new Dictionary<Route, Func<OwinContext, object>>();
-        private bool _isStarted;
+        protected bool IsStarted;
         private readonly Subject<Route> _routeRegistered = new Subject<Route>();
 
-        public NancyRouter()
+        public NancyRouter() : this(TimeSpan.FromSeconds(10))
         {
-            _routeRegistered.Where(_ => _isStarted).Throttle(TimeSpan.FromSeconds(30)).Subscribe(_ =>
+
+        }
+
+        public NancyRouter(TimeSpan restartThrottlePeriod)
+        {
+            _routeRegistered.Where(_ => IsStarted).Throttle(restartThrottlePeriod).Subscribe(_ =>
             {
                 Stop();
                 Start();
             });
-
-            
         }
 
         public virtual IDictionary<Route, Func<OwinContext, object>> Routes
@@ -55,12 +59,12 @@ namespace MMBot.Router.Nancy
             
             _robot.Logger.Info(string.Format("Router (Nancy) is running on http://localhost:{0}", _port));
 
-            _isStarted = true;
+            IsStarted = true;
         }
 
         public virtual void Stop()
         {
-            _isStarted = false;
+            IsStarted = false;
             if (_webappDisposable == null)
             {
                 return;
