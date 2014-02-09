@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using MMBot.Brains;
 using Xunit;
 
 namespace MMBot.Tests
@@ -9,7 +10,7 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenValueIsAddedToBrain_CanBeRetrievedViaGet()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
             var key = "test1";
             var value = "value1";
             await robot.Brain.Set(key, value);
@@ -20,7 +21,7 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenValueIsRemovedToBrain_GetReturnsDefault()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
             var key = "test1";
             var value = "value1";
             await robot.Brain.Set(key, value);

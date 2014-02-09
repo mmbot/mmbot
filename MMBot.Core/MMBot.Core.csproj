@@ -166,7 +166,7 @@
     <Compile Include="Adapters\AdapterNotConfiguredException.cs" />
     <Compile Include="Adapters\ConsoleAdapter.cs" />
     <Compile Include="AsyncSynchronizationContext.cs" />
-    <Compile Include="Brain.cs" />
+    <Compile Include="Brains\AkavacheBrain.cs" />
     <Compile Include="Adapters\Adapter.cs" />
     <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
@@ -174,6 +174,7 @@
     <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="HttpWrapper.cs" />
+    <Compile Include="Brains\IBrain.cs" />
     <Compile Include="Listeners\CatchAllListener.cs" />
     <Compile Include="Listeners\IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using MMBot.Brains;
 using MMBot.Tests.CompiledScripts;
 using Xunit;
 
@@ -13,14 +14,14 @@ namespace MMBot.Tests
         [Fact]
         public void CanRegisterCompiledScripts()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
             robot.LoadScripts(typeof(Ping).Assembly);
         }
 
         [Fact]
         public async Task WhenPing_ReceivePong()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
@@ -37,7 +38,7 @@ namespace MMBot.Tests
         [Fact]
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
             var adapter = robot.Adapters.First().Value as StubAdapter;                        
             robot.AutoLoadScripts = false;
             robot.LoadScriptName("Auth");
@@ -59,7 +60,7 @@ namespace MMBot.Tests
         [Fact]
         public async Task CanCatchAnyMessage()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<CatchAllTest>();
             robot.AutoLoadScripts = false;

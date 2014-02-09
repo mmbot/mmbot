@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin.Testing;
+using MMBot.Brains;
 using MMBot.Router.Nancy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -115,7 +116,7 @@ namespace MMBot.Tests
 
         private async Task<HttpClient> SetupRoute(Action<Robot> setup)
         {
-            Robot robot = Robot.Create<StubAdapter>();
+            Robot robot = Robot.Create<StubAdapter, AkavacheBrain>();
             robot.AutoLoadScripts = false;
             robot.ConfigureRouter(typeof(TestNancyRouter));
 

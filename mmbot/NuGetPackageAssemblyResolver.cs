@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Common.Logging;
 using MMBot;
+using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs;
@@ -89,6 +90,11 @@ namespace mmbot
         public IEnumerable<Type> GetCompiledAdaptersFromPackages()
         {
             return ProbeForType(typeof(Adapter));
+        }
+
+        public IEnumerable<Type> GetCompiledBrainsFromPackages()
+        {
+            return ProbeForType(typeof(IBrain));
         }
 
         public Type GetCompiledRouterFromPackages(string name = null)

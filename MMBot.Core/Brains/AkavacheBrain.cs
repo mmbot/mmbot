@@ -1,22 +1,28 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Akavache;
 using Newtonsoft.Json;
 using ReactiveUI;
 
-namespace MMBot
+namespace MMBot.Brains
 {
-    public class Brain
+    public class AkavacheBrain : IBrain
     {
         private readonly Robot _robot;
+
+        public string Name
+        {
+            get { return "AkavacheBrain"; }
+        }
         
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
@@ -26,7 +32,7 @@ namespace MMBot
             }
         }
 
-        public Brain(Robot robot)
+        public AkavacheBrain(Robot robot)
         {
             _robot = robot;
             BlobCache.ApplicationName = "MMBotBrain";
@@ -418,5 +424,51 @@ namespace MMBot
                 return Observable.Throw<T>(ex);
             }
         }
+    }
+
+    public class AzureStorageBlobCache : IBlobCache
+    {
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<Unit> Insert(string key, byte[] data, DateTimeOffset? absoluteExpiration = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<byte[]> GetAsync(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<string> GetAllKeys()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<DateTimeOffset?> GetCreatedAt(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<Unit> Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<Unit> Invalidate(string key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<Unit> InvalidateAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IObservable<Unit> Shutdown { get; private set; }
+        public IScheduler Scheduler { get; private set; }
     }
 }

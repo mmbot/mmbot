@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Common.Logging;
 using Common.Logging.Simple;
-using MMBot.Adapters;
+using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
@@ -27,8 +27,9 @@ namespace MMBot
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private IEnumerable<Type> _adapterTypes;
+        private IEnumerable<Type> _brainTypes;
         private string[] _admins;
-        private Brain _brain;
+        private IBrain _brain;
         private IDictionary<string, string> _config;
         private IContainer _container;
         private ScriptSource _currentScriptSource = null;
@@ -37,28 +38,34 @@ namespace MMBot
         private string _name = "mmbot";
         private IRouter _router = new NullRouter();
         private ScriptRunner _scriptRunner;
+        
 
-        public static Robot Create<TAdapter>() where TAdapter : Adapter
+        public static Robot Create<TAdapter, TBrain>()
+            where TAdapter : Adapter
+            where TBrain : IBrain
         {
-            return Create<TAdapter>("mmbot", null, null);
+            return Create<TAdapter, TBrain>("mmbot", null, null);
         }
 
-        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config) where TAdapter : Adapter
+        public static Robot Create<TAdapter, TBrain>(string name, IDictionary<string, string> config)
+            where TAdapter : Adapter
+            where TBrain : IBrain
         {
-            return Create<TAdapter>(name, config, null);
+            return Create<TAdapter, TBrain>(name, config, null);
         }
 
-        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, LoggerConfigurator logConfig) where TAdapter : Adapter
+        public static Robot Create<TAdapter, TBrain>(string name, IDictionary<string, string> config, LoggerConfigurator logConfig) 
+            where TAdapter : Adapter
+            where TBrain : IBrain
         {
-            return Create(name, config, logConfig, new Type[] { typeof(TAdapter) });
+            return Create(name, config, logConfig, new[] { typeof(TAdapter) }, new[] { typeof(TBrain) });
         }
 
-        public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, params Type[] adapterTypes)
+        public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, Type[] adapterTypes, Type[] brainTypes)
         {
-            var robot = new Robot(logConfig);
+            Robot robot = new Robot(logConfig);
 
-            robot.Configure(name, config, adapterTypes);
-
+            robot.Configure(name, config, adapterTypes, brainTypes);
             robot.LoadAdapter();
 
             return robot;
@@ -99,7 +106,7 @@ namespace MMBot
 
         public bool AutoLoadScripts { get; set; }
 
-        public Brain Brain
+        public IBrain Brain
         {
             get { return _brain; }
         }
@@ -254,18 +261,22 @@ namespace MMBot
             ScriptData.Add(metadata);
         }
 
-        public void Configure(string name = "mmbot", IDictionary<string, string> config = null, params Type[] adapterTypes)
+        public void Configure(string name, IDictionary<string, string> config, Type[] adapterTypes, Type[] brainTypes)
         {
-            _adapterTypes = adapterTypes;
-            _scriptRunner = Container.Resolve<ScriptRunner>();
-            _brain = Container.Resolve<Brain>();
-            _name = name;
+            _name = name ?? "mmbot";
             _config = config ?? new Dictionary<string, string>();
-
             _isConfigured = true;
+            
+            _adapterTypes = adapterTypes;
+            _brainTypes = brainTypes;
+
+            _scriptRunner = Container.Resolve<ScriptRunner>();
+            _scriptRunner.Initialize();
+
+            _brain = Container.Resolve<IEnumerable<IBrain>>().FirstOrDefault(b => b.Name.Equals(GetConfigVariable("MMBOT_BRAIN_NAME"), StringComparison.InvariantCultureIgnoreCase)) ??
+                     Container.Resolve<IBrain>();
 
             _brain.Initialize();
-            _scriptRunner.Initialize();
         }
 
         public void ConfigureRouter(Type routerType)
@@ -563,11 +574,13 @@ namespace MMBot
         protected IContainer CreateContainer()
         {
             var builder = new ContainerBuilder();
+
             builder.RegisterInstance<ILog>(Logger);
             builder.RegisterInstance<Robot>(this);
             builder.RegisterType<ScriptRunner>();
-            builder.RegisterType<Brain>();
             _adapterTypes.ForEach(t => builder.RegisterType(t));
+            _brainTypes.ForEach(t => builder.RegisterType(t).As<IBrain>());
+
             return builder.Build();
         }
 

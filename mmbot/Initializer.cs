@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Lifetime;
-using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using MMBot;
 using MMBot.Adapters;
 using Common.Logging;
@@ -57,7 +53,6 @@ namespace mmbot
 
         public static async Task<Robot> StartBot(Options options)
         {
-
             if (options.Test && (options.ScriptFiles == null || !options.ScriptFiles.Any()))
             {
                 Console.WriteLine("You need to specify at least one script file to test.");
@@ -74,10 +69,13 @@ namespace mmbot
             AppDomain.CurrentDomain.AssemblyResolve += nugetResolver.OnAssemblyResolve;
 
             var adapters = DiscoverAdapters(options, nugetResolver, logger);
+            var brains = DiscoverBrains(options, nugetResolver, logger);
 
             var configuration = GetConfiguration(options);
+            
             string name;
-            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
+            
+            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray(), brains.ToArray());
             
             ConfigureRouter(robot, nugetResolver);
 
@@ -141,7 +139,20 @@ namespace mmbot
             {
                 adapters = LoadAdapters(nugetResolver, logger);
             }
+
             return adapters;
+        }
+
+        private static IEnumerable<Type> DiscoverBrains(Options options, NuGetPackageAssemblyResolver nugetResolver, ILog logger)
+        {
+            var brains = new Type[0];
+
+            if (!options.Test)
+            {
+                brains = LoadBrains(nugetResolver, logger);
+            }
+
+            return brains;
         }
 
         private static void LoadScripts(Options options, Robot robot, NuGetPackageAssemblyResolver nugetResolver,
@@ -189,7 +200,20 @@ namespace mmbot
             {
                 logger.Warn("Could not find any adapters. Loading the default console adapter only");
             }
+
             return adapters;
+        }
+
+        internal static Type[] LoadBrains(NuGetPackageAssemblyResolver nugetResolver, ILog logger)
+        {
+            var brains = nugetResolver.GetCompiledBrainsFromPackages().ToArray();
+
+            if (!brains.Any())
+            {
+                logger.Fatal("Could not find any brains. Verify that an implementor of IBrain exists and is accessible.");
+            }
+
+            return brains;
         }
 
         public static Dictionary<string, string> GetConfiguration(Options options)
@@ -213,7 +237,7 @@ namespace mmbot
                                       
  >>> mmbot chat robot
 
- http://github.com/petegoo/mmbot
+ http://github.com/mmbot/mmbot
 ";
     }
     
