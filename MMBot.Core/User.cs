@@ -67,12 +67,22 @@ namespace MMBot
         {
             userName = userName.ToLower();
             var roleStore = robot.Brain.Get<Dictionary<string, string>>("UserRoleStore").Result ?? new Dictionary<string, string>();
-            
             var roles = (roleStore.ContainsKey(userName) ? roleStore[userName].Split(',') : new string[0]);
+            
             if (roles.Length > 0 && roles.Any(d => d.Equals(role, System.StringComparison.CurrentCultureIgnoreCase)))
             {
-                roleStore[userName] = string.Join(",", roles.Where(d => d.Equals(role, System.StringComparison.CurrentCultureIgnoreCase)));
-                robot.Brain.Set("UserRoleStore", roleStore);
+                var newRoles = roles.Where(d => !d.Equals(role, System.StringComparison.CurrentCultureIgnoreCase)).ToArray();
+
+                if (newRoles.Any())
+                {
+                    roleStore[userName] = string.Join(",", newRoles);
+                }
+                else
+                {
+                    roleStore.Remove(userName);
+                }
+                
+               robot.Brain.Set("UserRoleStore", roleStore);
             }
         }
 
