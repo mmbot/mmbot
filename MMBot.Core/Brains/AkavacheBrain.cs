@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -17,19 +16,19 @@ namespace MMBot.Brains
 {
     public class AkavacheBrain : IBrain
     {
-        private readonly Robot _robot;
-
-        public string Name
-        {
-            get { return "AkavacheBrain"; }
-        }
-        
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
             public BrainPersistentBlobCache(string cacheDirectory) : base(cacheDirectory)
             {
 
             }
+        }
+
+        private readonly Robot _robot;
+
+        public string Name
+        {
+            get { return "AkavacheBrain"; }
         }
 
         public AkavacheBrain(Robot robot)
@@ -424,51 +423,5 @@ namespace MMBot.Brains
                 return Observable.Throw<T>(ex);
             }
         }
-    }
-
-    public class AzureStorageBlobCache : IBlobCache
-    {
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<Unit> Insert(string key, byte[] data, DateTimeOffset? absoluteExpiration = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<byte[]> GetAsync(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> GetAllKeys()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<DateTimeOffset?> GetCreatedAt(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<Unit> Flush()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<Unit> Invalidate(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<Unit> InvalidateAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IObservable<Unit> Shutdown { get; private set; }
-        public IScheduler Scheduler { get; private set; }
     }
 }
