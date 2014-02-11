@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin.Testing;
@@ -83,6 +86,7 @@ namespace MMBot.Tests
             Assert.Equal(expectedRoom, actualRoom);
         }
 
+        [Fact]
         public async Task WhenGithubWebHook_BodyIsParsed()
         {
             JToken actualPayload = null;
@@ -113,6 +117,31 @@ namespace MMBot.Tests
             
         }
 
+        [Fact]
+        public async Task WhenRouteCreatedAfterStartup_RouteExistsAfterDelay()
+        {
+            string expected = "Yo!";
+
+            Robot robot = Robot.Create<StubAdapter>();
+            robot.AutoLoadScripts = false;
+            robot.ConfigureRouter(typeof(TestNancyRouter));
+
+            var testNancyRouter = (robot.Router as TestNancyRouter);
+
+            await robot.Run();
+
+            await testNancyRouter.Started.Take(1);
+
+            robot.Router.Get("/test/", context => expected);
+
+            await testNancyRouter.Started.Take(2);
+            
+            var server = testNancyRouter.Server;
+
+            var response = await server.HttpClient.GetAsync("/test/");
+
+            Assert.Equal(expected, await response.Content.ReadAsStringAsync());
+        }
 
         private async Task<HttpClient> SetupRoute(Action<Robot> setup)
         {
@@ -130,8 +159,16 @@ namespace MMBot.Tests
         }
 
 
+
         public class TestNancyRouter : NancyRouter
         {
+
+            private readonly ReplaySubject<Unit> _started = new ReplaySubject<Unit>();
+
+            public TestNancyRouter() : base(TimeSpan.FromSeconds(0))
+            {
+            }
+            
             private TestServer _server;
 
             public TestServer Server
@@ -140,9 +177,17 @@ namespace MMBot.Tests
                 set { _server = value; }
             }
 
+            public IObservable<Unit> Started
+            {
+                get { return _started; }
+            }
+
             public override void Start()
             {
                 Server = TestServer.Create(app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
+                IsStarted = true;
+
+                _started.OnNext(Unit.Default);
             }
         }
 
