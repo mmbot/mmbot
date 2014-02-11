@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
 using Owin;
@@ -8,11 +12,28 @@ namespace MMBot.Router.Nancy
 {
     public class NancyRouter : IRouter
     {
+        
         private int _port;
         private IDisposable _webappDisposable;
         private Robot _robot;
         private bool _isConfigured;
         private readonly IDictionary<Route, Func<OwinContext, object>> _routes = new Dictionary<Route, Func<OwinContext, object>>();
+        protected bool IsStarted;
+        private readonly Subject<Route> _routeRegistered = new Subject<Route>();
+
+        public NancyRouter() : this(TimeSpan.FromSeconds(10))
+        {
+
+        }
+
+        public NancyRouter(TimeSpan restartThrottlePeriod)
+        {
+            _routeRegistered.Where(_ => IsStarted).Throttle(restartThrottlePeriod).Subscribe(_ =>
+            {
+                Stop();
+                Start();
+            });
+        }
 
         public virtual IDictionary<Route, Func<OwinContext, object>> Routes
         {
@@ -37,10 +58,13 @@ namespace MMBot.Router.Nancy
             _webappDisposable = WebApp.Start(url, app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
             
             _robot.Logger.Info(string.Format("Router (Nancy) is running on http://localhost:{0}", _port));
+
+            IsStarted = true;
         }
 
         public virtual void Stop()
         {
+            IsStarted = false;
             if (_webappDisposable == null)
             {
                 return;
@@ -52,29 +76,37 @@ namespace MMBot.Router.Nancy
 
         public virtual void Get(string path, Func<OwinContext, object> actionFunc)
         {
-            Routes.Add(new Route{ Method = Route.RouteMethod.Get, Path = path}, actionFunc);
+            var route = new Route{ Method = Route.RouteMethod.Get, Path = path};
+            Routes.Add(route, actionFunc);
+            _routeRegistered.OnNext(route);
         }
 
         public virtual void Get(string path, Action<OwinContext> action)
         {
-            Routes.Add(new Route { Method = Route.RouteMethod.Get, Path = path }, context => { action(context);
+            var route = new Route { Method = Route.RouteMethod.Get, Path = path };
+            Routes.Add(route, context => { action(context);
                                                                                                  return null;
             } );
+            _routeRegistered.OnNext(route);
         }
 
         public virtual void Post(string path, Func<OwinContext, object> actionFunc)
         {
-            Routes.Add(new Route { Method = Route.RouteMethod.Post, Path = path }, actionFunc);
+            var route = new Route { Method = Route.RouteMethod.Post, Path = path };
+            Routes.Add(route, actionFunc);
+            _routeRegistered.OnNext(route);
         }
 
 
         public virtual void Post(string path, Action<OwinContext> action)
         {
-            Routes.Add(new Route { Method = Route.RouteMethod.Post, Path = path }, context =>
+            var route = new Route { Method = Route.RouteMethod.Post, Path = path };
+            Routes.Add(route, context =>
             {
                 action(context);
                 return null;
             });
+            _routeRegistered.OnNext(route);
         }
     }
 }
