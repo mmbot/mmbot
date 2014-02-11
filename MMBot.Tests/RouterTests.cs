@@ -122,7 +122,7 @@ namespace MMBot.Tests
         {
             string expected = "Yo!";
 
-            Robot robot = Robot.Create<StubAdapter>();
+            Robot robot = Robot.Create<StubAdapter, AkavacheBrain>();
             robot.AutoLoadScripts = false;
             robot.ConfigureRouter(typeof(TestNancyRouter));
 
