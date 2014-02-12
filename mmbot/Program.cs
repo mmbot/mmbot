@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 using MMBot;
-using MMBot.Adapters;
-using Common.Logging;
 using System.ServiceProcess;
-using LoggerConfigurator = MMBot.LoggerConfigurator;
 
 namespace mmbot
 {
@@ -56,10 +48,8 @@ namespace mmbot
                         // sit and spin?
                         Thread.Sleep(2000);
                     }
-
                 }
             }
         }
-
     }
 }

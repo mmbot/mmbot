@@ -173,6 +173,7 @@
     <Compile Include="ScriptItTests.cs" />
     <Compile Include="ScriptsTest.cs" />
     <Compile Include="StubAdapter.cs" />
+    <Compile Include="StubBrain.cs" />
     <Compile Include="StubEchoScript.cs" />
     <Compile Include="TestLogger.cs" />
   </ItemGroup>

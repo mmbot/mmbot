@@ -12,7 +12,6 @@ namespace MMBot.Adapters
         public ConsoleAdapter(Robot robot, ILog logger, string adapterId)
             : base(robot, logger, adapterId)
         {
-            _user = robot.GetUser("ConsoleUser", "ConsoleUser", "Console", adapterId);
         }
 
         public async override Task Run()
@@ -22,6 +21,8 @@ namespace MMBot.Adapters
 
         private void StartListening()
         {
+            _user = Robot.GetUser("ConsoleUser", "ConsoleUser", "Console", Id);
+            
             while(true)
             {
                 var message = Console.ReadLine();

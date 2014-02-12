@@ -8,6 +8,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Owin.Testing;
+using MMBot.Brains;
 using MMBot.Router.Nancy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

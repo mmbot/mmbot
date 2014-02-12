@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Common.Logging;
 using MMBot.Adapters;
+using MMBot.Brains;
 using Xunit;
 
 using MMBot.XMPP;
@@ -65,6 +66,7 @@ namespace MMBot.Tests
         {
             var robot = Robot.Create<StubAdapter>();
             var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
             
             var expectedMessages = new[]
@@ -90,6 +92,7 @@ namespace MMBot.Tests
         public async Task WhenRobotIsReset_ScriptCleanupIsInvoked()
         {
             var robot = Robot.Create<StubAdapter>();
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
 
             bool isCleanedUp = false;
@@ -109,6 +112,7 @@ namespace MMBot.Tests
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.ConfigureForConsole();
             var robot = Robot.Create("mmbot", new Dictionary<string, string>(), logConfig, new[]{typeof(StubAdapter), typeof(StubAdapter2)});
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.AutoLoadScripts = false;
 
             var adapter1 = robot.Adapters.First().Value as StubAdapter;
@@ -228,8 +232,6 @@ namespace MMBot.Tests
             while (cmdReceived < 2)
                 Thread.Sleep(1000);            
         }
-
-
     }
 }
 

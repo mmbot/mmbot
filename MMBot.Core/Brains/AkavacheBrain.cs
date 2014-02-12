@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -7,17 +8,14 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Akavache;
 using Newtonsoft.Json;
 using ReactiveUI;
 
-namespace MMBot
+namespace MMBot.Brains
 {
-    public class Brain
+    public class AkavacheBrain : IBrain
     {
-        private readonly Robot _robot;
-        
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
             public BrainPersistentBlobCache(string cacheDirectory) : base(cacheDirectory)
@@ -26,14 +24,13 @@ namespace MMBot
             }
         }
 
-        public Brain(Robot robot)
+        private Robot _robot;
+
+        public void Initialize(Robot robot)
         {
             _robot = robot;
             BlobCache.ApplicationName = "MMBotBrain";
-        }
-
-        public void Initialize()
-        {
+            
             var configVariable = _robot.GetConfigVariable("MMBOT_BRAIN_PATH");
             _cache = string.IsNullOrWhiteSpace(configVariable) ? BlobCache.LocalMachine : new BrainPersistentBlobCache(configVariable);
 
@@ -97,7 +94,6 @@ namespace MMBot
             return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value, settings));
         }
     }
-
 
     public static class JsonSerializationMixin
     {

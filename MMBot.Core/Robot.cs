@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using Common.Logging;
 using Common.Logging.Simple;
-using MMBot.Adapters;
+using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
@@ -28,7 +28,7 @@ namespace MMBot
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private IEnumerable<Type> _adapterTypes;
         private string[] _admins;
-        private Brain _brain;
+        private IBrain _brain;
         private IDictionary<string, string> _config;
         private IContainer _container;
         private ScriptSource _currentScriptSource = null;
@@ -64,7 +64,8 @@ namespace MMBot
             return robot;
         }
 
-        protected Robot() : this(null)
+        protected Robot()
+            : this(null)
         {
         }
 
@@ -99,7 +100,7 @@ namespace MMBot
 
         public bool AutoLoadScripts { get; set; }
 
-        public Brain Brain
+        public IBrain Brain
         {
             get { return _brain; }
         }
@@ -258,13 +259,11 @@ namespace MMBot
         {
             _adapterTypes = adapterTypes;
             _scriptRunner = Container.Resolve<ScriptRunner>();
-            _brain = Container.Resolve<Brain>();
             _name = name;
             _config = config ?? new Dictionary<string, string>();
 
             _isConfigured = true;
 
-            _brain.Initialize();
             _scriptRunner.Initialize();
         }
 
@@ -283,6 +282,23 @@ namespace MMBot
             var router = Activator.CreateInstance(routerType) as IRouter;
             router.Configure(this, int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
             _router = router;
+        }
+
+        public void ConfigureBrain(Type brainType)
+        {
+            if (!_isConfigured)
+            {
+                throw new RobotNotConfiguredException();
+            }
+
+            if (!typeof(IBrain).IsAssignableFrom(brainType))
+            {
+                throw new TypeLoadException(string.Format("Could not configure brain type '{0}' as it does not implement IBrain", brainType));
+            }
+
+            IBrain brain = Activator.CreateInstance(brainType) as IBrain;
+            brain.Initialize(this);
+            _brain = brain;
         }
 
         public string GetConfigVariable(string name)
@@ -485,7 +501,7 @@ namespace MMBot
 
             _loadedScriptTypes.ForEach(LoadScript);
             await Run();
-            _brain.Initialize();
+            _brain.Initialize(this);
             Emit("ResetComplete", true);
         }
 
@@ -566,7 +582,6 @@ namespace MMBot
             builder.RegisterInstance<ILog>(Logger);
             builder.RegisterInstance<Robot>(this);
             builder.RegisterType<ScriptRunner>();
-            builder.RegisterType<Brain>();
             _adapterTypes.ForEach(t => builder.RegisterType(t));
             return builder.Build();
         }

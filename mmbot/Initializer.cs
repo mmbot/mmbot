@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Remoting.Lifetime;
-using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using MMBot;
 using MMBot.Adapters;
 using Common.Logging;
@@ -70,15 +66,16 @@ namespace mmbot
             ConfigurePath(options, logger);
 
             var nugetResolver = new NuGetPackageAssemblyResolver(logger);
-            
+
             AppDomain.CurrentDomain.AssemblyResolve += nugetResolver.OnAssemblyResolve;
 
             var adapters = DiscoverAdapters(options, nugetResolver, logger);
 
             var configuration = GetConfiguration(options);
             string name;
-            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray());
-            
+            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new[] { typeof(ConsoleAdapter) }).ToArray());
+
+            ConfigureBrain(robot, nugetResolver);
             ConfigureRouter(robot, nugetResolver);
 
             LoadScripts(options, robot, nugetResolver, logger);
@@ -88,7 +85,7 @@ namespace mmbot
                 if (!t.IsFaulted)
                 {
                     Console.WriteLine(IntroText);
-                    Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit" );
+                    Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit");
                 }
             });
             return robot;
@@ -163,6 +160,21 @@ namespace mmbot
             }
         }
 
+        private static void ConfigureBrain(Robot robot, NuGetPackageAssemblyResolver nugetResolver)
+        {
+            var brainType = nugetResolver.GetCompiledBrainFromPackages(robot.GetConfigVariable("MMBOT_BRAIN_NAME"));
+
+            if (brainType != null)
+            {
+                robot.Logger.Info(string.Format("Loading IBrain '{0}'", brainType.Name));
+                robot.ConfigureBrain(brainType);
+            }
+            else
+            {
+                robot.Logger.Fatal("No IBrain implementation found. If you have configured MMBOT_BRAIN_NAME, verify that you have installed the relevant package.");
+            }
+        }
+
         private static void ConfigureRouter(Robot robot, NuGetPackageAssemblyResolver nugetResolver)
         {
             var robotEnabledVar = robot.GetConfigVariable("MMBOT_ROUTER_ENABLED");
@@ -213,8 +225,8 @@ namespace mmbot
                                       
  >>> mmbot chat robot
 
- http://github.com/petegoo/mmbot
+ http://github.com/mmbot/mmbot
 ";
     }
-    
+
 }

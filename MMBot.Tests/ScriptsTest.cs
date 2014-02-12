@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using MMBot.Brains;
 using MMBot.Tests.CompiledScripts;
 using Xunit;
 
@@ -21,6 +22,7 @@ namespace MMBot.Tests
         public async Task WhenPing_ReceivePong()
         {
             var robot = Robot.Create<StubAdapter>();
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
@@ -38,7 +40,8 @@ namespace MMBot.Tests
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
             var robot = Robot.Create<StubAdapter>();
-            var adapter = robot.Adapters.First().Value as StubAdapter;                        
+            var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.ConfigureBrain(typeof(StubBrain));       
             robot.AutoLoadScripts = false;
             robot.LoadScriptName("Auth");
             await robot.Run();
@@ -61,6 +64,7 @@ namespace MMBot.Tests
         {
             var robot = Robot.Create<StubAdapter>();
             var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<CatchAllTest>();
             robot.AutoLoadScripts = false;
             await robot.Run();
@@ -89,6 +93,5 @@ namespace MMBot.Tests
             Assert.Equal(4, messages.Count());
             Assert.Equal("Caught msg new topic from tester", messages.Skip(3).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
         }
-
     }
 }
