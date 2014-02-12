@@ -122,7 +122,7 @@ namespace MMBot.Tests
         {
             string expected = "Yo!";
 
-            Robot robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            Robot robot = Robot.Create<StubAdapter>();
             robot.AutoLoadScripts = false;
             robot.ConfigureRouter(typeof(TestNancyRouter));
 
@@ -145,7 +145,7 @@ namespace MMBot.Tests
 
         private async Task<HttpClient> SetupRoute(Action<Robot> setup)
         {
-            Robot robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            Robot robot = Robot.Create<StubAdapter>();
             robot.AutoLoadScripts = false;
             robot.ConfigureRouter(typeof(TestNancyRouter));
 

@@ -14,14 +14,15 @@ namespace MMBot.Tests
         [Fact]
         public void CanRegisterCompiledScripts()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
             robot.LoadScripts(typeof(Ping).Assembly);
         }
 
         [Fact]
         public async Task WhenPing_ReceivePong()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
@@ -38,8 +39,9 @@ namespace MMBot.Tests
         [Fact]
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
-            var adapter = robot.Adapters.First().Value as StubAdapter;                        
+            var robot = Robot.Create<StubAdapter>();
+            var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.ConfigureBrain(typeof(StubBrain));       
             robot.AutoLoadScripts = false;
             robot.LoadScriptName("Auth");
             await robot.Run();
@@ -60,8 +62,9 @@ namespace MMBot.Tests
         [Fact]
         public async Task CanCatchAnyMessage()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
             var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<CatchAllTest>();
             robot.AutoLoadScripts = false;
             await robot.Run();
@@ -90,6 +93,5 @@ namespace MMBot.Tests
             Assert.Equal(4, messages.Count());
             Assert.Equal("Caught msg new topic from tester", messages.Skip(3).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
         }
-
     }
 }

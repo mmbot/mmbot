@@ -9,31 +9,39 @@ namespace MMBot.AzureTableBrain
 {
     public class AzureTableBrain : IBrain
     {
-        private readonly Robot _robot;
+        private Robot _robot;
         private CloudTable _table;
         private string _partition;
 
-        public string Name
-        {
-            get { return "AzureTableBrain"; }
-        }
-
-        public AzureTableBrain(Robot robot)
+        public void Initialize(Robot robot)
         {
             _robot = robot;
-        }
+            
+            CloudStorageAccount storageAccount;
 
-        public void Initialize()
-        {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(string.Format(
-                "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}",
-                _robot.GetConfigVariable("MMBOT_AZURETABLEBRAIN_STORAGE_ACCOUNT_NAME"),
-                _robot.GetConfigVariable("MMBOT_AZURETABLEBRAIN_ACCESS_KEY"))
-                );
+            string useDevelopmentStorage = _robot.GetConfigVariable("MMBOT_AZURETABLEBRAIN_USEDEVELOPMENTSTORAGE");
+            string accountName = _robot.GetConfigVariable("MMBOT_AZURETABLEBRAIN_STORAGE_ACCOUNT_NAME");
+            string accessKey = _robot.GetConfigVariable("MMBOT_AZURETABLEBRAIN_ACCESS_KEY");
+
+            if ((!string.IsNullOrWhiteSpace(useDevelopmentStorage) && useDevelopmentStorage.Equals("true", StringComparison.InvariantCultureIgnoreCase)) || string.IsNullOrWhiteSpace(accountName) || string.IsNullOrWhiteSpace(accessKey))
+            {
+                _robot.Logger.Info("Using DevelopmentStorageAccount, Azure Storage Emulator must be running");
+                _robot.Logger.Info("Configure STORAGE_ACCOUNT_NAME and ACCESS_KEY for production storage");
+                
+                storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
+            }
+            else
+            {
+                storageAccount = CloudStorageAccount.Parse(string.Format(
+                    "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}",
+                    accountName,
+                    accessKey)
+                    );
+            }
 
             CloudTableClient tableClient = storageAccount.CreateCloudTableClient();
 
-            _table = tableClient.GetTableReference(Name); // AzureTableBrain, Robot.Alias/Name is used as PartitionKey for separate robots using the same table
+            _table = tableClient.GetTableReference("AzureTableBrain"); // Robot.Alias/Name is used as PartitionKey for separate robots using the same table
             _table.CreateIfNotExists();
 
             _partition = _robot.Alias ?? _robot.Name;

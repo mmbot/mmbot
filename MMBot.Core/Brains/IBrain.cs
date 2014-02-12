@@ -4,9 +4,7 @@ namespace MMBot.Brains
 {
     public interface IBrain
     {
-        string Name { get; }
-        
-        void Initialize();
+        void Initialize(Robot robot);
 
         Task Close();
 

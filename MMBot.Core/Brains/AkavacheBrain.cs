@@ -24,21 +24,13 @@ namespace MMBot.Brains
             }
         }
 
-        private readonly Robot _robot;
+        private Robot _robot;
 
-        public string Name
-        {
-            get { return "AkavacheBrain"; }
-        }
-
-        public AkavacheBrain(Robot robot)
+        public void Initialize(Robot robot)
         {
             _robot = robot;
             BlobCache.ApplicationName = "MMBotBrain";
-        }
-
-        public void Initialize()
-        {
+            
             var configVariable = _robot.GetConfigVariable("MMBOT_BRAIN_PATH");
             _cache = string.IsNullOrWhiteSpace(configVariable) ? BlobCache.LocalMachine : new BrainPersistentBlobCache(configVariable);
 
@@ -102,7 +94,6 @@ namespace MMBot.Brains
             return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value, settings));
         }
     }
-
 
     public static class JsonSerializationMixin
     {

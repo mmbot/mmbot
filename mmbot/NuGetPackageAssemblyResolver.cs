@@ -92,9 +92,9 @@ namespace mmbot
             return ProbeForType(typeof(Adapter));
         }
 
-        public IEnumerable<Type> GetCompiledBrainsFromPackages()
+        public Type GetCompiledBrainFromPackages(string name = null)
         {
-            return ProbeForType(typeof(IBrain));
+            return ProbeForType(typeof(IBrain)).FirstOrDefault(t => (string.IsNullOrEmpty(name) || string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public Type GetCompiledRouterFromPackages(string name = null)

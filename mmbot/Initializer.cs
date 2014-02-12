@@ -53,6 +53,7 @@ namespace mmbot
 
         public static async Task<Robot> StartBot(Options options)
         {
+
             if (options.Test && (options.ScriptFiles == null || !options.ScriptFiles.Any()))
             {
                 Console.WriteLine("You need to specify at least one script file to test.");
@@ -65,18 +66,16 @@ namespace mmbot
             ConfigurePath(options, logger);
 
             var nugetResolver = new NuGetPackageAssemblyResolver(logger);
-            
+
             AppDomain.CurrentDomain.AssemblyResolve += nugetResolver.OnAssemblyResolve;
 
             var adapters = DiscoverAdapters(options, nugetResolver, logger);
-            var brains = DiscoverBrains(options, nugetResolver, logger);
 
             var configuration = GetConfiguration(options);
-            
             string name;
-            
-            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new []{typeof(ConsoleAdapter)}).ToArray(), brains.ToArray());
-            
+            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new[] { typeof(ConsoleAdapter) }).ToArray());
+
+            ConfigureBrain(robot, nugetResolver);
             ConfigureRouter(robot, nugetResolver);
 
             LoadScripts(options, robot, nugetResolver, logger);
@@ -86,7 +85,7 @@ namespace mmbot
                 if (!t.IsFaulted)
                 {
                     Console.WriteLine(IntroText);
-                    Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit" );
+                    Console.WriteLine((options.Test ? "The test console is ready. " : "mmbot is running. ") + "Press CTRL+C at any time to exit");
                 }
             });
             return robot;
@@ -139,20 +138,7 @@ namespace mmbot
             {
                 adapters = LoadAdapters(nugetResolver, logger);
             }
-
             return adapters;
-        }
-
-        private static IEnumerable<Type> DiscoverBrains(Options options, NuGetPackageAssemblyResolver nugetResolver, ILog logger)
-        {
-            var brains = new Type[0];
-
-            if (!options.Test)
-            {
-                brains = LoadBrains(nugetResolver, logger);
-            }
-
-            return brains;
         }
 
         private static void LoadScripts(Options options, Robot robot, NuGetPackageAssemblyResolver nugetResolver,
@@ -171,6 +157,21 @@ namespace mmbot
                     logger.Warn(
                         "There is no scripts folder. Have you forgotten to run 'mmbot --init' to initialise the current running directory?");
                 }
+            }
+        }
+
+        private static void ConfigureBrain(Robot robot, NuGetPackageAssemblyResolver nugetResolver)
+        {
+            var brainType = nugetResolver.GetCompiledBrainFromPackages(robot.GetConfigVariable("MMBOT_BRAIN_NAME"));
+
+            if (brainType != null)
+            {
+                robot.Logger.Info(string.Format("Loading IBrain '{0}'", brainType.Name));
+                robot.ConfigureBrain(brainType);
+            }
+            else
+            {
+                robot.Logger.Fatal("No IBrain implementation found. If you have configured MMBOT_BRAIN_NAME, verify that you have installed the relevant package.");
             }
         }
 
@@ -200,20 +201,7 @@ namespace mmbot
             {
                 logger.Warn("Could not find any adapters. Loading the default console adapter only");
             }
-
             return adapters;
-        }
-
-        internal static Type[] LoadBrains(NuGetPackageAssemblyResolver nugetResolver, ILog logger)
-        {
-            var brains = nugetResolver.GetCompiledBrainsFromPackages().ToArray();
-
-            if (!brains.Any())
-            {
-                logger.Fatal("Could not find any brains. Verify that an implementor of IBrain exists and is accessible.");
-            }
-
-            return brains;
         }
 
         public static Dictionary<string, string> GetConfiguration(Options options)
@@ -240,5 +228,5 @@ namespace mmbot
  http://github.com/mmbot/mmbot
 ";
     }
-    
+
 }

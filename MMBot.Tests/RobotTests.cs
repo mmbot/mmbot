@@ -22,7 +22,7 @@ namespace MMBot.Tests
         {
             var paramName = "param1";
             var paramValue = "param1Value";
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>("mmbot", new Dictionary<string, string>{{"param1", "param1Value"}});
+            var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>{{"param1", "param1Value"}});
             Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
         }
 
@@ -34,7 +34,7 @@ namespace MMBot.Tests
             Environment.SetEnvironmentVariable(paramName, paramValue);
             using(Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
-                var robot = Robot.Create<StubAdapter, AkavacheBrain>("mmbot", new Dictionary<string, string>());
+                var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>());
                 Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
             }
         }
@@ -48,7 +48,7 @@ namespace MMBot.Tests
             Environment.SetEnvironmentVariable(paramName, paramValue);
             using (Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
-                var robot = Robot.Create<StubAdapter, AkavacheBrain>("mmbot", new Dictionary<string, string>{{paramName, newParamValue}});
+                var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>{{paramName, newParamValue}});
                 Assert.Equal(robot.GetConfigVariable(paramName), newParamValue);
             }
         }
@@ -56,7 +56,7 @@ namespace MMBot.Tests
         [Fact]
         public void WhenInstantiatedWithoutDictionary_RobotIsConfigured()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
 
             Assert.Null(robot.GetConfigVariable("NothingExpected"));
         }
@@ -64,8 +64,9 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenMessageIsSentFromScript_AdapterSendIsInvoked()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
             var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
             
             var expectedMessages = new[]
@@ -90,7 +91,8 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenRobotIsReset_ScriptCleanupIsInvoked()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
 
             bool isCleanedUp = false;
@@ -109,7 +111,8 @@ namespace MMBot.Tests
         {
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.ConfigureForConsole();
-            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), logConfig, new[]{typeof(StubAdapter), typeof(StubAdapter2)}, new [] {typeof(AkavacheBrain)});
+            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), logConfig, new[]{typeof(StubAdapter), typeof(StubAdapter2)});
+            robot.ConfigureBrain(typeof(StubBrain));
             robot.AutoLoadScripts = false;
 
             var adapter1 = robot.Adapters.First().Value as StubAdapter;
@@ -162,7 +165,7 @@ namespace MMBot.Tests
         [Fact]
         public void WhenEmitInvokeOn()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
             robot.On<string>("Test", result =>
             {
                 var data = result;
@@ -176,7 +179,7 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenEmitReadyInvokeOn()
         {
-            var robot = Robot.Create<StubAdapter, AkavacheBrain>();
+            var robot = Robot.Create<StubAdapter>();
             robot.AutoLoadScripts = false;
             bool onInvoked = false;
             robot.On<bool>("RobotReady", result =>
@@ -207,7 +210,7 @@ namespace MMBot.Tests
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.AddTraceListener();
 
-            var robot = Robot.Create("mmbot", config, logConfig, new[] { typeof(XmppAdapter) }, new[] { typeof(AkavacheBrain) });
+            var robot = Robot.Create("mmbot", config, logConfig, new[] { typeof(XmppAdapter) });
             
             robot.AutoLoadScripts = false;
             robot.LoadScript<CompiledScripts.Ping>();
