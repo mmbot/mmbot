@@ -64,10 +64,14 @@ namespace MMBot
             return robot;
         }
 
+
         protected Robot()
-            : this(null)
-        {
-        }
+            : this(null){}
+
+        //protected Robot(Adapter[] adapters, ScriptRunner scriptRunner, IRouter router, Brain brain, LoggerConfigurator logConfig) : this(null)
+        //{
+
+        //}
 
         protected Robot(LoggerConfigurator logConfig)
         {
@@ -336,7 +340,7 @@ namespace MMBot
             }
         }
 
-        public void LoadLogging()
+        private void LoadLogging()
         {
             if (LogConfig == null || LogConfig.GetAppenders().Any(d => d == "MMBot.RobotLogAppender"))
                 return;
