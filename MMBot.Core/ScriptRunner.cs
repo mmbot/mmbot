@@ -19,24 +19,22 @@ using LogLevel = ScriptCs.Contracts.LogLevel;
 
 namespace MMBot
 {
-    public class ScriptRunner
+    public class ScriptRunner : IMustBeInitializedWithRobot
     {
-        private readonly Robot _robot;
+        private Robot _robot;
         private ILog _logger;
         private string[] _defaultMMBotReferences = new[] {"Microsoft.Owin"};
 
-        public ScriptRunner(Robot robot, ILog logger)
+        public ScriptRunner(ILog logger)
         {
-            _robot = robot;
             _logger = logger;
         }
 
-        public void Initialize()
+        public void Initialize(Robot robot)
         {
-
+            _robot = robot;
         }
 
-        
         public bool RunScriptFile(string path)
         {
             try

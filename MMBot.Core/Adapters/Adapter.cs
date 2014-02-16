@@ -6,7 +6,7 @@ using Common.Logging;
 
 namespace MMBot
 {
-    public abstract class Adapter
+    public abstract class Adapter : IAdapter
     {
         protected Robot Robot { get; private set; }
 

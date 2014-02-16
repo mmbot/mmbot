@@ -65,7 +65,7 @@ namespace mmbot
 
             ConfigurePath(options, logger);
 
-            var nugetResolver = new NuGetPackageAssemblyResolver(logger);
+            var nugetResolver = new NuGetPackageAssemblyResolver(logConfig);
 
             AppDomain.CurrentDomain.AssemblyResolve += nugetResolver.OnAssemblyResolve;
 
@@ -164,15 +164,7 @@ namespace mmbot
         {
             var brainType = nugetResolver.GetCompiledBrainFromPackages(robot.GetConfigVariable("MMBOT_BRAIN_NAME"));
 
-            if (brainType != null)
-            {
-                robot.Logger.Info(string.Format("Loading IBrain '{0}'", brainType.Name));
-                robot.ConfigureBrain(brainType);
-            }
-            else
-            {
-                robot.Logger.Fatal("No IBrain implementation found. If you have configured MMBOT_BRAIN_NAME, verify that you have installed the relevant package.");
-            }
+
         }
 
         private static void ConfigureRouter(Robot robot, NuGetPackageAssemblyResolver nugetResolver)

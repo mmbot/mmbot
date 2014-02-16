@@ -14,11 +14,6 @@ namespace MMBot.ScriptCS
             _robot = robot;
         }
 
-        public MMBot2ScriptPackInternal()
-        {
-            _robot = new MMBotScriptPackContext();
-        }
-
         public void Initialize(IScriptPackSession session)
         {
 
@@ -38,24 +33,6 @@ namespace MMBot.ScriptCS
         {
             get { return _robot; }
             set { _robot = value; }
-        }
-    }
-
-    public class MMBotScriptPackContext : Robot, IScriptPackContext
-    {
-        internal MMBotScriptPackContext()
-            : base()
-        {
-        }
-
-        public override async Task Run()
-        {
-            await base.Run();
-        }
-
-        public void LoadAllScripts()
-        {
-
         }
     }
 }

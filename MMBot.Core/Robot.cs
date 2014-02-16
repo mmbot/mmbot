@@ -37,6 +37,7 @@ namespace MMBot
         private string _name = "mmbot";
         private IRouter _router = new NullRouter();
         private ScriptRunner _scriptRunner;
+        private IScriptStore _scriptStore;
 
         public static Robot Create<TAdapter>() where TAdapter : Adapter
         {
@@ -65,13 +66,14 @@ namespace MMBot
         }
 
 
-        protected Robot()
-            : this(null){}
-
-        //protected Robot(Adapter[] adapters, ScriptRunner scriptRunner, IRouter router, Brain brain, LoggerConfigurator logConfig) : this(null)
-        //{
-
-        //}
+        protected Robot(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, IDictionary<string, IAdapter> adapters, IRouter router, IBrain brain, IScriptStore scriptStore)
+            : this(logConfig)
+        {
+            _name = name;
+            _config = config;
+            _scriptStore = scriptStore;
+            Initialize(adapters, router, brain);
+        }
 
         protected Robot(LoggerConfigurator logConfig)
         {
@@ -80,6 +82,14 @@ namespace MMBot
                 ? new TraceLogger(false, "trace", LogLevel.Error, true, false, false, "F")
                 : logConfig.GetLogger();
             AutoLoadScripts = true;
+        }
+
+        public void Initialize(params object[] dependencies)
+        {
+            foreach (var dep in dependencies.OfType<IMustBeInitializedWithRobot>())
+            {
+                (dep).Initialize(this);
+            }
         }
 
         public Dictionary<string, Adapter> Adapters
@@ -268,7 +278,7 @@ namespace MMBot
 
             _isConfigured = true;
 
-            _scriptRunner.Initialize();
+            _scriptRunner.Initialize(this);
         }
 
         public void ConfigureRouter(Type routerType)
