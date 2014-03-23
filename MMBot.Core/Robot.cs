@@ -261,32 +261,6 @@ namespace MMBot
             return _config.ContainsKey(name) ? _config[name] : Environment.GetEnvironmentVariable(name);
         }
 
-        //public void LoadAdapter()
-        //{
-        //    _adapters.Clear();
-        //    foreach (var adapterType in _adapterTypes.Distinct(new GenericEqualityComparer<Type>((t1, t2) => t1.FullName == t2.FullName, type => type.FullName.GetHashCode())))
-        //    {
-        //        Logger.Info(string.Format("Loading Adapter '{0}'", adapterType.Name));
-        //        try
-        //        {
-        //            var id = adapterType.Name;
-        //            int count = 0;
-        //            while (_adapters.Keys.Contains(id))
-        //            {
-        //                count++;
-        //                id = adapterType.Name + count;
-        //            }
-        //            var adapter = Container.Resolve(adapterType, new NamedParameter("adapterId", id)) as Adapter;
-
-        //            _adapters.Add(id, adapter);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Logger.Error(string.Format("Could not instantiate '{0}' adapter", adapterType.Name), e);
-        //        }
-        //    }
-        //}
-
         private void LoadLogging()
         {
             if (LogConfig == null || LogConfig.GetAppenders().Any(d => d == "MMBot.RobotLogAppender"))
@@ -298,7 +272,7 @@ namespace MMBot
             }
             else
             {
-                Logger.Info("No logging rooms to enabled");
+                Logger.Info("No logging rooms are enabled");
             }
         }
 
@@ -345,26 +319,6 @@ namespace MMBot
                 LoadScript(s);
             });
         }
-
-        //public IDisposable StartScriptProcessingSession(ScriptSource scriptSource)
-        //{
-        //    if (scriptSource == null)
-        //    {
-        //        throw new ArgumentNullException("scriptSource");
-        //    }
-
-        //    if (_currentScriptSource != null)
-        //    {
-        //        throw new ScriptProcessingException("Cannot process multiple script sources at the same time");
-        //    }
-        //    _currentScriptSource = scriptSource;
-
-        //    CleanupScript(scriptSource.Name);
-
-        //    Listeners.RemoveAll(l => l.Source != null && l.Source.Name == scriptSource.Name);
-
-        //    return Disposable.Create(() => _currentScriptSource = null);
-        //}
 
         private void LoadScript(Type scriptType)
         {

@@ -34,7 +34,7 @@ namespace MMBot.Scripts
             if (!Directory.Exists(ScriptsPath))
             {
                 _log.Warn(
-                    "There is no scripts folder. Have you forgotten to run 'mmbot --init' to initialise the current running directory?");
+                    "There is no scripts folder. Have you forgotten to run 'mmbot --init' to initialize the current running directory?");
             }
 
             return _fileSystem.EnumerateFiles(ScriptsPath, "*.csx").Select(scriptFile => new ScriptCsScriptFile
