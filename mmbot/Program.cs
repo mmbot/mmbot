@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using MMBot;
 using System.ServiceProcess;
@@ -8,48 +10,18 @@ namespace mmbot
 {
     class Program
     {
+        
 
         static void Main(string[] args)
         {
-            var options = new Options();
-            CommandLine.Parser.Default.ParseArguments(args, options);
+            Bootstrapper bootstrapper = new Bootstrapper();
+            bootstrapper.Bootstrap(args);
 
-            if (options.ShowHelp)
+            while (true)
             {
-                return;
-            }
-
-            if (options.RunAsService)
-            {
-                ServiceBase.Run(new ServiceBase[] { new Service(options) });
-            }
-            else
-            {
-                if (options.LastParserState != null && options.LastParserState.Errors.Any())
-                {
-                    return;
-                }
-
-                if (options.Parameters != null && options.Parameters.Any())
-                {
-                    options.Parameters.ForEach(Console.WriteLine);
-                }
-
-                if (options.Init)
-                {
-                    Initializer.InitialiseCurrentDirectory();
-                }
-                else
-                {
-                    Initializer.StartBot(options).Wait();
-
-                    while (true)
-                    {
-                        // sit and spin?
-                        Thread.Sleep(2000);
-                    }
-                }
-            }
+                // sit and spin?
+                Thread.Sleep(2000);
+            }       
         }
     }
 }

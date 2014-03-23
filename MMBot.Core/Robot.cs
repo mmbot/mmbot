@@ -18,6 +18,7 @@ using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
 {
+    [Serializable]
     public class Robot : IScriptPackContext
     {
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
@@ -496,12 +497,7 @@ namespace MMBot
         public async Task Reset()
         {
             Emit("Resetting", true);
-            await Shutdown();
-            LoadAdapter();
-
-            _loadedScriptTypes.ForEach(LoadScript);
-            await Run();
-            _brain.Initialize(this);
+            HardReset();
             Emit("ResetComplete", true);
         }
 
@@ -620,6 +616,22 @@ namespace MMBot
             script.Register(this);
 
             AddHelp(script.GetHelp().ToArray());
+        }
+
+        public void HardReset()
+        {
+            RaiseHardResetRequest(new EventArgs());
+        }
+
+        public event EventHandler HardResetRequested;
+
+        protected virtual void RaiseHardResetRequest(EventArgs e)
+        {
+            EventHandler handler = HardResetRequested;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         private class EventEmitItem

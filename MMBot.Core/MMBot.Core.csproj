@@ -199,6 +199,9 @@
     <None Include="Scripts\Auth.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\FullReset.csx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scripts\MMBotScripts.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

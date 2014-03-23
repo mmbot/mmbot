@@ -120,6 +120,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="Initializer.cs" />
     <Compile Include="NuGetPackageAssemblyResolver.cs" />
     <Compile Include="Options.cs" />
