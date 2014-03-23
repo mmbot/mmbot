@@ -112,6 +112,7 @@ namespace mmbot
                 where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
                 select path;
 
+            assemblies = FilterProbedAssemblies(assemblies);
 
             return assemblies.SelectMany(assemblyFile =>
             {
@@ -126,6 +127,25 @@ namespace mmbot
                     return new Type[0];
                 }
             });
+        }
+
+        private IEnumerable<string> FilterProbedAssemblies(IEnumerable<string> assemblies)
+        {
+            var assemblyDic = new Dictionary<string, Version>();
+            var assembliesToLoad = new Dictionary<string, string>();
+
+            foreach (var assembly in assemblies)
+            {
+                var name = AssemblyName.GetAssemblyName(assembly);
+                Version loading;
+                if (!assemblyDic.TryGetValue(name.Name, out loading) || name.Version > loading)
+                {
+                    assemblyDic[name.Name] = name.Version;
+                    assembliesToLoad[name.Name] = assembly;
+                }
+            }
+
+            return assembliesToLoad.Select(kvp => kvp.Value);
         }
     }
 }
