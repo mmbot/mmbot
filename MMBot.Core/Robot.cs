@@ -23,66 +23,18 @@ namespace MMBot
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
         protected bool _isConfigured = false;
         private readonly IDictionary<string, IAdapter> _adapters = new Dictionary<string, IAdapter>();
-        
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private string[] _admins;
         private IBrain _brain;
         private IDictionary<string, string> _config;
         private IContainer _container;
-        private ScriptSource _currentScriptSource = null;
         private Dictionary<string, EventEmitItem> _emitTable = new Dictionary<string, EventEmitItem>();
         private bool _isReady = false;
         private string _name = "mmbot";
         private IRouter _router = new NullRouter();
-        private IScriptRunner _scriptRunner;
-        private IScriptStore _scriptStore;
-
-        //public static Robot Create<TAdapter>() where TAdapter : Adapter
-        //{
-        //    return new RobotBuilder(new LoggerConfigurator(LogLevel.Error))
-        //        .UseAdapter<TAdapter>()
-        //        .DisablePluginDiscovery()
-        //        .WithName("mmbot").Build();
-        //    return Create<TAdapter>("mmbot", null, null);
-        //}
-
-        //public static Robot Create<TAdapter>(string name, IDictionary<string, string> config) where TAdapter : Adapter
-        //{
-        //    return new RobotBuilder(new LoggerConfigurator(LogLevel.Error))
-        //        .UseAdapter<TAdapter>()
-        //        .WithConfiguration(config)
-        //        .DisablePluginDiscovery()
-        //        .WithName("mmbot").Build();
-        //    return Create<TAdapter>(name, config, null);
-        //}
-
-        //public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, LoggerConfigurator logConfig) where TAdapter : Adapter
-        //{
-        //    return new RobotBuilder(logConfig)
-        //        .UseAdapter<TAdapter>()
-        //        .WithConfiguration(config)
-        //        .DisablePluginDiscovery()
-        //        .WithName(name).Build();
-        //    return Create(name, config, logConfig, new Type[] { typeof(TAdapter) });
-        //}
-
-        //public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, params Type[] adapterTypes)
-        //{
-        //    return new RobotBuilder(logConfig)
-        //        .UseAdapters(adapterTypes)
-        //        .WithConfiguration(config)
-        //        .DisablePluginDiscovery()
-        //        .WithName(name).Build();
-        //    var robot = new Robot(logConfig);
-
-        //    robot.Configure(name, config, adapterTypes);
-
-        //    //robot.LoadAdapter();
-
-        //    return robot;
-        //}
-
+        private readonly IScriptRunner _scriptRunner;
+        private readonly IScriptStore _scriptStore;
 
         public Robot(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, IDictionary<string, IAdapter> adapters, IRouter router, IBrain brain, IScriptStore scriptStore, IScriptRunner scriptRunner)
             : this(logConfig)
@@ -191,7 +143,7 @@ namespace MMBot
         {
             Listeners.Add(new CatchAllListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -199,7 +151,7 @@ namespace MMBot
         {
             Listeners.Add(new RosterListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -209,7 +161,7 @@ namespace MMBot
 
             Listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -217,7 +169,7 @@ namespace MMBot
         {
             Listeners.Add(new RosterListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -252,7 +204,7 @@ namespace MMBot
 
             Listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -279,7 +231,7 @@ namespace MMBot
         {
             Listeners.Add(new TopicListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -295,16 +247,6 @@ namespace MMBot
         public void AddMetadata(ScriptMetadata metadata)
         {
             ScriptData.Add(metadata);
-        }
-
-        public void Configure(string name = "mmbot", IDictionary<string, string> config = null, params Type[] adapterTypes)
-        {
-            //_adapterTypes = adapterTypes;
-            _scriptRunner = Container.Resolve<ScriptRunner>();
-            _name = name;
-            _config = config ?? new Dictionary<string, string>();
-
-            _isConfigured = true;
         }
 
         public void ConfigureRouter(Type routerType)

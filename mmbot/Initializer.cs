@@ -181,7 +181,7 @@ namespace mmbot
                 if (routerType != null)
                 {
                     robot.Logger.Info(string.Format("Loading router '{0}'", routerType.Name));
-                    robot.ConfigureRouter(routerType);
+                    //robot.ConfigureRouter(routerType);
                 }
                 else
                 {

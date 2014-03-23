@@ -23,14 +23,16 @@ namespace MMBot
         private ILog _logger;
         private string[] _defaultMMBotReferences = new[] {"Microsoft.Owin"};
 
-        private ScriptSource _currentScriptSource = null;
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
 
         public ScriptRunner(ILog logger)
         {
+            CurrentScriptSource = null;
             _logger = logger;
         }
+
+        public ScriptSource CurrentScriptSource { get; set; }
 
         public void Initialize(Robot robot)
         {
@@ -93,9 +95,9 @@ namespace MMBot
 
         public void RegisterCleanup(Action cleanup)
         {
-            if (_currentScriptSource != null)
+            if (CurrentScriptSource != null)
             {
-                _cleanup[_currentScriptSource.Name] = cleanup;
+                _cleanup[CurrentScriptSource.Name] = cleanup;
             }
         }
 
@@ -219,17 +221,17 @@ namespace MMBot
                 throw new ArgumentNullException("scriptSource");
             }
 
-            if (_currentScriptSource != null)
+            if (CurrentScriptSource != null)
             {
                 throw new ScriptProcessingException("Cannot process multiple script sources at the same time");
             }
-            _currentScriptSource = scriptSource;
+            CurrentScriptSource = scriptSource;
 
             CleanupScript(scriptSource.Name);
 
             _robot.Listeners.RemoveAll(l => l.Source != null && l.Source.Name == scriptSource.Name);
 
-            return Disposable.Create(() => _currentScriptSource = null);
+            return Disposable.Create(() => CurrentScriptSource = null);
         }
 
     }

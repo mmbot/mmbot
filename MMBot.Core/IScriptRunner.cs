@@ -13,5 +13,7 @@ namespace MMBot
         void Cleanup();
 
         void CleanupScript(string name);
+
+        ScriptSource CurrentScriptSource { get; }
     }
 }
