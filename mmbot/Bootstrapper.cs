@@ -59,8 +59,6 @@ namespace mmbot
             PrintCurrentDomain("Initialize");
             var options = new Options();
 
-            Initializer.HardResetRequested += OnHardResetRequested;
-
             CommandLine.Parser.Default.ParseArguments(args, options);
 
             if (options.ShowHelp)
