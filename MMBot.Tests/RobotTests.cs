@@ -8,6 +8,7 @@ using Common.Logging;
 using Common.Logging.Simple;
 using MMBot.Adapters;
 using MMBot.Brains;
+using MMBot.Scripts;
 using Xunit;
 
 using MMBot.XMPP;

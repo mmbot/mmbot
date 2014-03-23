@@ -1,4 +1,4 @@
-﻿namespace MMBot
+namespace MMBot.Scripts
 {
     public class ScriptSource
     {

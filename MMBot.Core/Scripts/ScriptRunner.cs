@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reactive.Disposables;
 using System.Xml.Linq;
-using System.Net.Http;
 using Common.Logging;
+using HtmlAgilityPack;
 using Microsoft.Owin;
 using MMBot.ScriptCS;
-using HtmlAgilityPack;
-using MMBot.Scripts;
 using Newtonsoft.Json.Linq;
+using Roslyn.Compilers.CSharp;
 using ScriptCs;
 using ScriptCs.Contracts;
-using Roslyn.Compilers.CSharp;
 
-namespace MMBot
+namespace MMBot.Scripts
 {
     public class ScriptRunner : IMustBeInitializedWithRobot, IScriptRunner
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace MMBot
+namespace MMBot.Scripts
 {
     public interface IScriptRunner
     {

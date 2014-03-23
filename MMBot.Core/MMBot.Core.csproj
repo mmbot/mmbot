@@ -173,7 +173,8 @@
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="Brains\IBrain.cs" />
-    <Compile Include="IScriptRunner.cs" />
+    <Compile Include="IMustBeInitializedWithRobot.cs" />
+    <Compile Include="IRobotPluginLocator.cs" />
     <Compile Include="Listeners\CatchAllListener.cs" />
     <Compile Include="Listeners\IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
@@ -194,9 +195,7 @@
     <Compile Include="Router\NullRouter.cs" />
     <Compile Include="Router\Route.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
-    <Compile Include="ScriptMetadata.cs" />
     <Compile Include="ScriptProcessingException.cs" />
-    <Compile Include="ScriptRunner.cs" />
     <None Include="Scripts\Auth.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -212,9 +211,16 @@
     <None Include="Scripts\Ping.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="ScriptSource.cs" />
-    <Compile Include="Scripts\IConfigurableScript.cs" />
     <Compile Include="Scripts\IMMBotScript.cs" />
+    <Compile Include="Scripts\IScript.cs" />
+    <Compile Include="Scripts\IScriptRunner.cs" />
+    <Compile Include="Scripts\IScriptStore.cs" />
+    <Compile Include="Scripts\LocalScriptStore.cs" />
+    <Compile Include="Scripts\ScriptCsScriptFile.cs" />
+    <Compile Include="Scripts\ScriptMetadata.cs" />
+    <Compile Include="Scripts\ScriptRunner.cs" />
+    <Compile Include="Scripts\ScriptSource.cs" />
+    <Compile Include="Scripts\TypedScript.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="Listeners\TextListener.cs" />
     <Compile Include="User.cs" />
