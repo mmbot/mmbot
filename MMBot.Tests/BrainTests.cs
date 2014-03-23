@@ -13,9 +13,10 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
                         .Build();
-            robot.ConfigureBrain(typeof(StubBrain));
+            
             var key = "test1";
             var value = "value1";
             await robot.Brain.Set(key, value);
@@ -28,9 +29,10 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
                         .Build();
-            robot.ConfigureBrain(typeof(StubBrain));
+            
             var key = "test1";
             var value = "value1";
             await robot.Brain.Set(key, value);

@@ -266,22 +266,6 @@ namespace MMBot
             _router = router;
         }
 
-        public void ConfigureBrain(Type brainType)
-        {
-            if (!_isConfigured)
-            {
-                throw new RobotNotConfiguredException();
-            }
-
-            if (!typeof(IBrain).IsAssignableFrom(brainType))
-            {
-                throw new TypeLoadException(string.Format("Could not configure brain type '{0}' as it does not implement IBrain", brainType));
-            }
-
-            IBrain brain = Activator.CreateInstance(brainType) as IBrain;
-            brain.Initialize(this);
-            _brain = brain;
-        }
 
         public string GetConfigVariable(string name)
         {

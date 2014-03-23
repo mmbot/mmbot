@@ -27,9 +27,10 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
                         .Build();
-            robot.ConfigureBrain(typeof(StubBrain));
+            
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
@@ -48,10 +49,10 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
                         .Build();
             var adapter = robot.Adapters.First().Value as StubAdapter;
-            robot.ConfigureBrain(typeof(StubBrain));       
             robot.AutoLoadScripts = false;
             robot.LoadScriptName("Auth");
             await robot.Run();
@@ -74,10 +75,11 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
                         .Build();
+
             var adapter = robot.Adapters.First().Value as StubAdapter;
-            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<CatchAllTest>();
             robot.AutoLoadScripts = false;
             await robot.Run();

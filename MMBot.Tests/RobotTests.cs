@@ -82,10 +82,11 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
                         .Build();
+
             var adapter = robot.Adapters.First().Value as StubAdapter;
-            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
             
             var expectedMessages = new[]
@@ -113,6 +114,7 @@ namespace MMBot.Tests
             var loggerConfigurator = new LoggerConfigurator(LogLevel.All);
             var builder = new RobotBuilder(loggerConfigurator)
                 .UseAdapter<StubAdapter>()
+                .UseBrain<StubBrain>()
                 .DisablePluginDiscovery();
 
             var scriptRunner = new ScriptRunner(loggerConfigurator.GetLogger());
@@ -122,7 +124,6 @@ namespace MMBot.Tests
 
             scriptRunner.Initialize(robot);
 
-            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
 
             bool isCleanedUp = false;
@@ -145,8 +146,9 @@ namespace MMBot.Tests
                         .DisablePluginDiscovery()
                         .UseAdapter<StubAdapter>()
                         .UseAdapter<StubAdapter2>()
+                        .UseBrain<StubBrain>()
                         .Build();
-            robot.ConfigureBrain(typeof(StubBrain));
+            
             robot.AutoLoadScripts = false;
 
             var adapter1 = robot.Adapters.First().Value as StubAdapter;
