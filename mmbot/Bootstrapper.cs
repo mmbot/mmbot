@@ -9,12 +9,10 @@ using MMBot;
 
 namespace mmbot
 {
-    [Serializable]
     public class Bootstrapper : MarshalByRefObject
     {
-        private static AppDomain RobotAppDomain;
-        private static string[] Args;
-        private Bootstrapper _robotDomainBootstrapper;
+        private AppDomain RobotAppDomain;
+        private string[] Args;
         public Robot CurrentlyRunningRobot;
         public Bootstrapper OwningBootstrapper;
 

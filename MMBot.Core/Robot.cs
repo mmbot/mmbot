@@ -18,7 +18,6 @@ using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
 {
-    [Serializable]
     public class Robot : IScriptPackContext
     {
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
