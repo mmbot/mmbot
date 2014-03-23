@@ -125,10 +125,11 @@ namespace MMBot.Tests
 
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseRouter<TestNancyRouter>()
                         .DisablePluginDiscovery()
                         .Build();
+
             robot.AutoLoadScripts = false;
-            robot.ConfigureRouter(typeof(TestNancyRouter));
 
             var testNancyRouter = (robot.Router as TestNancyRouter);
 
@@ -151,11 +152,12 @@ namespace MMBot.Tests
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
+                        .UseRouter<TestNancyRouter>()
                         .DisablePluginDiscovery()
                         .Build();
-            robot.AutoLoadScripts = false;
-            robot.ConfigureRouter(typeof(TestNancyRouter));
 
+            robot.AutoLoadScripts = false;
+            
             setup(robot);
 
             await robot.Run();

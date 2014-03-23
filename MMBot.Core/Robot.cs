@@ -44,6 +44,7 @@ namespace MMBot
             _scriptStore = scriptStore;
             _adapters = adapters;
             _brain = brain;
+            _router = router;
             _scriptRunner = scriptRunner;
             _isConfigured = true;
             Initialize(adapters.Values.ToArray().Concat(new object[]{router, brain, scriptRunner}).ToArray());
@@ -64,7 +65,8 @@ namespace MMBot
             {
                 dep.Initialize(this);
             }
-            
+
+            _router.Configure(int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
         }
 
         public IDictionary<string, IAdapter> Adapters
@@ -247,23 +249,6 @@ namespace MMBot
         public void AddMetadata(ScriptMetadata metadata)
         {
             ScriptData.Add(metadata);
-        }
-
-        public void ConfigureRouter(Type routerType)
-        {
-            if (!_isConfigured)
-            {
-                throw new RobotNotConfiguredException();
-            }
-
-            if (!typeof(IRouter).IsAssignableFrom(routerType))
-            {
-                throw new TypeLoadException(string.Format("Could not configure router type '{0}' as it does not implement IRouter", routerType));
-            }
-
-            var router = Activator.CreateInstance(routerType) as IRouter;
-            router.Configure(this, int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
-            _router = router;
         }
 
 

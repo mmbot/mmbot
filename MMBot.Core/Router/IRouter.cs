@@ -6,9 +6,9 @@ using Microsoft.Owin;
 namespace MMBot.Router
 {
 
-    public interface IRouter
+    public interface IRouter : IMustBeInitializedWithRobot
     {
-        void Configure(Robot robot, int port);
+        void Configure(int port);
 
         void Start();
 
@@ -23,5 +23,6 @@ namespace MMBot.Router
         void Post(string path, Action<OwinContext> action);
 
         IDictionary<Route, Func<OwinContext, object>> Routes { get; }
+
     }
 }

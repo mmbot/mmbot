@@ -12,7 +12,7 @@ namespace MMBot.Router
             Routes = new Dictionary<Route, Func<OwinContext, object>>();
         }
 
-        public void Configure(Robot robot, int port)
+        public void Configure(int port)
         {
             
         }
@@ -48,5 +48,10 @@ namespace MMBot.Router
         }
 
         public IDictionary<Route, Func<OwinContext, object>> Routes { get; private set; }
+
+        public void Initialize(Robot robot)
+        {
+            
+        }
     }
 }
