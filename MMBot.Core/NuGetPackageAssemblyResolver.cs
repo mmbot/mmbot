@@ -32,6 +32,7 @@ namespace MMBot
         public NuGetPackageAssemblyResolver(LoggerConfigurator logConfig)
         {
             _log = logConfig.GetLogger();
+            AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
             RefreshAssemblies(_log);
         }
 
