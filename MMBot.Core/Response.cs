@@ -54,22 +54,28 @@ namespace MMBot
     {
         private readonly Robot _robot;
         private readonly Envelope _envelope;
+        private readonly string _replySeperator;
 
-        public Response(Robot robot, T textMessage, MatchResult matchResult)
+        public Response(Robot robot, T textMessage, MatchResult matchResult) : this(robot)
         {
-            _robot = robot;
-            
             _envelope = new Envelope(textMessage);
             Matches = matchResult.Match;
             Match = matchResult.Match == null || matchResult.Match.Count == 0 ? new string[0] : matchResult.Match[0].Groups.Cast<Group>().Select(g => g.Value).ToArray();
             Message = textMessage;
         }
 
-        public Response(Robot robot, T rosterMessage)
+        public Response(Robot robot, T rosterMessage) : this(robot)
         {
-            _robot = robot;
             _envelope = new Envelope(rosterMessage);
             Message = rosterMessage;
+        }
+
+        //default base private constructor to consolidate functionality from both public constructors
+        private Response(Robot robot)
+        {
+            _robot = robot;
+            var seperator = robot.GetConfigVariable("MMBOT_ROBOT_REPLYSEPERATOR");
+            _replySeperator = seperator == null ? " " : seperator + " ";
         }
 
         public async Task Send(params string[] messages)
@@ -77,9 +83,13 @@ namespace MMBot
             await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
         }
 
-        public Task Reply(params string[] message)
+        public async Task Reply(params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            if (messages.Any())
+            {
+                messages[0] = _envelope.User.Name + _replySeperator + messages[0];
+            }
+            await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
         }
 
         public Task Emote(params string[] message)
