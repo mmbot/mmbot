@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Common.Logging;
 using MMBot.Brains;
 using MMBot.Tests.CompiledScripts;
 using Xunit;
@@ -14,14 +15,20 @@ namespace MMBot.Tests
         [Fact]
         public void CanRegisterCompiledScripts()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.LoadScripts(typeof(Ping).Assembly);
         }
 
         [Fact]
         public async Task WhenPing_ReceivePong()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.ConfigureBrain(typeof(StubBrain));
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
@@ -39,7 +46,10 @@ namespace MMBot.Tests
         [Fact]
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.ConfigureBrain(typeof(StubBrain));       
             robot.AutoLoadScripts = false;
@@ -62,7 +72,10 @@ namespace MMBot.Tests
         [Fact]
         public async Task CanCatchAnyMessage()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<CatchAllTest>();

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using Autofac;
 using Common.Logging;
+using Common.Logging.Simple;
 using MMBot.Adapters;
 using MMBot.Brains;
 using Xunit;
@@ -22,7 +24,11 @@ namespace MMBot.Tests
         {
             var paramName = "param1";
             var paramValue = "param1Value";
-            var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>{{"param1", "param1Value"}});
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .WithConfiguration(new Dictionary<string, string>{{"param1", "param1Value"}})
+                        .Build();
             Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
         }
 
@@ -34,7 +40,10 @@ namespace MMBot.Tests
             Environment.SetEnvironmentVariable(paramName, paramValue);
             using(Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
-                var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>());
+                var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                            .UseAdapter<StubAdapter>()
+                            .DisablePluginDiscovery()
+                            .Build();
                 Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
             }
         }
@@ -48,7 +57,11 @@ namespace MMBot.Tests
             Environment.SetEnvironmentVariable(paramName, paramValue);
             using (Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
-                var robot = Robot.Create<StubAdapter>("mmbot", new Dictionary<string, string>{{paramName, newParamValue}});
+                var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                            .UseAdapter<StubAdapter>()
+                            .DisablePluginDiscovery()
+                            .WithConfiguration(new Dictionary<string, string>{{paramName, newParamValue}})
+                            .Build();
                 Assert.Equal(robot.GetConfigVariable(paramName), newParamValue);
             }
         }
@@ -56,7 +69,10 @@ namespace MMBot.Tests
         [Fact]
         public void WhenInstantiatedWithoutDictionary_RobotIsConfigured()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
 
             Assert.Null(robot.GetConfigVariable("NothingExpected"));
         }
@@ -64,7 +80,10 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenMessageIsSentFromScript_AdapterSendIsInvoked()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
@@ -91,12 +110,23 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenRobotIsReset_ScriptCleanupIsInvoked()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var loggerConfigurator = new LoggerConfigurator(LogLevel.All);
+            var builder = new RobotBuilder(loggerConfigurator)
+                .UseAdapter<StubAdapter>()
+                .DisablePluginDiscovery();
+
+            var scriptRunner = new ScriptRunner(loggerConfigurator.GetLogger());
+            
+            var robot = builder
+                        .Build(c => c.RegisterInstance(scriptRunner).As<IScriptRunner>());
+
+            scriptRunner.Initialize(robot);
+
             robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<StubEchoScript>();
 
             bool isCleanedUp = false;
-            using(robot.StartScriptProcessingSession(new ScriptSource("TestScript", string.Empty)))
+            using(scriptRunner.StartScriptProcessingSession(new ScriptSource("TestScript", string.Empty)))
             {
                 robot.RegisterCleanup(() => isCleanedUp = true);
             }
@@ -111,7 +141,11 @@ namespace MMBot.Tests
         {
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.ConfigureForConsole();
-            var robot = Robot.Create("mmbot", new Dictionary<string, string>(), logConfig, new[]{typeof(StubAdapter), typeof(StubAdapter2)});
+            var robot = new RobotBuilder(logConfig)
+                        .DisablePluginDiscovery()
+                        .UseAdapter<StubAdapter>()
+                        .UseAdapter<StubAdapter2>()
+                        .Build();
             robot.ConfigureBrain(typeof(StubBrain));
             robot.AutoLoadScripts = false;
 
@@ -157,7 +191,7 @@ namespace MMBot.Tests
 
         public class StubAdapter2 : StubAdapter
         {
-            public StubAdapter2(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
+            public StubAdapter2(ILog logger, string adapterId) : base(logger, adapterId)
             {
             }
         }
@@ -165,7 +199,10 @@ namespace MMBot.Tests
         [Fact]
         public void WhenEmitInvokeOn()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.On<string>("Test", result =>
             {
                 var data = result;
@@ -179,7 +216,10 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenEmitReadyInvokeOn()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.AutoLoadScripts = false;
             bool onInvoked = false;
             robot.On<bool>("RobotReady", result =>
@@ -210,7 +250,10 @@ namespace MMBot.Tests
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.AddTraceListener();
 
-            var robot = Robot.Create("mmbot", config, logConfig, new[] { typeof(XmppAdapter) });
+            var robot = new RobotBuilder(logConfig)
+                        .WithConfiguration(config)
+                        .UseAdapter<XmppAdapter>()
+                        .Build(); 
             
             robot.AutoLoadScripts = false;
             robot.LoadScript<CompiledScripts.Ping>();

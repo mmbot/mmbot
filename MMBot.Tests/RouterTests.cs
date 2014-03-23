@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
+using Common.Logging;
 using Microsoft.Owin.Testing;
 using MMBot.Brains;
 using MMBot.Router.Nancy;
@@ -122,7 +123,10 @@ namespace MMBot.Tests
         {
             string expected = "Yo!";
 
-            Robot robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.AutoLoadScripts = false;
             robot.ConfigureRouter(typeof(TestNancyRouter));
 
@@ -145,7 +149,10 @@ namespace MMBot.Tests
 
         private async Task<HttpClient> SetupRoute(Action<Robot> setup)
         {
-            Robot robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.AutoLoadScripts = false;
             robot.ConfigureRouter(typeof(TestNancyRouter));
 

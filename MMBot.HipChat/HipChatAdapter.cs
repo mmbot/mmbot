@@ -29,9 +29,14 @@ namespace MMBot.HipChat
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
 
 
-        public HipChatAdapter(Robot robot, ILog logger, string adapterId)
-            : base(robot, logger, adapterId)
+        public HipChatAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
         {
+        }
+
+        public override void Initialize(Robot robot)
+        {
+            base.Initialize(robot);
             Configure();
         }
 

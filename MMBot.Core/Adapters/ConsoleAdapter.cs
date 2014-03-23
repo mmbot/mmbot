@@ -9,8 +9,8 @@ namespace MMBot.Adapters
     {
         private User _user;
 
-        public ConsoleAdapter(Robot robot, ILog logger, string adapterId)
-            : base(robot, logger, adapterId)
+        public ConsoleAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
         {
         }
 

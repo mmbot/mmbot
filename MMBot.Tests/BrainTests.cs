@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Common.Logging;
 using MMBot.Brains;
 using Xunit;
 
@@ -10,7 +11,10 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenValueIsAddedToBrain_CanBeRetrievedViaGet()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.ConfigureBrain(typeof(StubBrain));
             var key = "test1";
             var value = "value1";
@@ -22,7 +26,10 @@ namespace MMBot.Tests
         [Fact]
         public async Task WhenValueIsRemovedToBrain_GetReturnsDefault()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .Build();
             robot.ConfigureBrain(typeof(StubBrain));
             var key = "test1";
             var value = "value1";

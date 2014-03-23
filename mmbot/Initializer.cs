@@ -73,7 +73,12 @@ namespace mmbot
 
             var configuration = GetConfiguration(options);
             string name;
-            var robot = Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new[] { typeof(ConsoleAdapter) }).ToArray());
+            var builder = new RobotBuilder(logConfig)
+                .WithConfiguration(configuration);
+
+            var robot = builder
+                        .Build(); 
+            //Robot.Create(configuration.TryGetValue("MMBOT_ROBOT_NAME", out name) ? name : "mmbot", configuration, logConfig, adapters.Concat(new[] { typeof(ConsoleAdapter) }).ToArray());
 
             ConfigureBrain(robot, nugetResolver);
             ConfigureRouter(robot, nugetResolver);

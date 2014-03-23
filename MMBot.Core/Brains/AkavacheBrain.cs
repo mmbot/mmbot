@@ -14,7 +14,7 @@ using ReactiveUI;
 
 namespace MMBot.Brains
 {
-    public class AkavacheBrain : IBrain
+    public class AkavacheBrain : IBrain, IMustBeInitializedWithRobot
     {
         public class BrainPersistentBlobCache : PersistentBlobCache
         {

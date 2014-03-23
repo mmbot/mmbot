@@ -60,7 +60,7 @@ namespace MMBot
                 .Distinct()
                 .Select(d => d.Replace(",", ""));
             roleStore[userName] = string.Join(",", newRoles);
-            robot.Brain.Set("UserRoleStore", roleStore);
+            robot.Brain.Set("UserRoleStore", roleStore).Wait();
         }
 
         public static void RemoveUserFromRole(this Robot robot, string userName, string role)
@@ -81,8 +81,8 @@ namespace MMBot
                 {
                     roleStore.Remove(userName);
                 }
-                
-               robot.Brain.Set("UserRoleStore", roleStore);
+
+                robot.Brain.Set("UserRoleStore", roleStore).Wait();
             }
         }
 
@@ -94,7 +94,6 @@ namespace MMBot
         public static bool IsInRole(this Robot robot, string userName, string role)
         {
             userName = userName.ToLower();
-            var roleStore = robot.Brain.Get<Dictionary<string, string>>("UserRoleStore").Result ?? new Dictionary<string, string>();
             return robot.GetUserRoles(userName).Any(d => d.Equals(role, System.StringComparison.CurrentCultureIgnoreCase));
         }
 
