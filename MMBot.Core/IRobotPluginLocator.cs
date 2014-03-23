@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using MMBot.Scripts;
 
 namespace MMBot
 {
@@ -9,5 +12,7 @@ namespace MMBot
         Type GetBrain(string name);
 
         Type GetRouter(string name);
+
+        IEnumerable<IScript> GetPluginScripts();
     }
 }

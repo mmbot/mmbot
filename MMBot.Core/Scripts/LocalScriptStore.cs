@@ -12,12 +12,14 @@ namespace MMBot.Scripts
     public class LocalScriptStore : IScriptStore
     {
         private readonly FileSystem _fileSystem;
+        private readonly IRobotPluginLocator _pluginLocator;
         private Subject<IScript> _scriptUpdated;
         private ILog _log;
 
-        public LocalScriptStore(LoggerConfigurator logConfig, FileSystem fileSystem)
+        public LocalScriptStore(LoggerConfigurator logConfig, FileSystem fileSystem, IRobotPluginLocator pluginLocator)
         {
             _fileSystem = fileSystem;
+            _pluginLocator = pluginLocator;
             _scriptUpdated = new Subject<IScript>();
             _log = logConfig.GetLogger();
         }
@@ -39,7 +41,8 @@ namespace MMBot.Scripts
             {
                 Name = Path.GetFileNameWithoutExtension(scriptFile),
                 Path = scriptFile
-            });
+            })
+            .Concat(_pluginLocator.GetPluginScripts());
         }
 
         public Task<IScript> SaveScript(string name, string contents)

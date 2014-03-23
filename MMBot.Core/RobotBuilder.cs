@@ -26,7 +26,7 @@ namespace MMBot
         private string _name = "mmbot";
         private IDictionary<string, string> _config = new Dictionary<string, string>();
         private readonly ContainerBuilder _containerBuilder;
-        private IRobotPluginLocator _pluginLocater;
+        private IRobotPluginLocator _pluginLocator;
         private Type _scriptStoreType;
         private Type _scriptRunnerType;
         
@@ -55,11 +55,11 @@ namespace MMBot
         {
             preBuild = preBuild ?? (c => { });
 
+            // Probe for types
+            var robotPluginLocator = (_pluginLocator ?? new NuGetPackageAssemblyResolver(_logConfig));
+
             if (_pluginProbe)
             {
-                // Probe for types
-                var robotPluginLocator = (_pluginLocater ?? new NuGetPackageAssemblyResolver(_logConfig));
-
                 _adapterTypes.AddRange(robotPluginLocator.GetAdapters());
                 _brainType = robotPluginLocator.GetBrain(_config.GetValueOrDefault("MMBOT_BRAIN_NAME"));
                 _routerType = robotPluginLocator.GetRouter(_config.GetValueOrDefault("MMBOT_ROUTER_NAME"));
@@ -72,6 +72,7 @@ namespace MMBot
             }
 
             ContainerBuilder.RegisterType<Robot>().SingleInstance();
+            ContainerBuilder.RegisterInstance(robotPluginLocator).As<IRobotPluginLocator>();
             ContainerBuilder.RegisterType(_brainType ?? typeof(AkavacheBrain)).As<IBrain>().SingleInstance();
             ContainerBuilder.RegisterType(_scriptStoreType ?? typeof(LocalScriptStore)).As<IScriptStore>().SingleInstance();
             ContainerBuilder.RegisterType(_scriptRunnerType ?? typeof(ScriptRunner)).As<IScriptRunner>().SingleInstance();
@@ -123,7 +124,7 @@ namespace MMBot
 
         public RobotBuilder WithPluginLocator(IRobotPluginLocator pluginLocator)
         {
-            _pluginLocater = pluginLocator;
+            _pluginLocator = pluginLocator;
             return this;
         }
 

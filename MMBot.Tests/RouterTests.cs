@@ -127,6 +127,7 @@ namespace MMBot.Tests
                         .UseAdapter<StubAdapter>()
                         .UseRouter<TestNancyRouter>()
                         .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
                         .Build();
 
             robot.AutoLoadScripts = false;
@@ -154,6 +155,7 @@ namespace MMBot.Tests
                         .UseAdapter<StubAdapter>()
                         .UseRouter<TestNancyRouter>()
                         .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
                         .Build();
 
             robot.AutoLoadScripts = false;

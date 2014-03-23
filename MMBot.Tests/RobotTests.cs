@@ -85,6 +85,7 @@ namespace MMBot.Tests
                         .UseAdapter<StubAdapter>()
                         .UseBrain<StubBrain>()
                         .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
                         .Build();
 
             var adapter = robot.Adapters.First().Value as StubAdapter;
@@ -116,7 +117,8 @@ namespace MMBot.Tests
             var builder = new RobotBuilder(loggerConfigurator)
                 .UseAdapter<StubAdapter>()
                 .UseBrain<StubBrain>()
-                .DisablePluginDiscovery();
+                .DisablePluginDiscovery()
+                .DisableScriptDiscovery();
 
             var scriptRunner = new ScriptRunner(loggerConfigurator.GetLogger());
             
@@ -145,6 +147,7 @@ namespace MMBot.Tests
             logConfig.ConfigureForConsole();
             var robot = new RobotBuilder(logConfig)
                         .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
                         .UseAdapter<StubAdapter>()
                         .UseAdapter<StubAdapter2>()
                         .UseBrain<StubBrain>()
@@ -205,6 +208,7 @@ namespace MMBot.Tests
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
                         .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
                         .Build();
             robot.On<string>("Test", result =>
             {
@@ -222,6 +226,7 @@ namespace MMBot.Tests
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
                         .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
                         .Build();
             robot.AutoLoadScripts = false;
             bool onInvoked = false;
