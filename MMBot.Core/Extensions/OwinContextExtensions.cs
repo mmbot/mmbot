@@ -15,13 +15,13 @@ namespace MMBot
         public static void ReturnJson(this IOwinContext context, string json)
         {
             context.Response.ContentType = "application/json";
-            context.Response.WriteAsync(json);
+            context.Response.Write(json);
         }
 
         public static void ReturnJson(this IOwinContext context, object model)
         {
             context.Response.ContentType = "application/json";
-            context.Response.WriteAsync(JsonConvert.SerializeObject(model));
+            context.Response.Write(JsonConvert.SerializeObject(model));
         }
 
         public static JToken ReadBodyAsJson(this IOwinContext context)

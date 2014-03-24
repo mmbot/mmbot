@@ -26,26 +26,30 @@ namespace MMBot.Tests
         {
             string expected = "Yo!";
 
-            var client = await SetupRoute(robot => robot.Router.Get("/test/", context => expected));
-            
-            var response = await client.GetAsync("/test/");
+            using (var router = await SetupRoute(robot => robot.Router.Get("/test/", context => expected)))
+            {
 
-            Assert.Equal(expected, await response.Content.ReadAsStringAsync());
+                var response = await router.Client.GetAsync("/test/");
+
+                Assert.Equal(expected, await response.Content.ReadAsStringAsync());
+            }
         }
 
         [Fact]
         public async Task WhenReturnJson_WithString_ResponseIsJson()
         {
             JToken token = new JObject(new JProperty("foo", "The Foo"));
-            var client = await SetupRoute(robot => robot.Router.Get("/json/test/", context => context.ReturnJson(JsonConvert.SerializeObject(token))));
+            using(var router = await SetupRoute(robot => robot.Router.Get("/json/test/", context => context.ReturnJson(JsonConvert.SerializeObject(token)))))
+            {
 
-            var response = await client.GetAsync("/json/test/");
+                var response = await router.Client.GetAsync("/json/test/");
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
 
-            var body = await response.Content.ReadAsStringAsync();
-            Assert.Equal(token, JToken.Parse(body));
+                var body = await response.Content.ReadAsStringAsync();
+                Assert.Equal(token.ToString(), JToken.Parse(body).ToString());
+            }
         }
 
         [Fact]
@@ -53,18 +57,22 @@ namespace MMBot.Tests
         {
             JToken expected = new JObject(new JProperty("foo", "The Foo"));
             JToken actual = null;
-            var client = await SetupRoute(robot => robot.Router.Post("/json/post/test/", context =>
+            using (var router = await SetupRoute(robot => robot.Router.Post("/json/post/test/", context =>
             {
                 var requestBody = context.ReadBodyAsJson();
                 actual = requestBody;
                 context.Response.StatusCode = 200;
-            }));
+            })))
+            {
 
-            var response =
-                await client.PostAsync("/json/post/test", new StringContent(JsonConvert.SerializeObject(expected), Encoding.UTF8, "application/json"));
+                var response =
+                    await
+                        router.Client.PostAsync("/json/post/test",
+                            new StringContent(JsonConvert.SerializeObject(expected), Encoding.UTF8, "application/json"));
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(expected, actual);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(expected, actual);
+            }
         }
 
         [Fact]
@@ -73,18 +81,22 @@ namespace MMBot.Tests
             string expectedRoom = "theroom";
             JToken expected = new JObject(new JProperty("foo", "The Foo"));
             string actualRoom = null;
-            var client = await SetupRoute(robot => robot.Router.Post("/route/test/{room}", context =>
+            using (var router = await SetupRoute(robot => robot.Router.Post("/route/test/{room}", context =>
             {
                 var requestBody = context.ReadBodyAsJson();
                 actualRoom = context.Request.Params()["room"];
                 context.Response.StatusCode = 200;
-            }));
+            })))
+            {
 
-            var response =
-                await client.PostAsync("/route/test/" + expectedRoom, new StringContent(JsonConvert.SerializeObject(expected), Encoding.UTF8, "application/json"));
+                var response =
+                    await
+                        router.Client.PostAsync("/route/test/" + expectedRoom,
+                            new StringContent(JsonConvert.SerializeObject(expected), Encoding.UTF8, "application/json"));
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(expectedRoom, actualRoom);
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(expectedRoom, actualRoom);
+            }
         }
 
         [Fact]
@@ -92,30 +104,31 @@ namespace MMBot.Tests
         {
             JToken actualPayload = null;
             string eventType = null;
-            var client = await SetupRoute(robot => robot.Router.Post("/github/webhook/test/", context =>
+            using (var router = await SetupRoute(robot => robot.Router.Post("/github/webhook/test/", context =>
             {
                 actualPayload = context.Form()["payload"].ToJson();
                 eventType = context.Request.Headers["X-GitHub-Event"];
                 context.Response.StatusCode = 200;
-            }));
-
-            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            })))
             {
-                {"payload", Resources.GithubWebHookJson}
-            });
 
-            content.Headers.Add("X-GitHub-Event", new[]{"push"});
+                var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"payload", Resources.GithubWebHookJson}
+                });
 
-            var response =
-                await
-                    client.PostAsync("/github/webhook/test",
-                        content);
+                content.Headers.Add("X-GitHub-Event", new[] {"push"});
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Equal(3, actualPayload["commits"].Count());
-            Assert.Equal("push", eventType);
+                var response =
+                    await
+                        router.Client.PostAsync("/github/webhook/test",
+                            content);
 
-            
+                Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+                Assert.Equal(3, actualPayload["commits"].Count());
+                Assert.Equal("push", eventType);
+
+            }
         }
 
         [Fact]
@@ -132,24 +145,26 @@ namespace MMBot.Tests
 
             robot.AutoLoadScripts = false;
 
-            var testNancyRouter = (robot.Router as TestNancyRouter);
+            using (var testNancyRouter = (robot.Router as TestNancyRouter))
+            {
 
-            await robot.Run();
+                await robot.Run();
 
-            await testNancyRouter.Started.Take(1);
+                await testNancyRouter.Started.Take(1);
 
-            robot.Router.Get("/test/", context => expected);
+                robot.Router.Get("/test/", context => expected);
 
-            await testNancyRouter.Started.Take(2);
-            
-            var server = testNancyRouter.Server;
+                await testNancyRouter.Started.Take(2);
 
-            var response = await server.HttpClient.GetAsync("/test/");
+                var server = testNancyRouter.Server;
 
-            Assert.Equal(expected, await response.Content.ReadAsStringAsync());
+                var response = await server.HttpClient.GetAsync("/test/");
+
+                Assert.Equal(expected, await response.Content.ReadAsStringAsync());
+            }
         }
 
-        private async Task<HttpClient> SetupRoute(Action<Robot> setup)
+        private async Task<TestNancyRouter> SetupRoute(Action<Robot> setup)
         {
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
@@ -164,28 +179,36 @@ namespace MMBot.Tests
 
             await robot.Run();
 
-            var server = (robot.Router as TestNancyRouter).Server;
-
-            return server.HttpClient;
+            return (robot.Router as TestNancyRouter);
         }
 
-
-
-        public class TestNancyRouter : NancyRouter
+        
+        public class TestNancyRouter : NancyRouter, IDisposable, IMustBeInitializedWithRobot
         {
-
+            
             private readonly ReplaySubject<Unit> _started = new ReplaySubject<Unit>();
 
             public TestNancyRouter() : base(TimeSpan.FromSeconds(0))
             {
+                
             }
-            
+
+            public void Initialize(Robot robot)
+            {
+                __robot = robot;
+            }
+
             private TestServer _server;
+            private Robot __robot;
 
             public TestServer Server
             {
                 get { return _server; }
                 set { _server = value; }
+            }
+
+            public HttpClient Client {
+                get { return Server.HttpClient; }
             }
 
             public IObservable<Unit> Started
@@ -199,6 +222,13 @@ namespace MMBot.Tests
                 IsStarted = true;
 
                 _started.OnNext(Unit.Default);
+            }
+
+
+            public void Dispose()
+            {
+                Server.Dispose();
+                __robot.Shutdown().Wait();
             }
         }
 
