@@ -4,16 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Common.Logging;
-using MMBot;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
 
-namespace mmbot
+namespace MMBot
 {
-    internal class NuGetPackageAssemblyResolver
+    public class NuGetPackageAssemblyResolver : IRobotPluginLocator
     {
         private readonly ILog _log;
         private static List<string> _assemblies;
@@ -30,10 +29,11 @@ namespace mmbot
             "MMBot.Core"
         };
 
-        public NuGetPackageAssemblyResolver(ILog log)
+        public NuGetPackageAssemblyResolver(LoggerConfigurator logConfig)
         {
-            _log = log;
-            RefreshAssemblies(log);
+            _log = logConfig.GetLogger();
+            AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
+            RefreshAssemblies(_log);
         }
 
         public static IEnumerable<string> Assemblies
@@ -82,6 +82,11 @@ namespace mmbot
                 assembly;
         }
 
+        public IEnumerable<IScript> GetPluginScripts()
+        {
+            return GetCompiledScriptsFromPackages().Select(TypedScript.Create).ToArray();
+        }
+
         public IEnumerable<Type> GetCompiledScriptsFromPackages()
         {
             return ProbeForType(typeof(IMMBotScript));
@@ -94,7 +99,9 @@ namespace mmbot
 
         public Type GetCompiledBrainFromPackages(string name = null)
         {
-            return ProbeForType(typeof(IBrain)).FirstOrDefault(t => (string.IsNullOrEmpty(name) || string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)));
+            return ProbeForType(typeof(IBrain)).FirstOrDefault(t => (string.IsNullOrEmpty(name) 
+                || string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase) 
+                || string.Equals(name + "Brain", t.Name, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public Type GetCompiledRouterFromPackages(string name = null)
@@ -102,7 +109,8 @@ namespace mmbot
             return ProbeForType(typeof(IRouter))
                 .FirstOrDefault(t => t != typeof(NullRouter) && 
                     (string.IsNullOrEmpty(name) ||
-                    string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)));
+                    string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase) ||
+                    string.Equals(name + "Router", t.Name, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         private IEnumerable<Type> ProbeForType(Type type)
@@ -126,6 +134,39 @@ namespace mmbot
                     return new Type[0];
                 }
             });
+        }
+
+        public Type[] GetAdapters()
+        {
+            var adapters = GetCompiledAdaptersFromPackages().ToArray();
+            if(!adapters.Any())
+            {
+                _log.Warn("Could not find any adapters. Loading the default console adapter only");
+            }
+
+            return adapters;
+        }
+
+        public Type GetBrain(string name)
+        {
+            var brain = GetCompiledBrainFromPackages(name);
+
+            if (brain == null && !string.IsNullOrEmpty(name))
+            {
+                _log.Fatal("No IBrain implementation found. If you have configured MMBOT_BRAIN_NAME, verify that you have installed the relevant package.");
+            }
+
+            return brain;
+        }
+
+        public Type GetRouter(string name)
+        {
+            var router = GetCompiledRouterFromPackages(name);
+            if (router == null && !string.IsNullOrEmpty(name))
+            {
+                _log.Fatal("The router was enabled but no implementation was found. Make sure you have installed the relevant router package");
+            }
+            return router;
         }
     }
 }

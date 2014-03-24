@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using MMBot;
 
 namespace mmbot
 {
@@ -16,6 +11,7 @@ namespace mmbot
         private Options _options;
         private ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
         private Thread _thread;
+        private Robot _robot;
 
         public Service(Options options)
         {
@@ -39,12 +35,16 @@ namespace mmbot
 
         protected override void OnStop()
         {
-
+            if (_robot == null)
+            {
+                return;
+            }
+            _robot.Shutdown().Wait(TimeSpan.FromSeconds(10));
         }
 
         public void MMBotWorkerThread()
         {
-            Initializer.StartBot(_options).Wait();
+            _robot = Initializer.StartBot(_options).Result;
 
             while (true)
             {

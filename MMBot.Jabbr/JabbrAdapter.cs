@@ -20,7 +20,11 @@ namespace MMBot.Jabbr
         private string[] _rooms;
         private string[] _logRooms;
         private bool _isConfigured = false;
-        
+
+        public JabbrAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
+        {
+        }
 
         private void Configure()
         {
@@ -57,9 +61,10 @@ namespace MMBot.Jabbr
             }
         }
 
-        public JabbrAdapter(Robot robot, ILog logger, string adapterId)
-            : base(robot, logger, adapterId)
+
+        public override void Initialize(Robot robot)
         {
+            base.Initialize(robot);
             Configure();
         }
 

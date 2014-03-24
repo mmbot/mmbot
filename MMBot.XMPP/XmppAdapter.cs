@@ -34,8 +34,13 @@ namespace MMBot.XMPP
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
         
 
-        public XmppAdapter(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
+        public XmppAdapter(ILog logger, string adapterId) : base(logger, adapterId)
         {
+        }
+
+        public override void Initialize(Robot robot)
+        {
+            base.Initialize(robot);
             Configure();
         }
 

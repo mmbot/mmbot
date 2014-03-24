@@ -22,51 +22,32 @@ namespace MMBot
     {
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
         protected bool _isConfigured = false;
-        private readonly Dictionary<string, Adapter> _adapters = new Dictionary<string, Adapter>();
-        private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
+        private readonly IDictionary<string, IAdapter> _adapters = new Dictionary<string, IAdapter>();
         private readonly List<IListener> _listeners = new List<IListener>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
-        private IEnumerable<Type> _adapterTypes;
         private string[] _admins;
         private IBrain _brain;
         private IDictionary<string, string> _config;
         private IContainer _container;
-        private ScriptSource _currentScriptSource = null;
         private Dictionary<string, EventEmitItem> _emitTable = new Dictionary<string, EventEmitItem>();
         private bool _isReady = false;
         private string _name = "mmbot";
         private IRouter _router = new NullRouter();
-        private ScriptRunner _scriptRunner;
+        private readonly IScriptRunner _scriptRunner;
+        private readonly IScriptStore _scriptStore;
 
-        public static Robot Create<TAdapter>() where TAdapter : Adapter
+        public Robot(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, IDictionary<string, IAdapter> adapters, IRouter router, IBrain brain, IScriptStore scriptStore, IScriptRunner scriptRunner)
+            : this(logConfig)
         {
-            return Create<TAdapter>("mmbot", null, null);
-        }
-
-        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config) where TAdapter : Adapter
-        {
-            return Create<TAdapter>(name, config, null);
-        }
-
-        public static Robot Create<TAdapter>(string name, IDictionary<string, string> config, LoggerConfigurator logConfig) where TAdapter : Adapter
-        {
-            return Create(name, config, logConfig, new Type[] { typeof(TAdapter) });
-        }
-
-        public static Robot Create(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, params Type[] adapterTypes)
-        {
-            var robot = new Robot(logConfig);
-
-            robot.Configure(name, config, adapterTypes);
-
-            robot.LoadAdapter();
-
-            return robot;
-        }
-
-        protected Robot()
-            : this(null)
-        {
+            _name = name;
+            _config = config;
+            _scriptStore = scriptStore;
+            _adapters = adapters;
+            _brain = brain;
+            _router = router;
+            _scriptRunner = scriptRunner;
+            _isConfigured = true;
+            Initialize(adapters.Values.ToArray().Concat(new object[]{router, brain, scriptRunner}).ToArray());
         }
 
         protected Robot(LoggerConfigurator logConfig)
@@ -78,7 +59,17 @@ namespace MMBot
             AutoLoadScripts = true;
         }
 
-        public Dictionary<string, Adapter> Adapters
+        private void Initialize(params object[] dependencies)
+        {
+            foreach (var dep in dependencies.OfType<IMustBeInitializedWithRobot>())
+            {
+                dep.Initialize(this);
+            }
+
+            _router.Configure(int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
+        }
+
+        public IDictionary<string, IAdapter> Adapters
         {
             get { return _adapters; }
         }
@@ -145,19 +136,24 @@ namespace MMBot
 
         public string ScriptPath { get; set; }
 
+        public List<IListener> Listeners
+        {
+            get { return _listeners; }
+        }
+
         public void CatchAll(Action<IResponse<CatchAllMessage>> action)
         {
-            _listeners.Add(new CatchAllListener(this, action)
+            Listeners.Add(new CatchAllListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
         public void Enter(Action<IResponse<EnterMessage>> action)
         {
-            _listeners.Add(new RosterListener(this, action)
+            Listeners.Add(new RosterListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -165,17 +161,17 @@ namespace MMBot
         {
             regex = PrepareHearRegexPattern(regex);
 
-            _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
+            Listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
         public void Leave(Action<IResponse<LeaveMessage>> action)
         {
-            _listeners.Add(new RosterListener(this, action)
+            Listeners.Add(new RosterListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -186,7 +182,7 @@ namespace MMBot
                 return;
             }
             SynchronizationContext.SetSynchronizationContext(new AsyncSynchronizationContext());
-            foreach (var listener in _listeners.ToArray()) //  need to copy collection so as not to be affectied by a script modifying it
+            foreach (var listener in Listeners.ToArray()) //  need to copy collection so as not to be affectied by a script modifying it
             {
                 try
                 {
@@ -208,9 +204,9 @@ namespace MMBot
         {
             regex = PrepareRespondRegexPattern(regex);
 
-            _listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
+            Listeners.Add(new TextListener(this, new Regex(regex, RegexOptions.Compiled | RegexOptions.IgnoreCase), action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -235,9 +231,9 @@ namespace MMBot
 
         public void Topic(Action<IResponse<TopicMessage>> action)
         {
-            _listeners.Add(new TopicListener(this, action)
+            Listeners.Add(new TopicListener(this, action)
             {
-                Source = _currentScriptSource
+                Source = _scriptRunner.CurrentScriptSource
             });
         }
 
@@ -255,51 +251,6 @@ namespace MMBot
             ScriptData.Add(metadata);
         }
 
-        public void Configure(string name = "mmbot", IDictionary<string, string> config = null, params Type[] adapterTypes)
-        {
-            _adapterTypes = adapterTypes;
-            _scriptRunner = Container.Resolve<ScriptRunner>();
-            _name = name;
-            _config = config ?? new Dictionary<string, string>();
-
-            _isConfigured = true;
-
-            _scriptRunner.Initialize();
-        }
-
-        public void ConfigureRouter(Type routerType)
-        {
-            if (!_isConfigured)
-            {
-                throw new RobotNotConfiguredException();
-            }
-
-            if (!typeof(IRouter).IsAssignableFrom(routerType))
-            {
-                throw new TypeLoadException(string.Format("Could not configure router type '{0}' as it does not implement IRouter", routerType));
-            }
-
-            var router = Activator.CreateInstance(routerType) as IRouter;
-            router.Configure(this, int.Parse(GetConfigVariable("MMBOT_ROUTER_PORT") ?? "80"));
-            _router = router;
-        }
-
-        public void ConfigureBrain(Type brainType)
-        {
-            if (!_isConfigured)
-            {
-                throw new RobotNotConfiguredException();
-            }
-
-            if (!typeof(IBrain).IsAssignableFrom(brainType))
-            {
-                throw new TypeLoadException(string.Format("Could not configure brain type '{0}' as it does not implement IBrain", brainType));
-            }
-
-            IBrain brain = Activator.CreateInstance(brainType) as IBrain;
-            brain.Initialize(this);
-            _brain = brain;
-        }
 
         public string GetConfigVariable(string name)
         {
@@ -310,33 +261,7 @@ namespace MMBot
             return _config.ContainsKey(name) ? _config[name] : Environment.GetEnvironmentVariable(name);
         }
 
-        public void LoadAdapter()
-        {
-            _adapters.Clear();
-            foreach (var adapterType in _adapterTypes.Distinct(new GenericEqualityComparer<Type>((t1, t2) => t1.FullName == t2.FullName, type => type.FullName.GetHashCode())))
-            {
-                Logger.Info(string.Format("Loading Adapter '{0}'", adapterType.Name));
-                try
-                {
-                    var id = adapterType.Name;
-                    int count = 0;
-                    while (_adapters.Keys.Contains(id))
-                    {
-                        count++;
-                        id = adapterType.Name + count;
-                    }
-                    var adapter = Container.Resolve(adapterType, new NamedParameter("adapterId", id)) as Adapter;
-
-                    _adapters.Add(id, adapter);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(string.Format("Could not instantiate '{0}' adapter", adapterType.Name), e);
-                }
-            }
-        }
-
-        public void LoadLogging()
+        private void LoadLogging()
         {
             if (LogConfig == null || LogConfig.GetAppenders().Any(d => d == "MMBot.RobotLogAppender"))
                 return;
@@ -347,37 +272,27 @@ namespace MMBot
             }
             else
             {
-                Logger.Info("No logging rooms to enabled");
+                Logger.Info("No logging rooms are enabled");
             }
         }
 
         public void LoadScript<TScript>() where TScript : IMMBotScript, new()
         {
-            using (StartScriptProcessingSession(new ScriptSource(typeof(TScript).Name, typeof(TScript).AssemblyQualifiedName)))
-            {
-                Logger.Info(string.Format("Loading script '{0}'", Path.GetFileNameWithoutExtension(typeof(TScript).Name)));
-
-                var script = new TScript();
-                RegisterScript(script);
-                if (!_loadedScriptTypes.Contains(typeof(TScript)))
-                {
-                    _loadedScriptTypes.Add(typeof(TScript));
-                }
-            }
+            _scriptRunner.RunScript(TypedScript.Create<TScript>());
         }
 
         public void LoadScriptFile(string scriptFile)
         {
+            _scriptRunner.RunScript(_scriptStore.GetScriptByPath(scriptFile));
+        }
+
+        public void LoadScriptFile(string scriptName, string scriptFile)
+        {
             try
             {
-                string scriptFileName = Path.GetFileName(scriptFile);
-                string scriptName = Path.GetFileNameWithoutExtension(scriptFile);
-
-                Logger.Info(string.Format("Loading script '{0}'", scriptFileName));
-                using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
-                {
-                    _scriptRunner.RunScriptFile(scriptFile);
-                }
+                var script = _scriptStore.GetScriptByPath(scriptFile);
+                script.Name = scriptName;
+                _scriptRunner.RunScript(script);
             }
             catch (Exception ex)
             {
@@ -385,20 +300,9 @@ namespace MMBot
             }
         }
 
-        public void LoadScriptFile(string scriptName, string scriptFile)
+        public void LoadScriptName(string scriptName)
         {
-            Logger.Info(string.Format("Loading script '{0}'", Path.GetFileNameWithoutExtension(scriptName)));
-            using (StartScriptProcessingSession(new ScriptSource(scriptName, scriptFile)))
-            {
-                _scriptRunner.RunScriptFile(scriptFile);
-            }
-        }
-
-        public void LoadScriptName(string ScriptName)
-        {
-            string filePath = Path.Combine(Environment.CurrentDirectory, "scripts", ScriptName.EndsWith(".csx") ? ScriptName : ScriptName + ".csx");
-            if (File.Exists(filePath))
-                LoadScriptFile(filePath);
+            _scriptRunner.RunScript(_scriptStore.GetScriptByName(scriptName));
         }
 
         public void LoadScripts(Assembly assembly)
@@ -416,51 +320,9 @@ namespace MMBot
             });
         }
 
-        public void LoadScripts(string path)
-        {
-            if (!Directory.Exists(path))
-            {
-                Logger.Warn(string.Format("Script directory '{0}' does not exist", path));
-                return;
-            }
-
-            foreach (var scriptFile in Directory.GetFiles(path, "*.csx"))
-            {
-                LoadScriptFile(scriptFile);
-            }
-        }
-
-        public IDisposable StartScriptProcessingSession(ScriptSource scriptSource)
-        {
-            if (scriptSource == null)
-            {
-                throw new ArgumentNullException("scriptSource");
-            }
-
-            if (_currentScriptSource != null)
-            {
-                throw new ScriptProcessingException("Cannot process multiple script sources at the same time");
-            }
-            _currentScriptSource = scriptSource;
-
-            CleanupScript(scriptSource.Name);
-
-            _listeners.RemoveAll(l => l.Source != null && l.Source.Name == scriptSource.Name);
-
-            return Disposable.Create(() => _currentScriptSource = null);
-        }
-
         private void LoadScript(Type scriptType)
         {
-            using (StartScriptProcessingSession(new ScriptSource(scriptType.Name, scriptType.AssemblyQualifiedName)))
-            {
-                var script = (Activator.CreateInstance(scriptType) as IMMBotScript);
-                RegisterScript(script);
-                if (!_loadedScriptTypes.Contains(scriptType))
-                {
-                    _loadedScriptTypes.Add(scriptType);
-                }
-            }
+            _scriptRunner.RunScript(TypedScript.Create(scriptType));
         }
 
         public void Emit<T>(string key, T data)
@@ -481,23 +343,19 @@ namespace MMBot
 
         public void RegisterCleanup(Action cleanup)
         {
-            if (_currentScriptSource != null)
-            {
-                _cleanup[_currentScriptSource.Name] = cleanup;
-            }
+            _scriptRunner.RegisterCleanup(cleanup);
         }
 
         public void RemoveListener(string regexPattern)
         {
             string actualRegex = PrepareRespondRegexPattern(regexPattern);
-            _listeners.RemoveAll(l => l is TextListener && ((TextListener)l).RegexPattern.ToString() == actualRegex);
+            Listeners.RemoveAll(l => l is TextListener && ((TextListener)l).RegexPattern.ToString() == actualRegex);
         }
 
         public async Task Reset()
         {
             Emit("Resetting", true);
             await Shutdown();
-            LoadAdapter();
 
             _loadedScriptTypes.ForEach(LoadScript);
             await Run();
@@ -514,7 +372,10 @@ namespace MMBot
 
             if (AutoLoadScripts)
             {
-                LoadScripts(Path.Combine(Environment.CurrentDirectory, "scripts"));
+                foreach (var script in _scriptStore.GetAllScripts())
+                {
+                    _scriptRunner.RunScript(script);
+                }
                 Emit("ScriptsLoaded", this.ScriptData.Select(d => d.Name));
             }
 
@@ -562,9 +423,8 @@ namespace MMBot
         {
             Emit("ShuttingDown", true);
             _isReady = false;
-            _cleanup.Keys.ToList().ForEach(CleanupScript);
-            _cleanup.Clear();
-            _listeners.Clear();
+            _scriptRunner.Cleanup();
+            Listeners.Clear();
             foreach (var adapter in _adapters.Values)
             {
                 await adapter.Close();
@@ -582,27 +442,7 @@ namespace MMBot
             builder.RegisterInstance<ILog>(Logger);
             builder.RegisterInstance<Robot>(this);
             builder.RegisterType<ScriptRunner>();
-            _adapterTypes.ForEach(t => builder.RegisterType(t));
             return builder.Build();
-        }
-
-        private void CleanupScript(string name)
-        {
-            if (_cleanup.ContainsKey(name))
-            {
-                try
-                {
-                    _cleanup[name]();
-                }
-                catch (Exception e)
-                {
-                    Logger.Error("Error during cleanup", e);
-                }
-                finally
-                {
-                    _cleanup.Remove(name);
-                }
-            }
         }
 
         private string PrepareHearRegexPattern(string regex)

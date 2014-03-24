@@ -1,4 +1,6 @@
-﻿namespace MMBot
+﻿using MMBot.Scripts;
+
+namespace MMBot
 {
     public interface IListener
     {

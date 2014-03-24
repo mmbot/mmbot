@@ -37,17 +37,16 @@ namespace mmbot
 
                 if (options.Init)
                 {
-                    Initializer.InitialiseCurrentDirectory();
+                    Initializer.InitializeCurrentDirectory();
+                    return;
                 }
-                else
-                {
-                    Initializer.StartBot(options).Wait();
 
-                    while (true)
-                    {
-                        // sit and spin?
-                        Thread.Sleep(2000);
-                    }
+                Initializer.StartBot(options).Wait();
+
+                while (true)
+                {
+                    // sit and spin?
+                    Thread.Sleep(2000);
                 }
             }
         }

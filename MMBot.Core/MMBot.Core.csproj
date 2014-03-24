@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -60,11 +61,7 @@
     </Reference>
     <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Autofac.3.1.5\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Integration.Mef, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Autofac.Mef.3.0.2\lib\net40\Autofac.Integration.Mef.dll</HintPath>
+      <HintPath>..\packages\Autofac.3.3.0\lib\net40\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging, Version=2.1.2.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -165,6 +162,7 @@
   <ItemGroup>
     <Compile Include="Adapters\AdapterNotConfiguredException.cs" />
     <Compile Include="Adapters\ConsoleAdapter.cs" />
+    <Compile Include="Adapters\IAdapter.cs" />
     <Compile Include="AsyncSynchronizationContext.cs" />
     <Compile Include="Brains\AkavacheBrain.cs" />
     <Compile Include="Adapters\Adapter.cs" />
@@ -175,6 +173,8 @@
     <Compile Include="Extensions\OwinContextExtensions.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="Brains\IBrain.cs" />
+    <Compile Include="IMustBeInitializedWithRobot.cs" />
+    <Compile Include="IRobotPluginLocator.cs" />
     <Compile Include="Listeners\CatchAllListener.cs" />
     <Compile Include="Listeners\IListener.cs" />
     <Compile Include="GenericEqualityComparer.cs" />
@@ -184,18 +184,18 @@
     <Compile Include="LoggerConfigurator.cs" />
     <Compile Include="MatchResult.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="NuGetPackageAssemblyResolver.cs" />
     <Compile Include="Response.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Robot.cs" />
+    <Compile Include="RobotBuilder.cs" />
     <Compile Include="RobotLogAppender.cs" />
     <Compile Include="RobotNotConfiguredException.cs" />
     <Compile Include="Router\IRouter.cs" />
     <Compile Include="Router\NullRouter.cs" />
     <Compile Include="Router\Route.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
-    <Compile Include="ScriptMetadata.cs" />
     <Compile Include="ScriptProcessingException.cs" />
-    <Compile Include="ScriptRunner.cs" />
     <None Include="Scripts\Auth.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -211,9 +211,16 @@
     <None Include="Scripts\Ping.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="ScriptSource.cs" />
-    <Compile Include="Scripts\IConfigurableScript.cs" />
     <Compile Include="Scripts\IMMBotScript.cs" />
+    <Compile Include="Scripts\IScript.cs" />
+    <Compile Include="Scripts\IScriptRunner.cs" />
+    <Compile Include="Scripts\IScriptStore.cs" />
+    <Compile Include="Scripts\LocalScriptStore.cs" />
+    <Compile Include="Scripts\ScriptCsScriptFile.cs" />
+    <Compile Include="Scripts\ScriptMetadata.cs" />
+    <Compile Include="Scripts\ScriptRunner.cs" />
+    <Compile Include="Scripts\ScriptSource.cs" />
+    <Compile Include="Scripts\TypedScript.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="Listeners\TextListener.cs" />
     <Compile Include="User.cs" />

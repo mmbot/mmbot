@@ -12,8 +12,8 @@ namespace MMBot.Tests
         private readonly List<Tuple<Envelope, string[]>> _messages = new List<Tuple<Envelope, string[]>>();
         private ReplaySubject<Tuple<Envelope, string[]>> _messagesObservable = new ReplaySubject<Tuple<Envelope, string[]>>();
 
-        public StubAdapter(Robot robot, ILog logger, string adapterId)
-            : base(robot, logger, adapterId)
+        public StubAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
         {
         }
 

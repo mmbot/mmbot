@@ -40,9 +40,13 @@ namespace MMBot.Router.Nancy
             get { return _routes; }
         }
 
-        public virtual void Configure(Robot robot, int port)
+        public void Initialize(Robot robot)
         {
             _robot = robot;
+        }
+
+        public virtual void Configure(int port)
+        {
             _port = port;
             _isConfigured = true;
         }
@@ -108,5 +112,7 @@ namespace MMBot.Router.Nancy
             });
             _routeRegistered.OnNext(route);
         }
+
+        
     }
 }
