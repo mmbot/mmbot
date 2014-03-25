@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.Owin;
+using MMBot.Router;
 using Newtonsoft.Json;
 
 namespace MMBot.Slack
@@ -30,8 +31,20 @@ namespace MMBot.Slack
         private bool _linkNames;
         private IDictionary<string, string> _channelMapping = new Dictionary<string, string>();
 
-        public SlackAdapter(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
+        public SlackAdapter(ILog logger, string adapterId) : base(logger, adapterId)
         {
+            
+        }
+
+
+        public override void Initialize(Robot robot)
+        {
+            if (Robot.Router is NullRouter)
+            {
+                Logger.Warn("The Slack adapter currently requires a Router to be configured. Please setup a router e.g. MMBot.Nancy.");
+                return;
+            }
+            base.Initialize(robot);
             _team = robot.GetConfigVariable("MMBOT_SLACK_TEAM");
             _token = robot.GetConfigVariable("MMBOT_SLACK_TOKEN");
             _slackBotName = robot.GetConfigVariable("MMBOT_SLACK_BOTNAME") ?? robot.Name;
@@ -104,10 +117,7 @@ namespace MMBot.Slack
             };
             await
                 client.PostAsync(new Uri(string.Format("{0}?token={1}", url, _token), UriKind.Relative),
-                    new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
-                    {
-                        {new KeyValuePair<string, string>("data", args)}
-                    }));
+                    new StringContent(args));
         }
 
         public async override Task Run()
@@ -117,35 +127,41 @@ namespace MMBot.Slack
                 throw new AdapterNotConfiguredException();
             }
 
-            Robot.Router.Post("/hubot/slack-webhook", async context =>
+            Robot.Router.Post("/Slack/hubot/slack-webhook", async context =>
             {
-
-                Logger.Info("Incoming message received from Slack");
-
-                var form = (await context.FormAsync());
-                var hubotMsg = form["text"];
-                var roomName = form["channel_name"];
-
-                if (!string.IsNullOrWhiteSpace(hubotMsg) &&
-                    ((_channelMode == ChannelModes.Blacklist &&
-                      !_channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase)) ||
-                     (_channelMode == ChannelModes.Whitelist &&
-                      _channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase))))
+                try
                 {
-                    hubotMsg = WebUtility.HtmlDecode(hubotMsg);
-                }
+                    Logger.Info("Incoming message received from Slack");
+
+                    var form = (await context.FormAsync());
+                    var hubotMsg = form["text"];
+                    var roomName = form["channel_name"];
+
+                    if (!string.IsNullOrWhiteSpace(hubotMsg) &&
+                        ((_channelMode == ChannelModes.Blacklist &&
+                          !_channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase)) ||
+                         (_channelMode == ChannelModes.Whitelist &&
+                          _channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase))))
+                    {
+                        hubotMsg = WebUtility.HtmlDecode(hubotMsg);
+                    }
             
 
-                var author = GetAuthor(form);
-                // author = self.robot.brain.userForId author.id, author
-                _channelMapping[author.Room] = form["channel_id"];
+                    var author = GetAuthor(form);
+                    // author = self.robot.brain.userForId author.id, author
+                    _channelMapping[author.Room] = form["channel_id"];
 
-                if(!string.IsNullOrWhiteSpace(hubotMsg) && author != null) {
-                    // Pass to the robot
-                    Receive(new TextMessage(author, hubotMsg));
+                    if(!string.IsNullOrWhiteSpace(hubotMsg) && author != null) {
+                        // Pass to the robot
+                        Receive(new TextMessage(author, hubotMsg));
 
-                    // Just send back an empty reply, since our actual reply,
-                    // if any, will be async above
+                        // Just send back an empty reply, since our actual reply,
+                        // if any, will be async above
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.Error("Error receiving Slack message", e);
                 }
             });
         }
@@ -157,13 +173,14 @@ namespace MMBot.Slack
                 form["user_id"],
                 form["user_name"],
                 Robot.GetUserRoles(form["user_name"]),
-                form["channel_id"],
-                form["channel_name"]);
+                form["channel_name"],
+                Id);
         }
 
         public async override Task Close()
         {
             
         }
+
     }
 }

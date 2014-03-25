@@ -40,7 +40,12 @@ namespace MMBot.Router.Nancy
             get { return _routes; }
         }
 
-        public void Initialize(Robot robot)
+        protected Robot Robot
+        {
+            get { return _robot; }
+        }
+
+        public virtual void Initialize(Robot robot)
         {
             _robot = robot;
         }
@@ -61,7 +66,7 @@ namespace MMBot.Router.Nancy
             var url = string.Format("http://+:{0}", _port);
             _webappDisposable = WebApp.Start(url, app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
             
-            _robot.Logger.Info(string.Format("Router (Nancy) is running on http://localhost:{0}", _port));
+            Robot.Logger.Info(string.Format("Router (Nancy) is running on http://localhost:{0}", _port));
 
             IsStarted = true;
         }
