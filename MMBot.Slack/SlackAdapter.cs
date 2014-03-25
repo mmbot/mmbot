@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
+using Microsoft.Owin;
+using Newtonsoft.Json;
 
 namespace MMBot.Slack
 {
@@ -23,6 +28,7 @@ namespace MMBot.Slack
         private ChannelModes _channelMode = ChannelModes.Blacklist;
         private string[] _channels;
         private bool _linkNames;
+        private IDictionary<string, string> _channelMapping = new Dictionary<string, string>();
 
         public SlackAdapter(Robot robot, ILog logger, string adapterId) : base(robot, logger, adapterId)
         {
@@ -43,8 +49,8 @@ namespace MMBot.Slack
                 helpSb.AppendLine("The Slack adapter is not configured correctly and hence will not be enabled.");
                 helpSb.AppendLine("To configure the Slack adapter, please set the following configuration properties:");
                 helpSb.AppendLine("  MMBOT_SLACK_TEAM: This is your team's Slack subdomain. For example, if your team is https://myteam.slack.com/, you would enter myteam here");
-                helpSb.AppendLine("  MMBOT_SLACK_TOKEN: This is the service token you are given when you add MMBot to your Team Services.");
-                helpSb.AppendLine("  MMBOT_SLACK_BOTNAME: Optional. What your Hubot is called on Slack. If you entered slack-hubot here, you would address your bot like slack-hubot: help. Otherwise, defaults to mmbot");
+                helpSb.AppendLine("  MMBOT_SLACK_TOKEN: This is the service token you are given when you add Hubot to your Team Services.");
+                helpSb.AppendLine("  MMBOT_SLACK_BOTNAME: Optional. What your mmbot is called on Slack. If you entered slack-hubot here, you would address your bot like slack-hubot: help. Otherwise, defaults to mmbot");
                 helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
@@ -52,10 +58,107 @@ namespace MMBot.Slack
             }
             _isConfigured = true;
         }
+
+        public async override Task Send(Envelope envelope, params string[] messages)
+        {
+            await base.Send(envelope, messages);
+            
+
+            if (messages == null)
+            {
+                return;
+            }
+
+            foreach (var message in messages.Where(message => !string.IsNullOrWhiteSpace(message)))
+            {
+                var escapedMessage = WebUtility.HtmlEncode(message);
+                var args = JsonConvert.SerializeObject(new
+                {
+                    username = Robot.Name,
+                    channel =
+                        string.IsNullOrEmpty(envelope.User.Room)
+                            ? envelope.User.Name
+                            : _channelMapping[envelope.User.Room],
+                    text = escapedMessage,
+                    link_names = _linkNames ? 1 : 0
+                });
+
+                await Post("/services/hooks/hubot", args);
+            }
+        }
+
+        public async override Task Reply(Envelope envelope, params string[] messages)
+        {
+            foreach(var message in messages)
+            {
+                await Send(envelope, string.Format("{0}:{1}", envelope.User.Name, message));
+            }
+        }
         
+        private async Task Post(string url, string args)
+        {
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri(string.Format("https://{0}.slack.com", _team)),
+                
+            };
+            await
+                client.PostAsync(new Uri(string.Format("{0}?token={1}", url, _token), UriKind.Relative),
+                    new FormUrlEncodedContent(new List<KeyValuePair<string, string>>
+                    {
+                        {new KeyValuePair<string, string>("data", args)}
+                    }));
+        }
+
         public async override Task Run()
         {
+            if (!_isConfigured)
+            {
+                throw new AdapterNotConfiguredException();
+            }
+
+            Robot.Router.Post("/hubot/slack-webhook", async context =>
+            {
+
+                Logger.Info("Incoming message received from Slack");
+
+                var form = (await context.FormAsync());
+                var hubotMsg = form["text"];
+                var roomName = form["channel_name"];
+
+                if (!string.IsNullOrWhiteSpace(hubotMsg) &&
+                    ((_channelMode == ChannelModes.Blacklist &&
+                      !_channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase)) ||
+                     (_channelMode == ChannelModes.Whitelist &&
+                      _channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase))))
+                {
+                    hubotMsg = WebUtility.HtmlDecode(hubotMsg);
+                }
             
+
+                var author = GetAuthor(form);
+                // author = self.robot.brain.userForId author.id, author
+                _channelMapping[author.Room] = form["channel_id"];
+
+                if(!string.IsNullOrWhiteSpace(hubotMsg) && author != null) {
+                    // Pass to the robot
+                    Receive(new TextMessage(author, hubotMsg));
+
+                    // Just send back an empty reply, since our actual reply,
+                    // if any, will be async above
+                }
+            });
+        }
+
+        private User GetAuthor(IFormCollection form)
+        {
+            
+            return new User(
+                form["user_id"],
+                form["user_name"],
+                Robot.GetUserRoles(form["user_name"]),
+                form["channel_id"],
+                form["channel_name"]);
         }
 
         public async override Task Close()
