@@ -1,20 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using MMBot;
+using MMBot.Bootstrap;
+using MMBot.Bootstrap.Interfaces;
 
 namespace mmbot
 {
-    public class Bootstrapper : MarshalByRefObject
+    [Serializable]
+    public class Bootstrapper : IBootstrapper
     {
         private AppDomain RobotAppDomain;
         private string[] Args;
-        public Robot CurrentlyRunningRobot;
-        public Bootstrapper OwningBootstrapper;
+        private IRobotContainer _robotContainer;
+        private List<AppDomain> _retiredDomains = new List<AppDomain>(); 
 
         public Bootstrapper()
         {
@@ -28,14 +33,42 @@ namespace mmbot
             RunInRobotDomain();
         }
 
-        private void DestroyRobotDomain()
+        private async Task DestroyRobotDomain()
         {
-            AppDomain.Unload(RobotAppDomain);
+            PrintCurrentDomain("DestroyRobotDomain");
+            try
+            {
+                Task.Run(() =>
+                {
+
+                });
+                Console.WriteLine("---> Unloading AppDomain");
+                _retiredDomains.Add(RobotAppDomain);
+                //await _robotContainer.Shutdown();
+                AppDomain.Unload(RobotAppDomain);
+                Console.WriteLine("---> AppDomain Unloaded");
+            }
+            catch (CannotUnloadAppDomainException e)
+            {
+                int i = 0;
+                i++;
+            }
+            catch (AppDomainUnloadedException e2)
+            {
+                int i = 0;
+                i++;
+            }
+            catch (ThreadAbortException e3)
+            {
+                Console.WriteLine(e3.StackTrace);
+                Thread.ResetAbort();
+            }
+            
         }
 
-        private static int initCount = 0;
+        private int initCount = 0;
 
-        private static void InitializeRobotDomain()
+        private void InitializeRobotDomain()
         {
             initCount++;
             RobotAppDomain = AppDomain.CreateDomain("MMBotDomain" + initCount);
@@ -44,81 +77,34 @@ namespace mmbot
         private void RunInRobotDomain()
         {
             PrintCurrentDomain("RunInRobotDomain");
-            _robotDomainBootstrapper =
-                (Bootstrapper)
-                    RobotAppDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName,
-                        "mmbot.Bootstrapper");
-            _robotDomainBootstrapper.OwningBootstrapper = this;
-            _robotDomainBootstrapper.Initialize(Args);
-        }        
-
-        private void Initialize(string[] args)
-        {
-            PrintCurrentDomain("Initialize");
-            var options = new Options();
-
-            CommandLine.Parser.Default.ParseArguments(args, options);
-
-            if (options.ShowHelp)
-            {
-                return;
-            }
-
-            if (options.RunAsService)
-            {
-                ServiceBase.Run(new ServiceBase[] { new Service(options) });
-            }
-            else
-            {
-                if (options.LastParserState != null && options.LastParserState.Errors.Any())
-                {
-                    return;
-                }
-
-                if (options.Parameters != null && options.Parameters.Any())
-                {
-                    options.Parameters.ForEach(Console.WriteLine);
-                }
-
-                if (options.Init)
-                {
-                    Initializer.InitialiseCurrentDirectory();
-                }
-                else
-                {
-                    var robot = Initializer.StartBot(options);
-                    CurrentlyRunningRobot = robot.Result;
-                    CurrentlyRunningRobot.HardResetRequested += OnHardResetRequested;
-                    robot.Wait();
-                }
-            }
+            var assemblyName = "MMBot.Bootstrap, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+            _robotContainer = (IRobotContainer)RobotAppDomain.CreateInstanceAndUnwrap(assemblyName, "MMBot.Bootstrap.RobotContainer");
+            _robotContainer.Run(Args, AppDomain.CurrentDomain, DoHardReset);
         }
 
-        private void DoHardReset()
+        public async void DoHardReset()
         {
             PrintCurrentDomain("DoHardReset");
-            DestroyRobotDomain();
+            _robotContainer.Shutdown();
+            await Task.Run(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(3000);
+                    if (!_robotContainer.IsRunning)
+                    {
+                        return;
+                    }
+                }
+            });
+            await DestroyRobotDomain();
             InitializeRobotDomain();
             RunInRobotDomain();
         }
 
-        private async void ShutdownRobot()
-        {
-            PrintCurrentDomain("ShutdownRobot");
-            await CurrentlyRunningRobot.Shutdown();
-        }
-
-        private void OnHardResetRequested(object sender, EventArgs e)
-        {
-            PrintCurrentDomain("OnHardResetRequested");
-            ShutdownRobot();
-            //The reset is being requested from within the Robot's AppDomain.
-            OwningBootstrapper.DoHardReset();
-        }
-
         private void PrintCurrentDomain(string name)
         {
-            Debug.WriteLine(string.Format("{0}: {1}", name, AppDomain.CurrentDomain.FriendlyName));
+            Console.WriteLine(string.Format("{0}: {1}", name, AppDomain.CurrentDomain.FriendlyName));
         }
     }
 }

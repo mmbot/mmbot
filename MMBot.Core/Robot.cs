@@ -196,6 +196,10 @@ namespace MMBot
                         break;
                     }
                 }
+                catch (TaskCanceledException e)
+                {
+                    //Don't care.
+                }
                 catch (Exception e)
                 {
                     Logger.Error("Error receiving message", e);
@@ -555,19 +559,24 @@ namespace MMBot
 
         public async Task Shutdown()
         {
+            Console.WriteLine("Shutdown: " + AppDomain.CurrentDomain.FriendlyName);
             Emit("ShuttingDown", true);
             _isReady = false;
             _cleanup.Keys.ToList().ForEach(CleanupScript);
             _cleanup.Clear();
             _listeners.Clear();
+            Console.WriteLine("---> Waiting on adapters to shutdown.");
             foreach (var adapter in _adapters.Values)
             {
                 await adapter.Close();
             }
+            Console.WriteLine("---> Adapters have shutdown.");
+            Console.WriteLine("---> Waiting on Brain to shut down.");
             if (_brain != null)
             {
                 await _brain.Close();
             }
+            Console.WriteLine("---> Brain has shut down.");
             Emit("ShutdownComplete", true);
         }
 

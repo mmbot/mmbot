@@ -121,17 +121,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Initializer.cs" />
-    <Compile Include="NuGetPackageAssemblyResolver.cs" />
-    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Service.Designer.cs">
-      <DependentUpon>Service.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -146,6 +137,10 @@
     <None Include="Properties\MMBot.nuspec" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MMBot.Bootstrap.Interfaces\MMBot.Bootstrap.Interfaces.csproj">
+      <Project>{594b4199-4f52-4461-b89f-e22aa78ed681}</Project>
+      <Name>MMBot.Bootstrap.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">
       <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
       <Name>MMBot.Core</Name>

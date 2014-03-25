@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Core", "MMBot.Core\MMBot.Core.csproj", "{0CF33652-B99B-4854-BC70-250B6C2F646A}"
 EndProject
@@ -39,6 +39,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Brains", "Brains", "{1640941E-E9A9-43E5-951B-BB7C1C6B9D69}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.AzureTableBrain", "MMBot.AzureTableBrain\MMBot.AzureTableBrain.csproj", "{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Bootstrap", "MMBot.Bootstrap\MMBot.Bootstrap.csproj", "{2FAC5752-D7D9-4EEC-B855-C37384311CC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Bootstrap.Interfaces", "MMBot.Bootstrap.Interfaces\MMBot.Bootstrap.Interfaces.csproj", "{594B4199-4F52-4461-B89F-E22AA78ED681}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -140,6 +144,18 @@ Global
 		{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}.Release|x64.ActiveCfg = Release|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Release|x64.ActiveCfg = Release|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Release|Any CPU.Build.0 = Release|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
