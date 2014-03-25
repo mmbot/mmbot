@@ -44,7 +44,9 @@ namespace MMBot.Slack
                 Logger.Warn("The Slack adapter currently requires a Router to be configured. Please setup a router e.g. MMBot.Nancy.");
                 return;
             }
+
             base.Initialize(robot);
+
             _team = robot.GetConfigVariable("MMBOT_SLACK_TEAM");
             _token = robot.GetConfigVariable("MMBOT_SLACK_TOKEN");
             _slackBotName = robot.GetConfigVariable("MMBOT_SLACK_BOTNAME") ?? robot.Name;
@@ -181,6 +183,5 @@ namespace MMBot.Slack
         {
             
         }
-
     }
 }
