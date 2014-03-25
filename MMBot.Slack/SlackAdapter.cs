@@ -39,13 +39,13 @@ namespace MMBot.Slack
 
         public override void Initialize(Robot robot)
         {
+            base.Initialize(robot);
+
             if (Robot.Router is NullRouter)
             {
                 Logger.Warn("The Slack adapter currently requires a Router to be configured. Please setup a router e.g. MMBot.Nancy.");
                 return;
             }
-
-            base.Initialize(robot);
 
             _team = robot.GetConfigVariable("MMBOT_SLACK_TEAM");
             _token = robot.GetConfigVariable("MMBOT_SLACK_TOKEN");
@@ -71,7 +71,10 @@ namespace MMBot.Slack
                 _isConfigured = false;
                 return;
             }
+         
             _isConfigured = true;
+
+            Logger.Info("The Slack adapter is connected");
         }
 
         public async override Task Send(Envelope envelope, params string[] messages)
