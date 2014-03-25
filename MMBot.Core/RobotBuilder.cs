@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
 using Autofac;
-using Autofac.Core;
-using Autofac.Core.Activators.Reflection;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
@@ -23,13 +18,12 @@ namespace MMBot
         private bool _pluginProbe = true;
         private bool _scriptProbe = true;
         private string _workingDirectory;
-        private string _name = "mmbot";
+        private string _name;
         private IDictionary<string, string> _config = new Dictionary<string, string>();
         private readonly ContainerBuilder _containerBuilder;
         private IRobotPluginLocator _pluginLocator;
         private Type _scriptStoreType;
         private Type _scriptRunnerType;
-        
 
         protected RobotBuilder()
         {
@@ -66,6 +60,7 @@ namespace MMBot
             }
 
             var fileSystem = new FileSystem();
+
             if(!string.IsNullOrEmpty(_workingDirectory))
             {
                 fileSystem.CurrentDirectory = _workingDirectory;
@@ -89,7 +84,7 @@ namespace MMBot
             var adapters = _adapterTypes.Select(a => container.Resolve(a, new NamedParameter("adapterId", a.Name))).ToDictionary(a => a.GetType().Name, a => a as IAdapter);
 
             var robot = container.Resolve<Robot>(
-                new NamedParameter("name", _name), 
+                new NamedParameter("name", _name ?? _config.GetValueOrDefault("MMBOT_ROBOT_NAME") ?? "mmbot"), 
                 new NamedParameter("config", _config),
                 new NamedParameter("adapters", adapters));
 
@@ -97,8 +92,6 @@ namespace MMBot
 
             return robot;
         }
-
-        
 
         public RobotBuilder DisablePluginDiscovery()
         {

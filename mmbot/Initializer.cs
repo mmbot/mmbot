@@ -22,9 +22,12 @@ namespace mmbot
             var logConfig = CreateLogConfig(options);
             ConfigurePath(options, logConfig.GetLogger());
 
+            var builder = new RobotBuilder(logConfig).WithConfiguration(GetConfiguration(options));
 
-            var builder = new RobotBuilder(logConfig)
-                            .WithConfiguration(GetConfiguration(options));
+            if (!string.IsNullOrWhiteSpace(options.Name))
+            {
+                builder.WithName(options.Name);
+            }
 
             if (options.Test)
             {

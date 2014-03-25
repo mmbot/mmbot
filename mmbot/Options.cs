@@ -1,16 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
-using MMBot;
 
 namespace mmbot
 {
     public class Options
     {
-        
+        [Option("name", HelpText = "Set robot name. Default is 'mmbot'.")]
+        public string Name { get; set; }
+
         [Option('v', "verbose", HelpText = "Display logging in verbose mode")]
         public bool Verbose { get; set; }
 
@@ -59,6 +57,5 @@ namespace mmbot
             return string.Concat(Initializer.IntroText, help);
 
         }
-
     }
 }
