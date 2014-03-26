@@ -74,6 +74,13 @@ namespace MMBot
 
         public async Task Send(params string[] messages)
         {
+            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
+
+            if (adapter == null)
+            {
+                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
+                return;
+            }
             await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
         }
 

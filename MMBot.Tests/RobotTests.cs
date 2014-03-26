@@ -111,6 +111,20 @@ namespace MMBot.Tests
         }
 
         [Fact]
+        public void WhenSpeakIsCalledOnInvalidAdapterIdExceptionIsNotThrown()
+        {
+            // No Asserts.......argh!
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
+                        .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
+                        .Build();
+
+            robot.Speak("InvalidAdapter", "Room", "Foo");
+        }
+
+        [Fact]
         public async Task WhenRobotIsReset_ScriptCleanupIsInvoked()
         {
             var loggerConfigurator = new LoggerConfigurator(LogLevel.All);

@@ -224,9 +224,27 @@ namespace MMBot
 
         public async void Speak(string adapterId, string room, params string[] messages)
         {
-            await Adapters[adapterId].Send(
+            var adapter = GetAdapter(adapterId);
+
+            if (adapter == null)
+            {
+                Logger.Warn(string.Format("Could not find adapter matching key '{0}'", adapterId));
+                return;
+            }
+
+            await adapter.Send(
                     new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapterId),
                         string.Join(Environment.NewLine, messages))), messages);
+        }
+
+        public IAdapter GetAdapter(string adapterId)
+        {
+            var adapter = (from a in Adapters
+                where string.Equals(a.Key, adapterId, StringComparison.InvariantCultureIgnoreCase) ||
+                      string.Equals(a.Key, string.Concat(adapterId, "Adapter"), StringComparison.InvariantCultureIgnoreCase)
+                select a.Value).FirstOrDefault();
+
+            return adapter;
         }
 
         public void Topic(Action<IResponse<TopicMessage>> action)
