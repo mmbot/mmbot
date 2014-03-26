@@ -216,9 +216,16 @@ namespace MMBot
                 var adapter in
                     _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
             {
-                await adapter.Value.Send(
-                    new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
-                        string.Join(Environment.NewLine, messages))), messages);
+                try
+                {
+                    await adapter.Value.Send(
+                        new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
+                            string.Join(Environment.NewLine, messages))), messages);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(string.Format("Could not Speak to adapter {0} on room {1}", adapter.Key, room), e);
+                }
             }
         }
 
@@ -232,9 +239,16 @@ namespace MMBot
                 return;
             }
 
-            await adapter.Send(
+            try
+            {
+                await adapter.Send(
                     new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapterId),
                         string.Join(Environment.NewLine, messages))), messages);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(string.Format("Could not Speak to adapter {0} on room {1}", adapterId, room), e);
+            }
         }
 
         public IAdapter GetAdapter(string adapterId)
