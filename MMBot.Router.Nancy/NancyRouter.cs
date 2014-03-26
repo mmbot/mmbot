@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
+using Nancy;
 using Owin;
 
 namespace MMBot.Router.Nancy
@@ -86,23 +87,21 @@ namespace MMBot.Router.Nancy
         public virtual void Get(string path, Func<OwinContext, object> actionFunc)
         {
             var route = new Route{ Method = Route.RouteMethod.Get, Path = path};
-            Routes.Add(route, actionFunc);
+            Routes.Add(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, actionFunc));
             _routeRegistered.OnNext(route);
         }
 
         public virtual void Get(string path, Action<OwinContext> action)
         {
             var route = new Route { Method = Route.RouteMethod.Get, Path = path };
-            Routes.Add(route, context => { action(context);
-                                                                                                 return null;
-            } );
+            Routes.Add(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, action));
             _routeRegistered.OnNext(route);
         }
 
         public virtual void Post(string path, Func<OwinContext, object> actionFunc)
         {
             var route = new Route { Method = Route.RouteMethod.Post, Path = path };
-            Routes.Add(route, actionFunc);
+            Routes.Add(route, WrapActionWithExceptionHandling(Route.RouteMethod.Post, actionFunc));
             _routeRegistered.OnNext(route);
         }
 
@@ -110,14 +109,40 @@ namespace MMBot.Router.Nancy
         public virtual void Post(string path, Action<OwinContext> action)
         {
             var route = new Route { Method = Route.RouteMethod.Post, Path = path };
-            Routes.Add(route, context =>
-            {
-                action(context);
-                return null;
-            });
+            Routes.Add(route, context => WrapActionWithExceptionHandling(Route.RouteMethod.Post, action)(context));
             _routeRegistered.OnNext(route);
         }
 
-        
+        private Func<OwinContext, object> WrapActionWithExceptionHandling(Route.RouteMethod method, Func<OwinContext, object> actionFunc)
+        {
+            return context => { 
+                try
+                {
+                    return actionFunc(context);
+                }
+                catch (Exception e)
+                {
+                    Robot.Logger.Error(string.Format("Error receiving {0} Router message", method.ToString()), e);
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+        }
+
+        private Func<OwinContext, object> WrapActionWithExceptionHandling(Route.RouteMethod method, Action<OwinContext> actionFunc)
+        {
+            return context =>
+            {
+                try
+                {
+                    actionFunc(context);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    Robot.Logger.Error(string.Format("Error receiving {0} Router message", method.ToString()), e);
+                    return HttpStatusCode.InternalServerError;
+                }
+            };
+        }
     }
 }
