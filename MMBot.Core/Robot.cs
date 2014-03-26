@@ -500,7 +500,7 @@ namespace MMBot
         public async Task Reset()
         {
             Emit("Resetting", true);
-            HardReset();
+            RaiseHardResetRequest(new EventArgs());
             Emit("ResetComplete", true);
         }
 
@@ -559,24 +559,20 @@ namespace MMBot
 
         public async Task Shutdown()
         {
-            Console.WriteLine("Shutdown: " + AppDomain.CurrentDomain.FriendlyName);
             Emit("ShuttingDown", true);
             _isReady = false;
             _cleanup.Keys.ToList().ForEach(CleanupScript);
             _cleanup.Clear();
             _listeners.Clear();
-            Console.WriteLine("---> Waiting on adapters to shutdown.");
             foreach (var adapter in _adapters.Values)
             {
                 await adapter.Close();
             }
-            Console.WriteLine("---> Adapters have shutdown.");
-            Console.WriteLine("---> Waiting on Brain to shut down.");
+
             if (_brain != null)
             {
                 await _brain.Close();
             }
-            Console.WriteLine("---> Brain has shut down.");
             Emit("ShutdownComplete", true);
         }
 
@@ -624,11 +620,6 @@ namespace MMBot
             script.Register(this);
 
             AddHelp(script.GetHelp().ToArray());
-        }
-
-        public void HardReset()
-        {
-            RaiseHardResetRequest(new EventArgs());
         }
 
         public event EventHandler HardResetRequested;

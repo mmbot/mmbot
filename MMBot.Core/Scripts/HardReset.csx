@@ -14,8 +14,8 @@
 
 var robot = Require<Robot>();
 
-robot.Respond(BuildCommand(new[]{"hard", "reset"}), msg => {
-	robot.HardReset();
+robot.Respond(BuildCommand(new[]{"hardreset"}), msg => {
+	robot.Reset();
 });
 
 private string BuildCommand(IEnumerable<string> parts)

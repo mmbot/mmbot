@@ -12,31 +12,31 @@ namespace MMBot.Bootstrap
 {
     public class RobotContainer : MarshalByRefObject, IRobotContainer
     {
-        private CancellationTokenSource _cancellationTokenSource;
+        private AppDomain _resetCallbackDomain;
+        private CrossAppDomainDelegate _resetCallback;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        private bool _isRunning = true;
+        public bool IsRunning
+        {
+            get { return _isRunning; }
+        }
 
         public RobotContainer()
         {
-            _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        private async void OnHardResetRequested(object sender, EventArgs e)
+        private void OnHardResetRequested(object sender, EventArgs e)
         {
-            PrintCurrentDomain("OnHardResetRequested");
-            //The reset is being requested from within the Robot's AppDomain.
-            Console.WriteLine("---> Waiting for shutdown method (OnHardResetRequested)");
-            //await Shutdown();
-            Console.WriteLine("---> Shutdown method finished (OnHardResetRequested)");
-            _domain.DoCallBack(_target);
+            //The reset is being requested from within the Robot's AppDomain, make a callback into the default AppDomain
+            //requesting that it shut us down.
+            _resetCallbackDomain.DoCallBack(_resetCallback);
         }
-
-        private AppDomain _domain;
-        private CrossAppDomainDelegate _target;
 
         public void Run(string[] args, AppDomain domain, CrossAppDomainDelegate target)
         {
-            _domain = domain;
-            _target = target;
-            PrintCurrentDomain("Run");
+            _resetCallbackDomain = domain;
+            _resetCallback = target;
             var options = new Options();
 
             CommandLine.Parser.Default.ParseArguments(args, options);
@@ -71,40 +71,18 @@ namespace MMBot.Bootstrap
                     var robot = Initializer.StartBot(options);
                     CurrentlyRunningRobot = robot.Result;
                     CurrentlyRunningRobot.HardResetRequested += OnHardResetRequested;
-                    IsRunning = true;
+                    _isRunning = true;
                     robot.Wait(_cancellationTokenSource.Token);
                 }
             }
-        }
-        private void PrintCurrentDomain(string name)
-        {
-            Console.WriteLine(string.Format("{0}: {1}", name, AppDomain.CurrentDomain.FriendlyName));
         }
 
         public Robot CurrentlyRunningRobot { get; set; }
 
         public async void Shutdown()
         {
-            PrintCurrentDomain("Shutdown (in RobotContainer)");
-            try
-            {
-                //_cancellationTokenSource.Cancel();
-
-                Console.WriteLine("---> Waiting on Robot Shutdown");
-                await CurrentlyRunningRobot.Shutdown();
-                Console.WriteLine("---> Robot has Shutdown");
-            }
-            catch (AggregateException ex)
-            {
-                
-            }
-            catch (TaskCanceledException ex)
-            {
-                //Don't do anything.
-            }
-            IsRunning = false;
+            await CurrentlyRunningRobot.Shutdown();;
+            _isRunning = false;
         }
-
-        public bool IsRunning { get; set; }
     }
 }

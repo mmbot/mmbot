@@ -10,6 +10,6 @@ namespace MMBot.Bootstrap.Interfaces
     {
         void Run(string[] args, AppDomain parentDomain, CrossAppDomainDelegate target);
         void Shutdown();
-        bool IsRunning { get; set; }
+        bool IsRunning { get; }
     }
 }
