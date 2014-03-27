@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace MMBot.AzureTableBrain
 {
-    public class AzureTableBrain : IBrain
+    public class AzureTableBrain : IBrain, IMustBeInitializedWithRobot
     {
         private Robot _robot;
         private CloudTable _table;

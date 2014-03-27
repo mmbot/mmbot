@@ -13,8 +13,8 @@ namespace MMBot.Adapters
         private Task _listeningTask;
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        public ConsoleAdapter(Robot robot, ILog logger, string adapterId)
-            : base(robot, logger, adapterId)
+        public ConsoleAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
         {
             _cancellationTokenSource = new CancellationTokenSource();
         }

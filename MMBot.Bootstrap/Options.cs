@@ -1,16 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
-using MMBot;
 
 namespace MMBot.Bootstrap
 {
     public class Options
     {
-        
+        [Option("name", HelpText = "Set robot name. Default is 'mmbot'.")]
+        public string Name { get; set; }
+
         [Option('v', "verbose", HelpText = "Display logging in verbose mode")]
         public bool Verbose { get; set; }
 
@@ -23,7 +21,7 @@ namespace MMBot.Bootstrap
         [Option('t', "test", HelpText = "Starts a test console to evaluate the specified scripts")]
         public bool Test { get; set; }
 
-        [Option('i', "init", HelpText = "Initialises the current directory with the default base scripts. Typically, if you installed via Chocolatey you need to run this before mmbot will become useful")]
+        [Option('i', "init", HelpText = "Initializes the current directory with the default base scripts. Typically, if you installed via Chocolatey you need to run this before mmbot will become useful")]
         public bool Init { get; set; }
 
         [Option('d', "directory", HelpText = "Sets the working directory for executing mmbot outside the initialized directory.")]
@@ -59,6 +57,5 @@ namespace MMBot.Bootstrap
             return string.Concat(Initializer.IntroText, help);
 
         }
-
     }
 }

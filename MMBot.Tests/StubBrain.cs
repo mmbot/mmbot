@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace MMBot.Tests
 {
-    public class StubBrain : IBrain
+    public class StubBrain : IBrain, IMustBeInitializedWithRobot
     {
         private Dictionary<string, string> _store;
         private Robot _robot;

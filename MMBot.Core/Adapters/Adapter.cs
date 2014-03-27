@@ -6,20 +6,24 @@ using Common.Logging;
 
 namespace MMBot
 {
-    public abstract class Adapter
+    public abstract class Adapter : IAdapter, IMustBeInitializedWithRobot
     {
         protected Robot Robot { get; private set; }
 
         protected ILog Logger { get; private set; }
         public string Id { get; private set; }
 
-        protected Adapter(Robot robot, ILog logger, string adapterId)
+        protected Adapter(ILog logger, string adapterId)
         {
-            Robot = robot;
             Logger = logger;
             Id = adapterId;
             Rooms = new Collection<string>();
             LogRooms = new Collection<string>();
+        }
+
+        public virtual void Initialize(Robot robot)
+        {
+            Robot = robot;
         }
 
         public virtual Task Send(Envelope envelope, params string[] messages)
@@ -71,8 +75,5 @@ namespace MMBot
         {
             get; protected set;
         }
-
-
-
     }
 }

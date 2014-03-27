@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
+using Common.Logging;
 using MMBot.Brains;
 using MMBot.Tests.CompiledScripts;
 using Xunit;
@@ -14,15 +15,24 @@ namespace MMBot.Tests
         [Fact]
         public void CanRegisterCompiledScripts()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
+                        .Build();
             robot.LoadScripts(typeof(Ping).Assembly);
         }
 
         [Fact]
         public async Task WhenPing_ReceivePong()
         {
-            var robot = Robot.Create<StubAdapter>();
-            robot.ConfigureBrain(typeof(StubBrain));
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
+                        .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
+                        .Build();
+            
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<Ping>();
@@ -39,9 +49,13 @@ namespace MMBot.Tests
         [Fact]
         public async Task Auth_CanAddRemoveUsernameToRole()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
+                        .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
+                        .Build();
             var adapter = robot.Adapters.First().Value as StubAdapter;
-            robot.ConfigureBrain(typeof(StubBrain));       
             robot.AutoLoadScripts = false;
             robot.LoadScriptName("Auth");
             await robot.Run();
@@ -62,9 +76,14 @@ namespace MMBot.Tests
         [Fact]
         public async Task CanCatchAnyMessage()
         {
-            var robot = Robot.Create<StubAdapter>();
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+                        .UseAdapter<StubAdapter>()
+                        .UseBrain<StubBrain>()
+                        .DisablePluginDiscovery()
+                        .DisableScriptDiscovery()
+                        .Build();
+
             var adapter = robot.Adapters.First().Value as StubAdapter;
-            robot.ConfigureBrain(typeof(StubBrain));
             robot.LoadScript<CatchAllTest>();
             robot.AutoLoadScripts = false;
             await robot.Run();

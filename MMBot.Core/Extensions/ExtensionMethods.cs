@@ -275,5 +275,16 @@ namespace MMBot
         {
             return jsonString.ToJsonAsync().Result;
         }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary,
+            TKey key)
+        {
+            TValue val;
+            if (!dictionary.TryGetValue(key, out val))
+            {
+                return default(TValue);
+            }
+            return val;
+        }
     }
 }

@@ -64,7 +64,7 @@ namespace MMBot.Bootstrap
 
                 if (options.Init)
                 {
-                    Initializer.InitialiseCurrentDirectory();
+                    Initializer.InitializeCurrentDirectory();
                 }
                 else
                 {
