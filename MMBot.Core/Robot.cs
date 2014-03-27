@@ -47,7 +47,7 @@ namespace MMBot
             _router = router;
             _scriptRunner = scriptRunner;
             _isConfigured = true;
-            Initialize(adapters.Values.ToArray().Concat(new object[]{router, brain, scriptRunner}).ToArray());
+            Initialize(adapters.Values.ToArray().Concat(new object[] { router, brain, scriptRunner }).ToArray());
         }
 
         protected Robot(LoggerConfigurator logConfig)
@@ -191,6 +191,10 @@ namespace MMBot
                     {
                         break;
                     }
+                }
+                catch (TaskCanceledException e)
+                {
+                    //Don't care.
                 }
                 catch (Exception e)
                 {
@@ -355,11 +359,7 @@ namespace MMBot
         public async Task Reset()
         {
             Emit("Resetting", true);
-            await Shutdown();
-
-            _loadedScriptTypes.ForEach(LoadScript);
-            await Run();
-            _brain.Initialize(this);
+            RaiseHardResetRequest(new EventArgs());
             Emit("ResetComplete", true);
         }
 
@@ -460,6 +460,17 @@ namespace MMBot
             script.Register(this);
 
             AddHelp(script.GetHelp().ToArray());
+        }
+
+        public event EventHandler HardResetRequested;
+
+        protected virtual void RaiseHardResetRequest(EventArgs e)
+        {
+            EventHandler handler = HardResetRequested;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
         }
 
         private class EventEmitItem

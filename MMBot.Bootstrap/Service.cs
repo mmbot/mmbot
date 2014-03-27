@@ -4,7 +4,7 @@ using System.ServiceProcess;
 using System.Threading;
 using MMBot;
 
-namespace mmbot
+namespace MMBot.Bootstrap
 {
     partial class Service : ServiceBase
     {

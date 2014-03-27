@@ -1,4 +1,4 @@
-﻿namespace mmbot
+﻿namespace MMBot.Bootstrap
 {
     partial class Service
     {

@@ -38,6 +38,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Brains", "Brains", "{164094
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.AzureTableBrain", "MMBot.AzureTableBrain\MMBot.AzureTableBrain.csproj", "{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Bootstrap", "MMBot.Bootstrap\MMBot.Bootstrap.csproj", "{2FAC5752-D7D9-4EEC-B855-C37384311CC2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MMBot.Bootstrap.Interfaces", "MMBot.Bootstrap.Interfaces\MMBot.Bootstrap.Interfaces.csproj", "{594B4199-4F52-4461-B89F-E22AA78ED681}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +134,18 @@ Global
 		{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6CE09397-F9F3-4253-A2F8-BD9E11657AC1}.Release|x64.ActiveCfg = Release|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FAC5752-D7D9-4EEC-B855-C37384311CC2}.Release|x64.ActiveCfg = Release|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Release|Any CPU.Build.0 = Release|Any CPU
+		{594B4199-4F52-4461-B89F-E22AA78ED681}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

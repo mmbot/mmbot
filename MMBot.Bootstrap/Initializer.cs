@@ -4,10 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using MMBot;
 using Common.Logging;
 
-namespace mmbot
+namespace MMBot.Bootstrap
 {
     public static class Initializer
     {
@@ -22,7 +21,7 @@ namespace mmbot
             var logConfig = CreateLogConfig(options);
             ConfigurePath(options, logConfig.GetLogger());
 
-            var builder = new RobotBuilder(logConfig).WithConfiguration(GetConfiguration(options));
+            var builder = new MMBot.RobotBuilder(logConfig).WithConfiguration(GetConfiguration(options));
 
             if (!string.IsNullOrWhiteSpace(options.Name))
             {

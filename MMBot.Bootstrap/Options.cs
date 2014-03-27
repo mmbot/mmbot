@@ -2,7 +2,7 @@
 using CommandLine;
 using CommandLine.Text;
 
-namespace mmbot
+namespace MMBot.Bootstrap
 {
     public class Options
     {

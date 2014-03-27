@@ -11,9 +11,9 @@ using MMBot.Scripts;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
 
-namespace MMBot
+namespace MMBot.Bootstrap
 {
-    public class NuGetPackageAssemblyResolver : IRobotPluginLocator
+    internal class NuGetPackageAssemblyResolver
     {
         private readonly ILog _log;
         private static List<string> _assemblies;
@@ -30,11 +30,10 @@ namespace MMBot
             "MMBot.Core"
         };
 
-        public NuGetPackageAssemblyResolver(LoggerConfigurator logConfig)
+        public NuGetPackageAssemblyResolver(ILog log)
         {
-            _log = logConfig.GetLogger();
-            AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
-            RefreshAssemblies(_log);
+            _log = log;
+            RefreshAssemblies(log);
         }
 
         public static IEnumerable<string> Assemblies
@@ -48,14 +47,14 @@ namespace MMBot
 
             var packagesFolder = Path.Combine(fileSystem.CurrentDirectory, "packages");
 
-            if (fileSystem.DirectoryExists(packagesFolder))
+            if(fileSystem.DirectoryExists(packagesFolder))
             {
                 // Delete any blacklisted packages to avoid various issues with PackageAssemblyResolver
                 // https://github.com/scriptcs/scriptcs/issues/511
                 foreach (var packagePath in
                     _blacklistedPackages.SelectMany(packageName => Directory.GetDirectories(packagesFolder)
                                 .Where(d => new DirectoryInfo(d).Name.StartsWith(packageName, StringComparison.InvariantCultureIgnoreCase)),
-                                (packageName, packagePath) => new { packageName, packagePath })
+                                (packageName, packagePath) => new {packageName, packagePath})
                         .Where(t => fileSystem.DirectoryExists(t.packagePath))
                         .Select(t => @t.packagePath))
                 {
@@ -83,11 +82,6 @@ namespace MMBot
                 assembly;
         }
 
-        public IEnumerable<IScript> GetPluginScripts()
-        {
-            return GetCompiledScriptsFromPackages().Select(TypedScript.Create).ToArray();
-        }
-
         public IEnumerable<Type> GetCompiledScriptsFromPackages()
         {
             return ProbeForType(typeof(IMMBotScript));
@@ -100,26 +94,23 @@ namespace MMBot
 
         public Type GetCompiledBrainFromPackages(string name = null)
         {
-            return ProbeForType(typeof(IBrain)).FirstOrDefault(t => (string.IsNullOrEmpty(name)
-                || string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)
-                || string.Equals(name + "Brain", t.Name, StringComparison.InvariantCultureIgnoreCase)));
+            return ProbeForType(typeof(IBrain)).FirstOrDefault(t => (string.IsNullOrEmpty(name) || string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public Type GetCompiledRouterFromPackages(string name = null)
         {
             return ProbeForType(typeof(IRouter))
-                .FirstOrDefault(t => t != typeof(NullRouter) &&
+                .FirstOrDefault(t => t != typeof(NullRouter) && 
                     (string.IsNullOrEmpty(name) ||
-                    string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase) ||
-                    string.Equals(name + "Router", t.Name, StringComparison.InvariantCultureIgnoreCase)));
+                    string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         private IEnumerable<Type> ProbeForType(Type type)
         {
             var assemblies = from path in Assemblies
-                             let fileName = Path.GetFileNameWithoutExtension(path)
-                             where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
-                             select path;
+                let fileName = Path.GetFileNameWithoutExtension(path)
+                where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
+                select path;
 
             assemblies = FilterProbedAssemblies(assemblies);
 
@@ -155,39 +146,6 @@ namespace MMBot
             }
 
             return assembliesToLoad.Select(kvp => kvp.Value);
-        }
-
-        public Type[] GetAdapters()
-        {
-            var adapters = GetCompiledAdaptersFromPackages().ToArray();
-            if (!adapters.Any())
-            {
-                _log.Warn("Could not find any adapters. Loading the default console adapter only");
-            }
-
-            return adapters;
-        }
-
-        public Type GetBrain(string name)
-        {
-            var brain = GetCompiledBrainFromPackages(name);
-
-            if (brain == null && !string.IsNullOrEmpty(name))
-            {
-                _log.Fatal("No IBrain implementation found. If you have configured MMBOT_BRAIN_NAME, verify that you have installed the relevant package.");
-            }
-
-            return brain;
-        }
-
-        public Type GetRouter(string name)
-        {
-            var router = GetCompiledRouterFromPackages(name);
-            if (router == null && !string.IsNullOrEmpty(name))
-            {
-                _log.Fatal("The router was enabled but no implementation was found. Make sure you have installed the relevant router package");
-            }
-            return router;
         }
     }
 }
