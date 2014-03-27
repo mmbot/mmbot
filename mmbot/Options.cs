@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
 
 namespace mmbot
 {
+    [Serializable]
     public class Options
     {
         [Option("name", HelpText = "Set robot name. Default is 'mmbot'.")]
