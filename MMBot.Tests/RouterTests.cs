@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.Owin.Testing;
@@ -79,24 +80,34 @@ namespace MMBot.Tests
         public async Task WhenRouteDefinitionHasParameter_CanReadParameterFromContext()
         {
             string expectedRoom = "theroom";
+            string expectedMessage = "This is my message";
             JToken expected = new JObject(new JProperty("foo", "The Foo"));
             string actualRoom = null;
+            string actualMessage = null;
             using (var router = await SetupRoute(robot => robot.Router.Post("/route/test/{room}", context =>
             {
                 var requestBody = context.ReadBodyAsJson();
                 actualRoom = context.Request.Params()["room"];
+                actualMessage = context.Request.Query["message"];
                 context.Response.StatusCode = 200;
             })))
             {
 
                 var response =
                     await
-                        router.Client.PostAsync("/route/test/" + expectedRoom,
+                        router.Client.PostAsync("/route/test/" + expectedRoom + "?message=" + expectedMessage,
                             new StringContent(JsonConvert.SerializeObject(expected), Encoding.UTF8, "application/json"));
 
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 Assert.Equal(expectedRoom, actualRoom);
+                Assert.Equal(expectedMessage, actualMessage);
             }
+        }
+
+        [Fact]
+        public void TestStringParseing()
+        {
+            var results = Regex.Matches("This {is} the {test} string", @"[^{}]+(?=\})");
         }
 
         [Fact]
