@@ -142,10 +142,6 @@
       <Project>{594b4199-4f52-4461-b89f-e22aa78ed681}</Project>
       <Name>MMBot.Bootstrap.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MMBot.Bootstrap\MMBot.Bootstrap.csproj">
-      <Project>{2fac5752-d7d9-4eec-b855-c37384311cc2}</Project>
-      <Name>MMBot.Bootstrap</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MMBot.Core\MMBot.Core.csproj">
       <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
       <Name>MMBot.Core</Name>
