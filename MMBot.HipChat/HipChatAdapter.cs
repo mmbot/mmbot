@@ -172,6 +172,19 @@ namespace MMBot.HipChat
             }
         }
 
+        public override async Task Reply(Envelope envelope, params string[] messages)
+        {
+            await base.Send(envelope, messages);
+
+            if (messages == null || !messages.Any()) return;
+
+            foreach (var message in messages)
+            {
+                var to = new Jid(envelope.User.Name);
+                _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
+            }
+        }
+
         private void OnClientLogin(object sender)
         {
             var mucManager = new MucManager(_client);
