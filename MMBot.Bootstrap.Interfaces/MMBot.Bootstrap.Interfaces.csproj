@@ -35,7 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IBootstrapper.cs" />
-    <Compile Include="IRobot.cs" />
     <Compile Include="IRobotContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThreadDebugHelper.cs" />
