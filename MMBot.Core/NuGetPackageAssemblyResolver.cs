@@ -48,14 +48,14 @@ namespace MMBot
 
             var packagesFolder = Path.Combine(fileSystem.CurrentDirectory, "packages");
 
-            if (fileSystem.DirectoryExists(packagesFolder))
+            if(fileSystem.DirectoryExists(packagesFolder))
             {
                 // Delete any blacklisted packages to avoid various issues with PackageAssemblyResolver
                 // https://github.com/scriptcs/scriptcs/issues/511
                 foreach (var packagePath in
                     _blacklistedPackages.SelectMany(packageName => Directory.GetDirectories(packagesFolder)
                                 .Where(d => new DirectoryInfo(d).Name.StartsWith(packageName, StringComparison.InvariantCultureIgnoreCase)),
-                                (packageName, packagePath) => new { packageName, packagePath })
+                                (packageName, packagePath) => new {packageName, packagePath})
                         .Where(t => fileSystem.DirectoryExists(t.packagePath))
                         .Select(t => @t.packagePath))
                 {
@@ -108,7 +108,7 @@ namespace MMBot
         public Type GetCompiledRouterFromPackages(string name = null)
         {
             return ProbeForType(typeof(IRouter))
-                .FirstOrDefault(t => t != typeof(NullRouter) &&
+                .FirstOrDefault(t => t != typeof(NullRouter) && 
                     (string.IsNullOrEmpty(name) ||
                     string.Equals(name, t.Name, StringComparison.InvariantCultureIgnoreCase) ||
                     string.Equals(name + "Router", t.Name, StringComparison.InvariantCultureIgnoreCase)));
@@ -117,9 +117,9 @@ namespace MMBot
         private IEnumerable<Type> ProbeForType(Type type)
         {
             var assemblies = from path in Assemblies
-                             let fileName = Path.GetFileNameWithoutExtension(path)
-                             where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
-                             select path;
+                let fileName = Path.GetFileNameWithoutExtension(path)
+                where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
+                select path;
 
             assemblies = FilterProbedAssemblies(assemblies);
 
@@ -160,7 +160,7 @@ namespace MMBot
         public Type[] GetAdapters()
         {
             var adapters = GetCompiledAdaptersFromPackages().ToArray();
-            if (!adapters.Any())
+            if(!adapters.Any())
             {
                 _log.Warn("Could not find any adapters. Loading the default console adapter only");
             }

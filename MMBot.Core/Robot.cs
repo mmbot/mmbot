@@ -47,7 +47,7 @@ namespace MMBot
             _router = router;
             _scriptRunner = scriptRunner;
             _isConfigured = true;
-            Initialize(adapters.Values.ToArray().Concat(new object[] { router, brain, scriptRunner }).ToArray());
+            Initialize(adapters.Values.ToArray().Concat(new object[]{router, brain, scriptRunner}).ToArray());
         }
 
         protected Robot(LoggerConfigurator logConfig)
