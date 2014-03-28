@@ -84,14 +84,28 @@ namespace MMBot
             await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
         }
 
-        public Task Reply(params string[] message)
+        public async Task Reply(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
+            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
+
+            if (adapter == null)
+            {
+                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
+                return;
+            }
+            await _robot.Adapters[_envelope.User.AdapterId].Reply(_envelope, message);
         }
 
-        public Task Emote(params string[] message)
+        public async Task Emote(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
+            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
+
+            if (adapter == null)
+            {
+                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
+                return;
+            }
+            await _robot.Adapters[_envelope.User.AdapterId].Emote(_envelope, message);
         }
 
         public Task Topic(params string[] message)
