@@ -14,12 +14,14 @@ namespace MMBot
     {
         public static void ReturnJson(this IOwinContext context, string json)
         {
+            context.Response.Headers.Set("Content-Type", "application/json");
             context.Response.ContentType = "application/json";
             context.Response.Write(json);
         }
 
         public static void ReturnJson(this IOwinContext context, object model)
         {
+            context.Response.Headers.Set("Content-Type", "application/json");
             context.Response.ContentType = "application/json";
             context.Response.Write(JsonConvert.SerializeObject(model));
         }
