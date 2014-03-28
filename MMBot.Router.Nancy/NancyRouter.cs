@@ -87,21 +87,21 @@ namespace MMBot.Router.Nancy
         public virtual void Get(string path, Func<OwinContext, object> actionFunc)
         {
             var route = new Route{ Method = Route.RouteMethod.Get, Path = path};
-            Routes.Add(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, actionFunc));
+            AddRoute(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, actionFunc));
             _routeRegistered.OnNext(route);
         }
 
         public virtual void Get(string path, Action<OwinContext> action)
         {
             var route = new Route { Method = Route.RouteMethod.Get, Path = path };
-            Routes.Add(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, action));
+            AddRoute(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, action));
             _routeRegistered.OnNext(route);
         }
 
         public virtual void Post(string path, Func<OwinContext, object> actionFunc)
         {
             var route = new Route { Method = Route.RouteMethod.Post, Path = path };
-            Routes.Add(route, WrapActionWithExceptionHandling(Route.RouteMethod.Post, actionFunc));
+            AddRoute(route, WrapActionWithExceptionHandling(Route.RouteMethod.Post, actionFunc));
             _routeRegistered.OnNext(route);
         }
 
@@ -109,8 +109,13 @@ namespace MMBot.Router.Nancy
         public virtual void Post(string path, Action<OwinContext> action)
         {
             var route = new Route { Method = Route.RouteMethod.Post, Path = path };
-            Routes.Add(route, context => WrapActionWithExceptionHandling(Route.RouteMethod.Post, action)(context));
+            AddRoute(route, WrapActionWithExceptionHandling(Route.RouteMethod.Post, action));
             _routeRegistered.OnNext(route);
+        }
+
+        private void AddRoute(Route route, Func<OwinContext, object> action)
+        {
+            Routes[route] = action;
         }
 
         private Func<OwinContext, object> WrapActionWithExceptionHandling(Route.RouteMethod method, Func<OwinContext, object> actionFunc)

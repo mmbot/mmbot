@@ -105,10 +105,23 @@ namespace MMBot.Tests
         }
 
         [Fact]
-        public void TestStringParseing()
+        public async Task WhenDuplicateRouteIsDefined_OldRouteIsOverwritten()
         {
-            var results = Regex.Matches("This {is} the {test} string", @"[^{}]+(?=\})");
+            string expected = "Yo!";
+
+            using (var router = await SetupRoute(robot =>
+            {
+                robot.Router.Get("/test/", context => "Not expected");
+                robot.Router.Get("/test/", context => expected);
+            }))
+            {
+
+                var response = await router.Client.GetAsync("/test/");
+
+                Assert.Equal(expected, await response.Content.ReadAsStringAsync());
+            }
         }
+
 
         [Fact]
         public async Task WhenGithubWebHook_BodyIsParsed()
