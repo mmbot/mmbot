@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MMBot.Scripts;
 
 namespace MMBot
@@ -30,14 +26,14 @@ namespace MMBot
         public bool Call(Message message)
         {
             var lm = message as LeaveMessage;
-            if (lm != null)
+            if (lm != null && _leaveCallback != null)
             {
                 _leaveCallback(Response.Create(_robot, lm));
                 return true;
             }
 
             var em = message as EnterMessage;
-            if (em != null)
+            if (em != null && _enterCallback != null)
             {
                 _enterCallback(Response.Create(_robot, em));
                 return true;
@@ -46,5 +42,4 @@ namespace MMBot
             return false;
         }
     }
-
 }
