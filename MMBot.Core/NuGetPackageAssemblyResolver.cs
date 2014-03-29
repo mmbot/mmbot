@@ -7,6 +7,7 @@ using Common.Logging;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
+using Roslyn.Compilers.CSharp;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
 
@@ -62,7 +63,7 @@ namespace MMBot
                 }
             }
 
-            var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem), log);
+            var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem, log), log);
 
             _assemblies = par.GetAssemblyNames(fileSystem.CurrentDirectory).ToList();
 
@@ -119,7 +120,6 @@ namespace MMBot
                 let fileName = Path.GetFileNameWithoutExtension(path)
                 where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
                 select path;
-
 
             return assemblies.SelectMany(assemblyFile =>
             {

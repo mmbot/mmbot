@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive.Disposables;
+using System.Reflection;
 using System.Xml.Linq;
 using Common.Logging;
 using HtmlAgilityPack;
@@ -142,8 +143,7 @@ namespace MMBot.Scripts
 
                 var scriptServicesBuilder = new ScriptServicesBuilder(console, _logger);
 
-                scriptServicesBuilder.InMemory(true);
-
+                scriptServicesBuilder.Cache();
 
                 scriptServicesBuilder.LoadModules("csx", new string[0]);
                 var scriptServiceRoot = scriptServicesBuilder.Build();
