@@ -96,7 +96,7 @@ namespace MMBot.Slack
                     channel =
                         string.IsNullOrEmpty(envelope.User.Room)
                             ? envelope.User.Name
-                            : _channelMapping[envelope.User.Room],
+                            : _channelMapping.GetValueOrDefault(envelope.User.Room, envelope.User.Room),
                     text = escapedMessage,
                     link_names = _linkNames ? 1 : 0
                 });
