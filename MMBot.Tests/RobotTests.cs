@@ -169,8 +169,8 @@ namespace MMBot.Tests
             
             robot.AutoLoadScripts = false;
 
-            var adapter1 = robot.Adapters.First().Value as StubAdapter;
-            var adapter2 = robot.Adapters.Last().Value as StubAdapter2;
+            var adapter1 = robot.Adapters.Values.OfType<StubAdapter>().First();
+            var adapter2 = robot.Adapters.Values.OfType<StubAdapter2>().First();
 
             robot.LoadScript<StubEchoScript>();
 
