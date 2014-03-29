@@ -153,7 +153,7 @@ namespace MMBot.Scripts
                 var packageReferences =
                     scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory);
 
-                scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(packageReferences).ToArray());
+                scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(NuGetPackageAssemblyResolver.FilterAssembliesToMostRecent(packageReferences)).ToArray());
                 scriptServiceRoot.Executor.ImportNamespaces(
                     ScriptExecutor.DefaultNamespaces.Concat(new[]
                     {

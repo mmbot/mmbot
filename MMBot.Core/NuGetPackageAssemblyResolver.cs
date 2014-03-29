@@ -121,6 +121,8 @@ namespace MMBot
                 where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
                 select path;
 
+            assemblies = FilterAssembliesToMostRecent(assemblies);
+
             return assemblies.SelectMany(assemblyFile =>
             {
                 try
@@ -135,6 +137,16 @@ namespace MMBot
                 }
             });
         }
+
+        public static IEnumerable<string> FilterAssembliesToMostRecent(IEnumerable<string> assemblies)
+        {
+            var filtered = from assemblyPath in assemblies
+                           let name = AssemblyName.GetAssemblyName(assemblyPath)
+                           group new { Path = assemblyPath, Name = name } by name.Name;
+
+            return filtered.Select(g => g.OrderByDescending(a => a.Name.Version).First().Path);
+        }
+
 
         public Type[] GetAdapters()
         {

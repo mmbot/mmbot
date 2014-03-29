@@ -38,8 +38,21 @@ namespace mmbot
             {
                 builder.UseWorkingDirectory(options.WorkingDirectory);
             }
+            
+            Robot robot = null;
 
-            var robot = builder.Build();
+            try
+            {
+                robot = builder.Build();
+                if(robot == null)
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                logConfig.GetLogger().Fatal("Could not build robot. Try updating to the latest version of mmbot and packages. You may have to delete some packages in your packages folder and use nuget to get the latest versions", e);
+            }
 
             await robot.Run().ContinueWith(t =>
             {
