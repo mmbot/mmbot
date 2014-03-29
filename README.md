@@ -57,7 +57,7 @@ scriptcs install mmbot.scriptit
 For more info read the [getting started guide](https://github.com/PeteGoo/mmbot/wiki/Getting-Started)
 
 ## Adapters
-Currently adapters exist for [jabbr](https://jabbr.net), [HipChat](https://www.hipchat.com/) and one-to-one Google Talk but with plans to add a CampFire adapter soon. The implementation is extremely similar to Hubot so other adapters could easily be added.
+Currently adapters exist for [jabbr](https://jabbr.net), [HipChat](https://www.hipchat.com/), [Slack](http://slack.com) and [XMPP](https://www.google.com?#q=xmpp) but with plans to add a CampFire adapter soon. The implementation is extremely similar to Hubot so other adapters could easily be added. Learn how to get your preferred adapter up and running in [configuring mmbot](https://github.com/mmbot/mmbot/wiki/Configuring-mmbot).
 
 ## Scripts
 Writing scripts is easy. You can either implement the IMMBotScript interface and register your script or you can write a simple [scriptcs](http://www.scriptcs.net) script and drop it into a scripts folder beside the MMBot runner executable.

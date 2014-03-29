@@ -1,0 +1,8 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <UsingTask AssemblyFile="..\packages\xunit.runners.1.9.2\tools\xunit.runner.msbuild.dll" TaskName="Xunit.Runner.MSBuild.xunit"/>
+<Target Name="Build">
+    <MSBuild Projects="..\mmbot.sln" Targets="Build" Properties="Configuration=Release">
+    </MSBuild>
+    <xunit Assembly="..\MMBot.Tests\bin\Release\mmbot.tests.dll" />
+</Target>
+</Project>

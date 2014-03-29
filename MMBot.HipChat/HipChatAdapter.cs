@@ -172,6 +172,32 @@ namespace MMBot.HipChat
             }
         }
 
+        public override async Task Reply(Envelope envelope, params string[] messages)
+        {
+            await base.Reply(envelope, messages);
+
+            if (messages == null || !messages.Any()) return;
+
+            foreach (var message in messages)
+            {
+                var to = new Jid(envelope.User.Name);
+                _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
+            }
+        }
+
+        public override async Task Emote(Envelope envelope, params string[] messages)
+        {
+            await base.Emote(envelope, messages);
+
+            if (messages == null || !messages.Any()) return;
+
+            foreach (var message in messages.Select(m => "/me " + m))
+            {
+                var to = new Jid(envelope.User.Room);
+                _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
+            }
+        }
+
         private void OnClientLogin(object sender)
         {
             var mucManager = new MucManager(_client);

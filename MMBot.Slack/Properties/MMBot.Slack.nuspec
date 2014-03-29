@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.Slack</id>
+        <version>0.9</version>
+        <authors>Peter Goodman</authors>
+        <owners>Peter Goodman</owners>
+        <licenseUrl>https://github.com/mmbot/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/mmbot/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A Slack Adapter for mmbot, a C# port of Github's Hubot chat bot</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot petegoo chat robot bot slack</tags>
+        <dependencies>
+            <dependency id="Common.Logging" version="2.1.2" />
+            <dependency id="Microsoft.Owin" version="2.0.2" />
+            <dependency id="Newtonsoft.Json" version="5.0.8" />
+            <dependency id="Owin" version="1.0" />
+            <dependency id="ScriptCs.Contracts" version="0.8.0" />
+        </dependencies>
+    </metadata>
+</package>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Autofac;
+using MMBot.Adapters;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
@@ -74,6 +75,7 @@ namespace MMBot
             ContainerBuilder.RegisterType(_routerType ?? typeof(NullRouter)).As<IRouter>().SingleInstance();
             ContainerBuilder.RegisterTypes(_adapterTypes.ToArray());
             ContainerBuilder.RegisterInstance(_logConfig);
+            ContainerBuilder.RegisterType<ConsoleAdapter>();
             ContainerBuilder.Register(context => context.Resolve<LoggerConfigurator>().GetLogger());
             ContainerBuilder.RegisterInstance(fileSystem);
 
@@ -82,6 +84,24 @@ namespace MMBot
             var container = ContainerBuilder.Build();
 
             var adapters = _adapterTypes.Select(a => container.Resolve(a, new NamedParameter("adapterId", a.Name))).ToDictionary(a => a.GetType().Name, a => a as IAdapter);
+
+            // Need to explicitly add the ConsoleAdapter as it may not be found before now
+            if (Environment.UserInteractive)
+            {
+                try
+                {
+                    Console.WriteLine();
+                    var name = typeof (ConsoleAdapter).Name;
+                    if(!adapters.ContainsKey(name))
+                    {
+                        adapters.Add(name, container.Resolve<ConsoleAdapter>(new NamedParameter("adapterId", name)));
+                    }
+                }
+                catch (Exception e)
+                {
+                    // do nothing as we are not a console app
+                }
+            }
 
             var robot = container.Resolve<Robot>(
                 new NamedParameter("name", _name ?? _config.GetValueOrDefault("MMBOT_ROBOT_NAME") ?? "mmbot"), 

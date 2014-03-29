@@ -7,6 +7,7 @@ using Common.Logging;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
+using Roslyn.Compilers.CSharp;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
 
@@ -62,7 +63,7 @@ namespace MMBot
                 }
             }
 
-            var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem), log);
+            var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem, log), log);
 
             _assemblies = par.GetAssemblyNames(fileSystem.CurrentDirectory).ToList();
 
@@ -120,6 +121,7 @@ namespace MMBot
                 where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
                 select path;
 
+            assemblies = FilterAssembliesToMostRecent(assemblies);
 
             return assemblies.SelectMany(assemblyFile =>
             {
@@ -135,6 +137,16 @@ namespace MMBot
                 }
             });
         }
+
+        public static IEnumerable<string> FilterAssembliesToMostRecent(IEnumerable<string> assemblies)
+        {
+            var filtered = from assemblyPath in assemblies
+                           let name = AssemblyName.GetAssemblyName(assemblyPath)
+                           group new { Path = assemblyPath, Name = name } by name.Name;
+
+            return filtered.Select(g => g.OrderByDescending(a => a.Name.Version).First().Path);
+        }
+
 
         public Type[] GetAdapters()
         {
