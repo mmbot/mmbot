@@ -51,7 +51,7 @@ namespace mmbot
             }
             catch (Exception e)
             {
-                logConfig.GetLogger().Fatal("Could not build robot. Try updating to the latest version of mmbot and packages. You may have to delete some packages in your packages folder and use nuget to get the latest versions", e);
+                logConfig.GetLogger().Fatal("Could not build robot. Try installing the latest version of any mmbot packages (mmbot.jabbr, mmbot.slack etc) if there was a breaking change.", e);
             }
 
             await robot.Run().ContinueWith(t =>
