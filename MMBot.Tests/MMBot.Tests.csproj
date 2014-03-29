@@ -157,7 +157,9 @@
     <Compile Include="CompiledScripts\Rules.cs" />
     <Compile Include="CompiledScripts\Spot.cs" />
     <Compile Include="CompiledScripts\TeamCity.cs" />
+    <Compile Include="CompiledScripts\TextListenerTest.cs" />
     <Compile Include="CompiledScripts\Translate.cs" />
+    <Compile Include="CompiledScripts\ListenerTest.cs" />
     <Compile Include="CompiledScripts\Urban.cs" />
     <Compile Include="CompiledScripts\Xkcd.cs" />
     <Compile Include="CompiledScripts\Youtube.cs" />
