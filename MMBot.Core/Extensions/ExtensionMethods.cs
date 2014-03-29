@@ -276,7 +276,11 @@ namespace MMBot
             return jsonString.ToJsonAsync().Result;
         }
 
+<<<<<<< HEAD
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue))
+=======
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, string room, TKey key = default(TKey))
+>>>>>>> fd08fc944fd2ceed70a749398fd175952811020e
         {
             TValue val;
             if (!dictionary.TryGetValue(key, out val))
