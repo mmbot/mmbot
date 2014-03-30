@@ -143,7 +143,7 @@ namespace MMBot.Scripts
 
                 var scriptServicesBuilder = new ScriptServicesBuilder(console, _logger);
 
-                scriptServicesBuilder.Cache();
+                scriptServicesBuilder.Cache(false);
 
                 scriptServicesBuilder.LoadModules("csx", new string[0]);
                 var scriptServiceRoot = scriptServicesBuilder.Build();
@@ -167,7 +167,7 @@ namespace MMBot.Scripts
                 scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
                 scriptServiceRoot.Executor.AddReference<IScriptPackContext>();
                 scriptServiceRoot.Executor.AddReference<OwinContext>();
-
+                
                 scriptServiceRoot.Executor.Initialize(new string[0], new IScriptPack[]
                 {
                     new MMBot2ScriptPackInternal(_robot),
