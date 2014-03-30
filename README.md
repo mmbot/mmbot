@@ -21,9 +21,6 @@ There are some blockers here in the NuGet package resolution and [dynamic loadin
 The best plan is to use [chocolatey](https://chocolatey.org/)...
 
 ```PowerShell
-# install scriptcs if you like. mmbot includes what it needs from scriptcs but it makes package installation easier
-cinst scriptcs
-
 # chocolatey can install mmbot globally
 cinst mmbot
 
@@ -39,17 +36,13 @@ mmbot
 When you need an adapter to talk to your chat rooms
 
 ```PowerShell
-scriptcs install mmbot.jabbr
-```
-or if you don't have scriptcs...
-```PowerShell
 nuget install mmbot.jabbr -o packages
 ```
 
-When you want a script that is in nuget
+When you want a script that is in nuget use the nuget command line in your path (installed via `cinst nuget.commandline`)
 
 ```PowerShell
-scriptcs install mmbot.scriptit
+nuget install mmbot.scriptit -o packages
 ```
 ...or simply drop the .csx file in the "scripts" folder
 ...or even better use the scriptthis and scriptthat scripts to input them inline or pull from a gist!!!
