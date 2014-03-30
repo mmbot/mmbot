@@ -146,6 +146,7 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="AdapterTests.cs" />
     <Compile Include="BrainTests.cs" />
     <Compile Include="CompiledScripts\Ascii.cs" />
     <Compile Include="CompiledScripts\CatchAllTest.cs" />
@@ -199,9 +200,21 @@
       <Project>{0cf33652-b99b-4854-bc70-250b6c2f646a}</Project>
       <Name>MMBot.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MMBot.HipChat\MMBot.HipChat.csproj">
+      <Project>{4584C7B7-91F4-4F05-8188-4ECBDF9944CC}</Project>
+      <Name>MMBot.HipChat</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMBot.Jabbr\MMBot.Jabbr.csproj">
+      <Project>{B7AD2B74-C2DD-49F5-9241-BDC5E5F71F23}</Project>
+      <Name>MMBot.Jabbr</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MMBot.Router.Nancy\MMBot.Router.Nancy.csproj">
       <Project>{87ae89e5-9bcd-42c0-b9a0-cbae18cfd74e}</Project>
       <Name>MMBot.Router.Nancy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MMBot.Slack\MMBot.Slack.csproj">
+      <Project>{CAA09527-9618-4A6D-8F29-215471E78A55}</Project>
+      <Name>MMBot.Slack</Name>
     </ProjectReference>
     <ProjectReference Include="..\MMBot.XMPP\MMBot.XMPP.csproj">
       <Project>{ad4b187e-a1eb-48e9-8e94-110ac78d23a3}</Project>
