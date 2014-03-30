@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -156,6 +157,40 @@ namespace MMBot.Tests
             Assert.Equal(7, messages.Count());
             Assert.Equal("Handled TextMessage without regex", messages.Skip(5).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
             Assert.Equal("cat", messages.Skip(6).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+        }
+
+        [Fact]
+        public async Task WhenScriptStringIsRun_ActionRespondsToMessage()
+        {
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+            .UseAdapter<StubAdapter>()
+            .UseBrain<StubBrain>()
+            .DisablePluginDiscovery()
+            .DisableScriptDiscovery()
+            .Build();
+
+            var expectedFirst = "Bad";
+            var expectedSecond = "Good";
+
+            robot.AutoLoadScripts = false;
+            var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.LoadScriptFile(Path.GetFullPath(Path.Combine("ScriptFiles", "ScriptRespondBad.csx")));
+            robot.AutoLoadScripts = false;
+            await robot.Run();
+
+            adapter.SimulateMessage("test1", "mmbot test");
+
+            var firstMessage = (await adapter.GetEmittedMessages(1)).Select(i => i.Item2).First();
+            Assert.Equal(1, firstMessage.Count());
+            Assert.Equal(expectedFirst, firstMessage.First(), StringComparer.InvariantCultureIgnoreCase);
+
+            robot.LoadScriptFile(Path.GetFullPath(Path.Combine("ScriptFiles", "ScriptRespondGood.csx")));
+
+            adapter.SimulateMessage("test1", "mmbot test");
+
+            var secondMessage = (await adapter.GetEmittedMessages(10)).Select(i => i.Item2).Last();
+            Assert.Equal(1, secondMessage.Count());
+            Assert.Equal(expectedSecond, secondMessage.First(), StringComparer.InvariantCultureIgnoreCase);
         }
     }
 }
