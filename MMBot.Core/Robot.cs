@@ -167,6 +167,14 @@ namespace MMBot
             });
         }
 
+        public void Listen<T>(Func<T, MatchResult> matcher, Action<IResponse<T>> action) where T : Message
+        {
+            Listeners.Add(new Listener<T>(this, matcher, action)
+            {
+                Source = _scriptRunner.CurrentScriptSource
+            });
+        }
+
         public void Leave(Action<IResponse<LeaveMessage>> action)
         {
             Listeners.Add(new RosterListener(this, action)
@@ -195,7 +203,6 @@ namespace MMBot
                 catch (Exception e)
                 {
                     Logger.Error("Error receiving message", e);
-                    // TODO: Logging exception in listener
                 }
             }
         }

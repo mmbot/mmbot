@@ -3,18 +3,18 @@ using MMBot.Scripts;
 
 namespace MMBot
 {
-    public class Listener<T> : IListener
+    public class Listener<T> : IListener where T : Message
     {
         private readonly Robot _robot;
-        private readonly Func<Message, MatchResult> _matcher;
-        private readonly Action<IResponse<Message>> _callback;
+        private readonly Func<T, MatchResult> _matcher;
+        private readonly Action<IResponse<T>> _callback;
 
         protected Listener()
         {
 
         }
 
-        public Listener(Robot robot, Func<Message, MatchResult> matcher, Action<IResponse<Message>> callback)
+        public Listener(Robot robot, Func<T, MatchResult> matcher, Action<IResponse<T>> callback)
         {
             _robot = robot;
             _matcher = matcher;
@@ -25,17 +25,28 @@ namespace MMBot
 
         public virtual bool Call(Message message)
         {
-            MatchResult matchResult = _matcher(message);
-            if (matchResult.IsMatch)
+            if (!(message is T))
             {
-                // TODO: Log
-                //@robot.logger.debug \
-                //  "Message '#{message}' matched regex /#{inspect @regex}/" if @regex
+                return false;
+            }
 
-                _callback(Response.Create(_robot, message, matchResult));
+            MatchResult matchResult = _matcher(message as T);
+
+            if (!matchResult.IsMatch)
+            {
+                return false;
+            }
+            
+            if (message is TextMessage)
+            {
+                // Special handling for TextMessage
+                _callback(Response.Create(_robot, message as T, matchResult));
                 return true;
             }
-            return false;
+
+            // All other message types are passed through
+            _callback(Response.Create(_robot, message as T));
+            return true;
         }
     }
 }

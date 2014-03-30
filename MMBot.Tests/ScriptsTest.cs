@@ -112,5 +112,50 @@ namespace MMBot.Tests
             Assert.Equal(4, messages.Count());
             Assert.Equal("Caught msg new topic from tester", messages.Skip(3).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
         }
+
+        [Fact]
+        public async Task CanListen()
+        {
+            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+            .UseAdapter<StubAdapter>()
+            .UseBrain<StubBrain>()
+            .WithName("mmbot")
+            .DisablePluginDiscovery()
+            .DisableScriptDiscovery()
+            .Build();
+
+            var adapter = robot.Adapters.First().Value as StubAdapter;
+            robot.LoadScript<ListenerTest>();
+            robot.LoadScript<TextListenerTest>();
+            robot.AutoLoadScripts = false;
+            await robot.Run();
+
+            Assert.IsType<Listener<TextMessage>>(robot.Listeners[0]);
+            Assert.IsType<Listener<TextMessage>>(robot.Listeners[1]);
+            Assert.IsType<Listener<TextMessage>>(robot.Listeners[2]);
+            Assert.IsType<TextListener>(robot.Listeners[3]);
+
+            adapter.SimulateMessage("tester", "test message");
+
+            var messages = await adapter.GetEmittedMessages(2);
+            Assert.Equal(2, messages.Count());
+            Assert.Equal("Handled TextMessage without regex", messages.First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Handled TextMessage with no other handlers", messages.Skip(1).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+
+            adapter.SimulateMessage("tester", "testregex test message");
+
+            messages = await adapter.GetEmittedMessages(5);
+            Assert.Equal(5, messages.Count());
+            Assert.Equal("Handled TextMessage with regex", messages.Skip(2).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Handled TextMessage without regex", messages.Skip(3).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("Handled TextMessage with no other handlers", messages.Skip(4).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+
+            adapter.SimulateMessage("tester", "mmbot gif me cat");
+
+            messages = await adapter.GetEmittedMessages(7);
+            Assert.Equal(7, messages.Count());
+            Assert.Equal("Handled TextMessage without regex", messages.Skip(5).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+            Assert.Equal("cat", messages.Skip(6).First().Item2.First(), StringComparer.InvariantCultureIgnoreCase);
+        }
     }
 }
