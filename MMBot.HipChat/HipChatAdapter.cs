@@ -178,9 +178,10 @@ namespace MMBot.HipChat
 
             if (messages == null || !messages.Any()) return;
 
+            var userAddress = _roster.Where(kvp => kvp.Value == envelope.User.Name).Select(kvp => kvp.Key).First();
             foreach (var message in messages)
             {
-                var to = new Jid(envelope.User.Name);
+                var to = new Jid(userAddress + '@' + _host);
                 _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
             }
         }
