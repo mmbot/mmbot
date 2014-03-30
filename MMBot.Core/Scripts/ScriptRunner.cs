@@ -197,7 +197,15 @@ namespace MMBot.Scripts
 
         private void DeleteCachedVersionOfScript(string path)
         {
-            File.Delete(GetCachedScriptPath(path));
+            try
+            {
+                File.Delete(GetCachedScriptPath(path));
+            }
+            catch (Exception)
+            {
+                _logger.Error(string.Format("Unable to clear the script cache for {0}", Path.GetFileName(path)));
+            }
+            
         }
 
         private bool CachedScriptIsOutdated(string path)
