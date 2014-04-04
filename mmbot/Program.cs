@@ -50,15 +50,14 @@ namespace mmbot
 
         private static void SetupRobot(Options options)
         {
-            Console.WriteLine("AppDomain: " + AppDomain.CurrentDomain.FriendlyName);
             AppDomain.CurrentDomain.GetAssemblies().ForEach(Console.WriteLine);
 
             var childAppDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString("N"));
             var wrapper = childAppDomain.CreateInstanceAndUnwrap(typeof (RobotWrapper).Assembly.FullName,
                 typeof (RobotWrapper).FullName) as RobotWrapper;
 
-            wrapper.Start(options);
-
+            wrapper.Start(options); //Blocks, waiting on a reset event.
+            AppDomain.Unload(childAppDomain);
             SetupRobot(options);
         }
     }
