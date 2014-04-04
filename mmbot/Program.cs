@@ -6,7 +6,8 @@ using System.ServiceProcess;
 
 namespace mmbot
 {
-    class Program
+
+    class Program 
     {
 
         static void Main(string[] args)
@@ -41,14 +42,46 @@ namespace mmbot
                     return;
                 }
 
-                Initializer.StartBot(options).Wait();
-
-                while (true)
-                {
-                    // sit and spin?
-                    Thread.Sleep(2000);
-                }
+                SetupRobot(options);
             }
         }
+
+     
+
+        private static void SetupRobot(Options options)
+        {
+            Console.WriteLine("AppDomain: " + AppDomain.CurrentDomain.FriendlyName);
+            AppDomain.CurrentDomain.GetAssemblies().ForEach(Console.WriteLine);
+
+            var childAppDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString("N"));
+            var wrapper = childAppDomain.CreateInstanceAndUnwrap(typeof (RobotWrapper).Assembly.FullName,
+                typeof (RobotWrapper).FullName) as RobotWrapper;
+
+            wrapper.Start(options);
+
+            SetupRobot(options);
+        }
+    }
+
+    
+    public class RobotWrapper : MarshalByRefObject
+    {
+        private Options _options;
+        
+        public Options Options
+        {
+            get { return _options; }
+        }
+
+        public void Start(Options options)
+        {
+            _options = options;
+            var robot = Initializer.StartBot(options).Result;
+            var resetEvent = new AutoResetEvent(false);
+            robot.ResetRequested += (sender, args) => resetEvent.Set();
+            resetEvent.WaitOne();
+        }
+
+        
     }
 }
