@@ -16,6 +16,11 @@ namespace MMBot.Brains
 {
     public class AkavacheBrain : IBrain, IMustBeInitializedWithRobot
     {
+
+        private ConcurrentDictionary<string, object> _inMemoryQueue = new ConcurrentDictionary<string, object>();
+
+        private Subject<Tuple<string, Action>> _valueUpdates = new Subject<Tuple<string, Action>>();
+         
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
             public BrainPersistentBlobCache(string cacheDirectory) : base(cacheDirectory)
@@ -38,6 +43,16 @@ namespace MMBot.Brains
             {
                 CleanseTypeNamesFromCache().Wait();
             }
+
+            _valueUpdates
+                .GroupByUntil(record => record.Item1, g => g.Throttle(TimeSpan.FromSeconds(30)).Take(1))
+                .SelectMany(g => g.Throttle(TimeSpan.FromMilliseconds(300)))
+                .Subscribe(t =>
+                {
+                    t.Item2();
+                    object successValue;
+                    _inMemoryQueue.TryRemove(t.Item1, out successValue);
+                });
         }
 
         private async Task CleanseTypeNamesFromCache()
@@ -75,7 +90,8 @@ namespace MMBot.Brains
 
         public async Task Set<T>(string key, T value)
         {
-            await _cache.InsertObject(GetKey(key), value);
+            _inMemoryQueue.AddOrUpdate(key, k => value, (k, old) => value);
+            _valueUpdates.OnNext(Tuple.Create<string, Action>(key, () => _cache.InsertObject(GetKey(key), value).Wait()));
         }
 
         public async Task Remove<T>(string key)
