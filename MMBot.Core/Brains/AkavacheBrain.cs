@@ -18,9 +18,7 @@ namespace MMBot.Brains
     public class AkavacheBrain : IBrain, IMustBeInitializedWithRobot
     {
 
-        private ConcurrentDictionary<string, object> _inMemoryQueue = new ConcurrentDictionary<string, object>();
-
-        private Subject<Tuple<string, Action>> _valueUpdates = new Subject<Tuple<string, Action>>();
+        private readonly Subject<Tuple<string, Action>> _valueUpdates = new Subject<Tuple<string, Action>>();
          
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
@@ -91,7 +89,6 @@ namespace MMBot.Brains
 
         public async Task Set<T>(string key, T value)
         {
-            _inMemoryQueue.AddOrUpdate(key, k => value, (k, old) => value);
             _valueUpdates.OnNext(Tuple.Create<string, Action>(key, () => _cache.InsertObject(GetKey(key), value).Wait()));
         }
 
