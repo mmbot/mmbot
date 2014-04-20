@@ -65,7 +65,7 @@ namespace MMBot.Brains
         public async Task Close()
         {
             _valueUpdates.OnCompleted();
-            await _pendingOperations;
+            await _pendingOperations.LastOrDefaultAsync();
             await _cache.Flush();
         }
 
