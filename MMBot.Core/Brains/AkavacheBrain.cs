@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -44,15 +45,12 @@ namespace MMBot.Brains
                 CleanseTypeNamesFromCache().Wait();
             }
 
+            // Only Save values in a single synchronized thread :(
             _valueUpdates
-                .GroupByUntil(record => record.Item1, g => g.Throttle(TimeSpan.FromSeconds(30)).Take(1))
-                .SelectMany(g => g.Throttle(TimeSpan.FromMilliseconds(300)))
-                .Subscribe(t =>
-                {
-                    t.Item2();
-                    object successValue;
-                    _inMemoryQueue.TryRemove(t.Item1, out successValue);
-                });
+                .ObserveOn(new TaskPoolScheduler(new TaskFactory())) // Spin off a TPL thread if we need one
+                .Synchronize() // Queue requests behind executing subscriptions
+                .Subscribe(l => l.Item2(), 
+                () => _pendingOperations.OnCompleted());
         }
 
         private async Task CleanseTypeNamesFromCache()
@@ -68,10 +66,13 @@ namespace MMBot.Brains
 
         public async Task Close()
         {
+            _valueUpdates.OnCompleted();
+            await _pendingOperations;
             await _cache.Flush();
         }
 
         private IBlobCache _cache;
+        private readonly Subject<Unit> _pendingOperations = new Subject<Unit>();
 
         public async Task<T> Get<T>(string key)
         {
