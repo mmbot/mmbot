@@ -45,7 +45,7 @@ namespace MMBot.Brains
 
             // Only Save values in a single synchronized thread :(
             _valueUpdates
-                .ObserveOn(new TaskPoolScheduler(new TaskFactory())) // Spin off a TPL thread if we need one
+                .ObserveOn(new TaskPoolScheduler(Task.Factory)) // Spin off a TPL thread if we need one
                 .Synchronize() // Queue requests behind executing subscriptions
                 .Subscribe(l => l.Item2(), 
                 () => _pendingOperations.OnCompleted());
