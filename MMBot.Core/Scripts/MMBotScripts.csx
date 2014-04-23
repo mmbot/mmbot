@@ -4,8 +4,8 @@
 * </description>
 *
 * <commands>
-*     mmbot scripts (query) [detailed] - lists scripts in the MMBot Scripts repository filtered by (query)
-*     mmbot download script (name) - downloads a script by (name) from the MMBot Scripts repository
+*     mmbot scripts (query) [detailed] - lists scripts in the MMBot Scripts repository filtered by (query).;
+*     mmbot download script (name) - downloads a script by (name) from the MMBot Scripts repository.;
 * </commands>
 * 
 * <author>
