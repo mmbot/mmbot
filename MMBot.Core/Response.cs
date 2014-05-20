@@ -37,6 +37,7 @@ namespace MMBot
         Task Send(params string[] messages);
         Task SendFormat(string format, params object[] args);
         Task Reply(params string[] message);
+        Task ReplyFormat(string format, params object[] args);
         Task Emote(params string[] message);
         Task Topic(params string[] message);
         Task Play(params string[] message);
@@ -100,6 +101,11 @@ namespace MMBot
                 return;
             }
             await _robot.Adapters[_envelope.User.AdapterId].Reply(_envelope, message);
+        }
+
+        public async Task ReplyFormat(string format, params object[] args)
+        {
+            await Reply(string.Format(format, args));
         }
 
         public async Task Emote(params string[] message)
