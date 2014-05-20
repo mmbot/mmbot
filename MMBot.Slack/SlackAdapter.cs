@@ -89,7 +89,6 @@ namespace MMBot.Slack
 
             foreach (var message in messages.Where(message => !string.IsNullOrWhiteSpace(message)))
             {
-                var escapedMessage = WebUtility.HtmlEncode(message);
                 var args = JsonConvert.SerializeObject(new
                 {
                     username = Robot.Name,
@@ -97,7 +96,7 @@ namespace MMBot.Slack
                         string.IsNullOrEmpty(envelope.User.Room)
                             ? envelope.User.Name
                             : _channelMapping.GetValueOrDefault(envelope.User.Room, envelope.User.Room),
-                    text = escapedMessage,
+                    text = message,
                     link_names = _linkNames ? 1 : 0
                 });
 
