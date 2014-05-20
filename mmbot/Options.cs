@@ -23,6 +23,9 @@ namespace mmbot
 
         [Option('i', "init", HelpText = "Initializes the current directory with the default base scripts. Typically, if you installed via Chocolatey you need to run this before mmbot will become useful")]
         public bool Init { get; set; }
+        
+        [Option('w', "watch", HelpText = "Watches for changes in the scripts folder and updates the bot as required.")]
+        public bool Watch { get; set; }
 
         [Option('d', "directory", HelpText = "Sets the working directory for executing mmbot outside the initialized directory.")]
         public string WorkingDirectory { get; set; }
