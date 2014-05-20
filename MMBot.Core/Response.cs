@@ -35,6 +35,7 @@ namespace MMBot
     public interface IResponse<out T> where T : Message
     {
         Task Send(params string[] messages);
+        Task SendFormat(string format, params object[] args);
         Task Reply(params string[] message);
         Task Emote(params string[] message);
         Task Topic(params string[] message);
@@ -82,6 +83,11 @@ namespace MMBot
                 return;
             }
             await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
+        }
+
+        public async Task SendFormat(string format, params object[] args)
+        {
+            await Send(string.Format(format, args));
         }
 
         public async Task Reply(params string[] message)
