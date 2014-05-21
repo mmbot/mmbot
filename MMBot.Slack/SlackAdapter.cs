@@ -34,6 +34,7 @@ namespace MMBot.Slack
         private bool _sendViaPostMessageApi;
         private string _icon;
         private string _userToken;
+        private string[] _commandTokens;
 
         public SlackAdapter(ILog logger, string adapterId) : base(logger, adapterId)
         {
@@ -56,6 +57,7 @@ namespace MMBot.Slack
             _slackBotName = robot.GetConfigVariable("MMBOT_SLACK_BOTNAME") ?? robot.Name;
             _sendViaPostMessageApi = bool.Parse(robot.GetConfigVariable("MMBOT_SLACK_USEPOSTMESSAGE") ?? "false");
             _userToken = robot.GetConfigVariable("MMBOT_SLACK_USERTOKEN");
+            _commandTokens = (robot.GetConfigVariable("MMBOT_SLACK_COMMANDTOKENS") ?? string.Empty).Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(s => s.Trim()).ToArray();
             _icon = robot.GetConfigVariable("MMBOT_SLACK_ICON") ?? "https://raw.githubusercontent.com/mmbot/mmbot/master/Docs/Images/mmbot.logo.48x48.png";
             Enum.TryParse(robot.GetConfigVariable("MMBOT_SLACK_CHANNELMODE") ?? "blacklist", true, out _channelMode);
             _channels = (Robot.GetConfigVariable("MMBOT_SLACK_CHANNELS") ?? string.Empty)
@@ -83,6 +85,7 @@ namespace MMBot.Slack
                 helpSb.AppendLine("  MMBOT_SLACK_USEPOSTMESSAGE: Optional. If true, respond in Slack using the post message api instead of the Hubot adapter. This is more reliable in some ways and works with slack commands etc. Default is false");
                 helpSb.AppendLine("  MMBOT_SLACK_USERTOKEN: Optional. Required if USEPOSTMESSAGE is enabled. You must get a user token from the API documentation pages");
                 helpSb.AppendLine("  MMBOT_SLACK_ICON: Optional. The URL of the icon to use when USEPOSTMESSAGE is enabled");
+                helpSb.AppendLine("  MMBOT_SLACK_COMMANDTOKENS: Optional. The comma delimited list of expected command tokens from the Slack commands hook. If none supplied then any token will be accepted.");
                 helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
@@ -213,6 +216,13 @@ namespace MMBot.Slack
                     var hubotMsg = form["text"];
                     var roomName = form["channel_name"];
 
+                    // validate the token 
+                    if (form["token"] != _token)
+                    {
+                        Logger.Warn(string.Format("An invalid token was received from the Slack Hubot hook. Please check that the token '{0}' was expected.", form["token"]));
+                        return;
+                    }
+
                     if (!string.IsNullOrWhiteSpace(hubotMsg) &&
                         ((_channelMode == ChannelModes.Blacklist &&
                           !_channels.Contains(roomName, StringComparer.InvariantCultureIgnoreCase)) ||
@@ -251,6 +261,13 @@ namespace MMBot.Slack
                     var hubotMsg = form["text"];
                     var roomName = form["channel_name"];
                     var command = form["command"];
+                    var token = form["token"];
+
+                    if (_commandTokens.Any() && !_commandTokens.Contains(token))
+                    {
+                        Logger.Warn(string.Format("An invalid token was received from the Slack command hook. Please check that the token '{0}' was expected.", token));
+                        return;
+                    }
 
                     if (!string.IsNullOrWhiteSpace(hubotMsg) &&
                         ((_channelMode == ChannelModes.Blacklist &&
