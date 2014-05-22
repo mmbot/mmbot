@@ -378,29 +378,6 @@ namespace MMBot.Brains
             return This.Invalidate(key);
         }
 
-        ///// <summary>
-        ///// Invalidates all objects of the specified type. To invalidate all
-        ///// objects regardless of type, use InvalidateAll.
-        ///// </summary>
-        ///// <remarks>Returns a Unit for each invalidation completion. Use Wait instead of First to wait for 
-        ///// this.</remarks>
-        //public static IObservable<Unit> InvalidateAllObjects<T>(this IBlobCache This)
-        //{
-        //    var objCache = This as IObjectBlobCache;
-        //    if (objCache != null) return objCache.InvalidateAllObjects<T>();
-        //    var ret = new AsyncSubject<Unit>();
-
-        //    This.GetAllKeys().Where(x => x.StartsWith(GetTypePrefixedKey("", typeof(T))))
-        //        .ToObservable()
-        //        .SelectMany(This.Invalidate)
-        //        .Subscribe(
-        //            _ => { },
-        //            ex => ret.OnError(ex),
-        //            () => { ret.OnNext(Unit.Default); ret.OnCompleted(); });
-
-        //    return ret;
-        //}
-
         internal static byte[] SerializeObject(object value)
         {
             return SerializeObject<object>(value);
