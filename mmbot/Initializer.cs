@@ -38,7 +38,12 @@ namespace mmbot
             {
                 builder.UseWorkingDirectory(options.WorkingDirectory);
             }
-            
+
+            if (options.Watch)
+            {
+                builder.EnableScriptWatcher();
+            }
+
             Robot robot = null;
 
             try

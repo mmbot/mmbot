@@ -25,6 +25,7 @@ namespace MMBot
         private IRobotPluginLocator _pluginLocator;
         private Type _scriptStoreType;
         private Type _scriptRunnerType;
+        private bool _watch;
 
         protected RobotBuilder()
         {
@@ -109,6 +110,7 @@ namespace MMBot
                 new NamedParameter("adapters", adapters));
 
             robot.AutoLoadScripts = _scriptProbe;
+            robot.Watch = _watch;
 
             return robot;
         }
@@ -122,6 +124,12 @@ namespace MMBot
         public RobotBuilder DisableScriptDiscovery()
         {
             _scriptProbe = false;
+            return this;
+        }
+
+        public RobotBuilder EnableScriptWatcher()
+        {
+            _watch = true;
             return this;
         }
 
