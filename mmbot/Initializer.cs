@@ -95,7 +95,15 @@ namespace mmbot
 
             if (File.Exists(Path.Combine(installationFolder, "mmbot.template.ini")))
             {
-                File.Copy(Path.Combine(installationFolder, "mmbot.template.ini"), Path.Combine(path, "mmbot.ini"));
+                if (File.Exists(Path.Combine(path, "mmbot.ini")))
+                {
+                    Console.WriteLine("mmbot.ini already exists in current directory.");
+                    Console.WriteLine();
+                }
+                else
+                {
+                    File.Copy(Path.Combine(installationFolder, "mmbot.template.ini"), Path.Combine(path, "mmbot.ini"));
+                }
             }
 
             Console.WriteLine("The current directory has been initialized");
