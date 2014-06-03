@@ -142,7 +142,7 @@ namespace MMBot
             {
                 return default(T);
             }
-            return messages.ElementAt(_random.Next(messages.Count() - 1));
+            return messages.ElementAt(_random.Next(messages.Count()));
         }
 
         public void Finish()
