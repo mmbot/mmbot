@@ -8,6 +8,7 @@ namespace MMBot.HipChat
     {
         private const string GetAllRoomsEndpoint = "https://api.hipchat.com/v2/room";
         private const string GetRoomEndpoint = "https://api.hipchat.com/v2/room/{0}";
+        private const string ViewUserEndpoint = "https://api.hipchat.com/v2/user/{0}";
 
         private readonly string authToken;
 
@@ -46,6 +47,17 @@ namespace MMBot.HipChat
                     .AddQueryParam("auth_token", authToken)
                     .GetJsonFromUrl()
                     .FromJson<HipchatGetRoomResponse>();
+            }
+        }
+
+        public HipchatViewUserResponse ViewUser(string userId)
+        {
+            using (GetJsConfigScope())
+            {
+                return ViewUserEndpoint.Fmt(userId)
+                    .AddQueryParam("auth_token", authToken)
+                    .GetJsonFromUrl()
+                    .FromJson<HipchatViewUserResponse>();
             }
         }
     }
