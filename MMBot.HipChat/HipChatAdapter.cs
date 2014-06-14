@@ -15,19 +15,19 @@ namespace MMBot.HipChat
     public class HipChatAdapter : Adapter
     {
         private static string _host;
-        private static string[] _rooms;
-        private static string[] _logRooms;
-        private static string _nick;
+        private string _confhost;
+
+        private static string _email;
         private static string _password;
+        private static string _authToken;
 
         private static bool _isConfigured = false;
-        
-        private XmppClientConnection _client = null;
-        private string _username;
-        private string _confhost;
-        private string _roomNick;
-        private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
 
+        private XmppClientConnection _client = null;
+        private HipChatAPI _api = null;
+
+        private HipchatViewUserResponse _botUser;
+        private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
 
         public HipChatAdapter(ILog logger, string adapterId)
             : base(logger, adapterId)
@@ -40,36 +40,24 @@ namespace MMBot.HipChat
             Configure();
         }
 
-        private void Configure() {
+        private void Configure()
+        {
             _host = Robot.GetConfigVariable("MMBOT_HIPCHAT_HOST") ?? "chat.hipchat.com";
             _confhost = Robot.GetConfigVariable("MMBOT_HIPCHAT_CONFHOST") ?? "conf.hipchat.com";
-            _nick = Robot.GetConfigVariable("MMBOT_HIPCHAT_NICK");
-            _roomNick = Robot.GetConfigVariable("MMBOT_HIPCHAT_ROOMNICK");
-            _username = Robot.GetConfigVariable("MMBOT_HIPCHAT_USERNAME");
+            _email = Robot.GetConfigVariable("MMBOT_HIPCHAT_EMAIL");
             _password = Robot.GetConfigVariable("MMBOT_HIPCHAT_PASSWORD");
-            _rooms = (Robot.GetConfigVariable("MMBOT_HIPCHAT_ROOMS") ?? string.Empty)
-                .Trim()
-                .Split(',')
-                .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
-            _logRooms = (Robot.GetConfigVariable("MMBOT_HIPCHAT_LOGROOMS") ?? string.Empty)
-                .Trim()
-                .Split(',')
-                .Select(s => s.Trim())
-                .Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
+            _authToken = Robot.GetConfigVariable("MMBOT_HIPCHAT_AUTHTOKEN");
 
-            if (_host == null || _nick == null | _password == null || !_rooms.Any())
+            if (_email == null || _password == null || _authToken == null)
             {
                 var helpSb = new StringBuilder();
                 helpSb.AppendLine("The HipCat adapter is not configured correctly and hence will not be enabled.");
                 helpSb.AppendLine("To configure the HipChat adapter, please set the following configuration properties:");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_HOST: The host name defaults to chat.hipchat.com");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_CONFHOST: The host name defaults to conf.hipchat.com");
-                helpSb.AppendLine("  MMBOT_HIPCHAT_NICK: The nick name of the bot account on HipChat, e.g. mmbot");
-                helpSb.AppendLine("  MMBOT_HIPCHAT_ROOMNICK: The name of the bot account on HipChat, e.g. mmbot Bot");
-                helpSb.AppendLine("  MMBOT_HIPCHAT_USERNAME: The username of the bot account on HipChat, e.g. 70126_494074");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_EMAIL: The email of the bot account on HipChat, e.g. mmbot@Bot.net");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_PASSWORD: The password of the bot account on HipChat");
-                helpSb.AppendLine("  MMBOT_HIPCHAT_ROOMS: A comma separated list of room names that mmbot should join");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_AUTHTOKEN: The auth token for the HipChat APIv2");
                 helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
@@ -82,7 +70,8 @@ namespace MMBot.HipChat
 
         public override async Task Run()
         {
-            if (!_isConfigured) {
+            if (!_isConfigured)
+            {
                 throw new AdapterNotConfiguredException();
             }
             Logger.Info(string.Format("Logging into HipChat..."));
@@ -92,10 +81,11 @@ namespace MMBot.HipChat
 
         private void SetupHipChatClient()
         {
-            if (_client != null) {
+            if (_client != null)
+            {
                 return;
             }
-            
+
             _client = new XmppClientConnection(_host);
             _client.AutoResolveConnectServer = false;
             _client.OnLogin += OnClientLogin;
@@ -105,8 +95,12 @@ namespace MMBot.HipChat
             _client.Resource = "bot";
             _client.UseStartTLS = true;
 
+            _api = new HipChatAPI(_authToken);
+
+            _botUser = _api.ViewUser(_email);
+
             Logger.Info(string.Format("Connecting to {0}", _host));
-            _client.Open(_username, _password);
+            _client.Open(_botUser.XmppJid.Split('@')[0], _password);
             Logger.Info(string.Format("Connected to {0}", _host));
 
             _client.OnRosterStart += OnClientRosterStart;
@@ -143,15 +137,14 @@ namespace MMBot.HipChat
                     user = message.From.Resource;
                 }
 
-                if (user == _roomNick)
+                if (user == _botUser.Name)
                     return;
 
-                
                 Logger.Info(string.Format("[{0}] {1}: {2}", DateTime.Now, user, message.Body.Trim()));
 
                 var userObj = Robot.GetUser(message.Id, user, message.From.Bare, Id);
 
-                if (userObj.Name != _nick)
+                if (userObj.Name != _botUser.MentionName)
                 {
                     Task.Run(() =>
                         Robot.Receive(new TextMessage(userObj, message.Body.Trim())));
@@ -203,16 +196,16 @@ namespace MMBot.HipChat
         {
             var mucManager = new MucManager(_client);
 
-            foreach (string room in _rooms.Union(_logRooms).Distinct())
+            var rooms = _api.GetAllRooms();
+            foreach (var room in rooms.Items)
             {
-                var jid = new Jid(room + "@" + _confhost);
-                mucManager.JoinRoom(jid, _roomNick);
-                Rooms.Add(room);
-                Logger.Info(string.Format("Joined Room '{0}'", room));
-            }
-            foreach (string logRoom in _logRooms)
-            {
-                LogRooms.Add(logRoom);
+                var roomInfo = _api.GetRoom(room.Id);
+
+                var jid = new Jid(roomInfo.XmppJid);
+                mucManager.JoinRoom(jid, _botUser.Name);
+                Rooms.Add(room.Name);
+                LogRooms.Add(room.Name);
+                Logger.Info(string.Format("Joined Room '{0}'", room.Name));
             }
         }
 
@@ -227,30 +220,30 @@ namespace MMBot.HipChat
 
         private void OnClientRosterStart(object sender)
         {
-
         }
 
         public override async Task Topic(Envelope envelope, params string[] messages)
         {
-            if(envelope != null && envelope.User != null)
+            if (envelope != null && envelope.User != null)
             {
                 await Topic(envelope.User.Room, messages);
             }
         }
 
-        public override async Task Topic(string roomName, params string[] messages)
+        public override Task Topic(string roomName, params string[] messages)
         {
             var mucManager = new MucManager(_client);
             mucManager.ChangeSubject(new Jid(roomName), string.Join(" ", messages));
-        }
-        
 
-        public override async Task Close()
+            return Task.FromResult(0);
+        }
+
+        public override Task Close()
         {
             _client.Close();
             _client = null;
+
+            return Task.FromResult(0);
         }
-
-
     }
 }
