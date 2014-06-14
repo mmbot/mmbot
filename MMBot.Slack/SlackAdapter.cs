@@ -206,6 +206,11 @@ namespace MMBot.Slack
                 throw new AdapterNotConfiguredException();
             }
 
+            if (_userToken != null)
+            {
+                await GetChannels();
+            }
+
             Robot.Router.Post("/Slack/hubot/slack-webhook", async context =>
             {
                 try
@@ -313,6 +318,30 @@ namespace MMBot.Slack
         public async override Task Close()
         {
             
+        }
+
+        private async Task GetChannels()
+        {
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri(string.Format("https://{0}.slack.com", _team)),
+
+            };
+            var response = await
+                client.GetAsync(new Uri(string.Format("api/channels.list?token={0}&pretty=1",
+                    _userToken), UriKind.Relative));
+
+            var content = await response.Content.ReadAsStringAsync();
+            var json = JToken.Parse(content);
+            if (!json["ok"].Value<bool>())
+            {
+                Logger.Warn("Could not fetch list of channels. You may find issues with mmbot not speaking in channels until messages have been posted there.");
+                return;
+            }
+            
+            _channelMapping = json["channels"].ToDictionary(c => c["name"].ToString(), c => c["id"].ToString());
+
+            Logger.Info(string.Format("Discovered {0} Slack rooms", _channelMapping.Count()));
         }
     }
 }

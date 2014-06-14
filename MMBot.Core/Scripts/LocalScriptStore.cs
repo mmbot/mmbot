@@ -66,8 +66,6 @@ namespace MMBot.Scripts
                 
                 .Subscribe(_scriptUpdated);
 
-            _fileSystemWatcher.Changed += (sender, args) => _log.Info("Log messagwe 1");
-
             _fileSystemWatcher.Filter = "*.csx";
 
             _fileSystemWatcher.NotifyFilter = NotifyFilters.LastWrite
