@@ -167,6 +167,7 @@
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
+    <Compile Include="Extensions\RobotExtensions.cs" />
     <Compile Include="HttpWrapper.cs" />
     <Compile Include="Brains\IBrain.cs" />
     <Compile Include="IMustBeInitializedWithRobot.cs" />
