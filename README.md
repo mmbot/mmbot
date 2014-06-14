@@ -104,6 +104,11 @@ robot.AddHelp(
 );
 ```
 
+You can even tell mmbot to watch for changes to script files when you run him
+```
+mmbot --watch
+```
+
 ## Current Script Implementations
 
 The script catalog is available at [mmbot.github.io/mmbot.scripts](http://mmbot.github.io/mmbot.scripts)
