@@ -35,6 +35,7 @@ namespace MMBot
         private IRouter _router = new NullRouter();
         private readonly IScriptRunner _scriptRunner;
         private readonly IScriptStore _scriptStore;
+        private IDisposable _watchSubscription;
         public event EventHandler<EventArgs> ResetRequested;
 
         protected virtual void OnResetRequested()
@@ -147,6 +148,8 @@ namespace MMBot
         {
             get { return _listeners; }
         }
+
+        public bool Watch { get; set; }
 
         public void CatchAll(Action<IResponse<CatchAllMessage>> action)
         {
@@ -433,6 +436,12 @@ namespace MMBot
                 Emit("ScriptsLoaded", this.ScriptData.Select(d => d.Name));
             }
 
+            if (Watch)
+            {
+                _watchSubscription = _scriptStore.ScriptUpdated.Subscribe(_scriptRunner.RunScript);
+                _scriptStore.StartWatching();
+            }
+
             try
             {
                 _router.Start();
@@ -477,7 +486,14 @@ namespace MMBot
         {
             Emit("ShuttingDown", true);
             _isReady = false;
-            Router.Stop();
+            
+			Router.Stop();
+			
+            // Cleanup script file watcher
+            if (_watchSubscription != null)
+            {
+                _watchSubscription.Dispose();
+            }
             _scriptRunner.Cleanup();
             Listeners.Clear();
             foreach (var adapter in _adapters.Values)
@@ -488,7 +504,6 @@ namespace MMBot
             {
                 await _brain.Close();
             }
-            
             Emit("ShutdownComplete", true);
         }
 
@@ -527,5 +542,7 @@ namespace MMBot
                 Emitted.Raise(data, null);
             }
         }
+
+
     }
 }

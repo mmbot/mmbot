@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Text;
 using System.Xml.Linq;
 using Common.Logging;
 using HtmlAgilityPack;
@@ -25,6 +26,7 @@ namespace MMBot.Scripts
 
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
+        private readonly Dictionary<string, string> scriptHashes = new Dictionary<string, string>();
 
         public ScriptRunner(ILog logger)
         {
@@ -128,7 +130,20 @@ namespace MMBot.Scripts
 
         private bool RunScriptFile(string path)
         {
-            using (StartScriptProcessingSession(new ScriptSource(Path.GetFileNameWithoutExtension(path), path)))
+            string hash;
+            using (var stream = File.OpenRead(path))
+            {
+                hash = Encoding.UTF8.GetString(System.Security.Cryptography.MD5.Create().ComputeHash(stream));
+            }
+
+            var scriptName = Path.GetFileNameWithoutExtension(path);
+
+            if (scriptName != null && scriptHashes.ContainsKey(scriptName) && scriptHashes[scriptName] == hash)
+            {
+                return false;
+            }
+            
+            using (StartScriptProcessingSession(new ScriptSource(scriptName, path)))
             {
                 try
                 {
@@ -185,8 +200,11 @@ namespace MMBot.Scripts
                     _logger.Error(result.ExecuteExceptionInfo.SourceException);
                 }
 
+                scriptHashes.Add(CurrentScriptSource.Name, hash);
+
                 return result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
+            
         }
 
         private void RunTypedScript(IScript script, TypedScript typedScript)

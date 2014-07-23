@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace MMBot.Brains
 {
     public class AkavacheBrain : IBrain, IMustBeInitializedWithRobot
     {
+
+        private readonly Subject<Tuple<string, Action>> _valueUpdates = new Subject<Tuple<string, Action>>();
+         
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
             public BrainPersistentBlobCache(string cacheDirectory) : base(cacheDirectory)
@@ -38,6 +42,13 @@ namespace MMBot.Brains
             {
                 CleanseTypeNamesFromCache().Wait();
             }
+
+            // Only Save values in a single synchronized thread :(
+            _valueUpdates
+                .ObserveOn(new TaskPoolScheduler(Task.Factory)) // Spin off a TPL thread if we need one
+                .Synchronize() // Queue requests behind executing subscriptions
+                .Subscribe(l => l.Item2(), 
+                () => _pendingOperations.OnCompleted());
         }
 
         private async Task CleanseTypeNamesFromCache()
@@ -53,10 +64,13 @@ namespace MMBot.Brains
 
         public async Task Close()
         {
+            _valueUpdates.OnCompleted();
+            await _pendingOperations.LastOrDefaultAsync();
             await _cache.Flush();
         }
 
         private IBlobCache _cache;
+        private readonly Subject<Unit> _pendingOperations = new Subject<Unit>();
 
         public async Task<T> Get<T>(string key)
         {
@@ -75,7 +89,7 @@ namespace MMBot.Brains
 
         public async Task Set<T>(string key, T value)
         {
-            await _cache.InsertObject(GetKey(key), value);
+            _valueUpdates.OnNext(Tuple.Create<string, Action>(key, () => _cache.InsertObject(GetKey(key), value).Wait()));
         }
 
         public async Task Remove<T>(string key)
@@ -363,29 +377,6 @@ namespace MMBot.Brains
 
             return This.Invalidate(key);
         }
-
-        ///// <summary>
-        ///// Invalidates all objects of the specified type. To invalidate all
-        ///// objects regardless of type, use InvalidateAll.
-        ///// </summary>
-        ///// <remarks>Returns a Unit for each invalidation completion. Use Wait instead of First to wait for 
-        ///// this.</remarks>
-        //public static IObservable<Unit> InvalidateAllObjects<T>(this IBlobCache This)
-        //{
-        //    var objCache = This as IObjectBlobCache;
-        //    if (objCache != null) return objCache.InvalidateAllObjects<T>();
-        //    var ret = new AsyncSubject<Unit>();
-
-        //    This.GetAllKeys().Where(x => x.StartsWith(GetTypePrefixedKey("", typeof(T))))
-        //        .ToObservable()
-        //        .SelectMany(This.Invalidate)
-        //        .Subscribe(
-        //            _ => { },
-        //            ex => ret.OnError(ex),
-        //            () => { ret.OnNext(Unit.Default); ret.OnCompleted(); });
-
-        //    return ret;
-        //}
 
         internal static byte[] SerializeObject(object value)
         {

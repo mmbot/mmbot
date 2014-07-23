@@ -25,6 +25,8 @@ namespace MMBot
         NameValueCollection _queries = new NameValueCollection();
         private HttpMessageHandler _httpMessageHandler;
 
+        public HttpWrapper(string baseUrl, ILog logger) : this(baseUrl, logger, null){}
+
         public HttpWrapper(string baseUrl, ILog logger, Envelope envelope) : this(baseUrl, logger, envelope, null){}
 
         public HttpWrapper(string baseUrl, ILog logger, Envelope envelope, HttpMessageHandler httpMessageHandler)

@@ -1,5 +1,6 @@
-[![Stories in You Take It](https://badge.waffle.io/mmbot/mmbot.png?label=you%20take%20it)](https://waffle.io/mmbot/mmbot)
-![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt1169\)/statusIcon)
+[![Stories in You Take It](https://badge.waffle.io/mmbot/mmbot.png?label=up-for-grabs)](https://waffle.io/mmbot/mmbot)   
+![Build Status](http://teamcity.codebetter.com/app/rest/builds/buildType:\(id:bt1169\)/statusIcon)    
+[![Gitter chat](https://badges.gitter.im/mmbot/mmbot.png)](https://gitter.im/mmbot/mmbot)
 
 # mmbot
 
@@ -101,6 +102,11 @@ robot.AddHelp(
     "mmbot math me <expression> - Calculate the given expression.",
     "mmbot convert me <expression> to <units> - Convert expression to given units."
 );
+```
+
+You can even tell mmbot to watch for changes to script files when you run him
+```
+mmbot --watch
 ```
 
 ## Current Script Implementations

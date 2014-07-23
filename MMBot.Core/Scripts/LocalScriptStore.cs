@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Common.Logging;
+using Roslyn.Compilers.CSharp;
 using ScriptCs;
 
 namespace MMBot.Scripts
@@ -15,6 +18,9 @@ namespace MMBot.Scripts
         private readonly IRobotPluginLocator _pluginLocator;
         private Subject<IScript> _scriptUpdated;
         private ILog _log;
+        private IDisposable _filewatchSubscription;
+        private ConcurrentDictionary<string, string> _loadedScriptFiles = new ConcurrentDictionary<string, string>();
+        private FileSystemWatcher _fileSystemWatcher;
 
         public LocalScriptStore(LoggerConfigurator logConfig, FileSystem fileSystem, IRobotPluginLocator pluginLocator)
         {
@@ -22,6 +28,50 @@ namespace MMBot.Scripts
             _pluginLocator = pluginLocator;
             _scriptUpdated = new Subject<IScript>();
             _log = logConfig.GetLogger();
+        }
+
+        public void StartWatching()
+        {
+            if(!Directory.Exists(ScriptsPath))
+            {
+                return;
+            }
+
+            if (_filewatchSubscription != null)
+            {
+                _filewatchSubscription.Dispose();
+            }
+
+            _fileSystemWatcher = new FileSystemWatcher(ScriptsPath);
+
+            _filewatchSubscription = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                h => _fileSystemWatcher.Created += h,
+                h => _fileSystemWatcher.Created -= h)
+                .Select(x => x.EventArgs.FullPath)
+                .Merge(            
+                    Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                        h => _fileSystemWatcher.Changed += h,
+                        h => _fileSystemWatcher.Changed -= h)
+                        .Select(x => x.EventArgs.FullPath))
+                .Merge(
+                    Observable.FromEventPattern<RenamedEventHandler, RenamedEventArgs>(
+                        h => _fileSystemWatcher.Renamed += h,
+                        h => _fileSystemWatcher.Renamed -= h)
+                        .Select(x => x.EventArgs.FullPath))
+                        .Do(path => _log.Info(string.Format("Detected change in script file '{0}'", path)))
+                .Where(path => _loadedScriptFiles.Keys.Contains(path))
+                .GroupBy(i => i)
+                .SelectMany(g => g.Throttle(TimeSpan.FromMilliseconds(500)))
+                .Select(GetScriptByPath)
+                
+                .Subscribe(_scriptUpdated);
+
+            _fileSystemWatcher.Filter = "*.csx";
+
+            _fileSystemWatcher.NotifyFilter = NotifyFilters.LastWrite
+                                            | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+
+            _fileSystemWatcher.EnableRaisingEvents = true;
         }
 
         private string ScriptsPath
@@ -37,7 +87,11 @@ namespace MMBot.Scripts
                     "There is no scripts folder. Have you forgotten to run 'mmbot --init' to initialize the current running directory?");
             }
 
-            return _fileSystem.EnumerateFiles(ScriptsPath, "*.csx").Select(scriptFile => new ScriptCsScriptFile
+            var enumerateFiles = _fileSystem.EnumerateFiles(ScriptsPath, "*.csx").ToArray();
+
+            enumerateFiles.ForEach(path => _loadedScriptFiles.AddOrUpdate(path, s => s, (s, s1) => s));
+
+            return enumerateFiles.Select(scriptFile => new ScriptCsScriptFile
             {
                 Name = Path.GetFileNameWithoutExtension(scriptFile),
                 Path = scriptFile
@@ -83,6 +137,8 @@ namespace MMBot.Scripts
                 throw new ArgumentException("Unknown script file extension {0}");
             }
 
+            _loadedScriptFiles.AddOrUpdate(path, s => s, (s, s1) => s);
+            
             return new ScriptCsScriptFile
             {
                 Name = Path.GetFileNameWithoutExtension(path),

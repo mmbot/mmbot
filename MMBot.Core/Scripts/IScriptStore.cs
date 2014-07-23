@@ -15,5 +15,6 @@ namespace MMBot.Scripts
         IScript GetScriptByPath(string path);
 
         IScript GetScriptByName(string name);
+        void StartWatching();
     }
 }
