@@ -25,7 +25,6 @@ namespace MMBot.Scripts
 
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
-        private readonly string _cacheDirectory = Directory.GetCurrentDirectory() + @"\.cache";
 
         public ScriptRunner(ILog logger)
         {
@@ -140,11 +139,6 @@ namespace MMBot.Scripts
                     _logger.Warn(string.Format("Could not parse comments: {0}", ex.Message));
                 }
 
-                if (CachedScriptIsOutdated(path))
-                {
-                    DeleteCachedVersionOfScript(path);
-                }
-
                 var console = new ScriptConsole();
 
                 var scriptServicesBuilder = new ScriptServicesBuilder(console, _logger);
@@ -193,33 +187,6 @@ namespace MMBot.Scripts
 
                 return result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
-        }
-
-        private void DeleteCachedVersionOfScript(string path)
-        {
-            try
-            {
-                File.Delete(GetCachedScriptPath(path));
-            }
-            catch (Exception)
-            {
-                _logger.Error(string.Format("Unable to clear the script cache for {0}", Path.GetFileName(path)));
-            }
-            
-        }
-
-        private bool CachedScriptIsOutdated(string path)
-        {
-            var cachedScriptPath = GetCachedScriptPath(path);
-            return File.Exists(cachedScriptPath) && new FileInfo(path).LastWriteTimeUtc > new FileInfo().LastWriteTimeUtc;
-        }
-
-        private string GetCachedScriptPath(string csxPath)
-        {
-            var filename = Path.GetFileName(csxPath);
-            var dllName = filename.Replace(Path.GetExtension(filename), ".dll");
-            var dllPath = Path.Combine(_cacheDirectory, dllName);
-            return dllPath;
         }
 
         private void RunTypedScript(IScript script, TypedScript typedScript)
