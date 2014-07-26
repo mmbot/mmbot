@@ -200,7 +200,7 @@ namespace MMBot.Scripts
                     _logger.Error(result.ExecuteExceptionInfo.SourceException);
                 }
 
-                scriptHashes.Add(CurrentScriptSource.Name, hash);
+                scriptHashes[CurrentScriptSource.Name] = hash;
 
                 return result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
