@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MMBot.AzureTableBrain</id>
+        <version>0.1.0</version>
+        <authors>Sam Wood</authors>
+        <owners>Peter Goodman</owners>
+        <licenseUrl>https://github.com/mmbot/mmbot/blob/master/LICENSE.md</licenseUrl>
+        <projectUrl>https://github.com/mmbot/mmbot/</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>An Azure Table Storage 'Brain' implementation for mmbot, a C# port of Github's Hubot chat bot</description>
+        <releaseNotes>Initial pre-release version.</releaseNotes>
+        <copyright>Copyright 2013</copyright>
+        <tags>hubot mmbot chat robot bot azure table brain</tags>
+    </metadata>
+</package>
