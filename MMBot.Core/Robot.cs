@@ -414,10 +414,6 @@ namespace MMBot
             }
 
             OnResetRequested();
-            //_loadedScriptTypes.ForEach(LoadScript);
-            //await Run();
-            //_brain.Initialize(this);
-            //Emit("ResetComplete", true);
         }
 
         public virtual async Task Run()
