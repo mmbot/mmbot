@@ -24,7 +24,6 @@ namespace MMBot.Scripts
         const string Update = "update";
         const string Restart = "restart";
 
-        #region Package Sources
         private void RememberConfiguredSources(Robot robot)
         {
 	        var configuredSources = robot.GetConfigVariable(NuGetRepositoriesSetting) ?? string.Empty;
@@ -80,9 +79,7 @@ namespace MMBot.Scripts
 		        return false;
 	        }
         }
-        #endregion
-
-        #region Package Aliases
+        
         private void RememberConfiguredAliases(Robot robot)
         {
 	        var configuredAliases = robot.GetConfigVariable(NuGetPackageAliasesSetting) ?? string.Empty;
@@ -123,9 +120,7 @@ namespace MMBot.Scripts
 	        aliases.Remove(alias);
 	        Remember(NuGetPackageAliasesSetting, aliases, robot);
         }
-        #endregion
 
-        #region Auto-Reset
         private void RememberConfiguredAutoReset(Robot robot)
         {
             var autoReset = robot.GetConfigVariable(NuGetResetAfterUpdateSetting) ?? string.Empty;
@@ -141,7 +136,6 @@ namespace MMBot.Scripts
         {
             return bool.Parse(robot.Brain.Get<string>(NuGetResetAfterUpdateSetting).Result);
         }
-        #endregion
 
         private string BuildCommand(string[] parts, IEnumerable<int> optionalParams = null)
         {
