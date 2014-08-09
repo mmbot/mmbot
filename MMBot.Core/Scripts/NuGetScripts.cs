@@ -282,13 +282,13 @@ namespace MMBot.Scripts
         {
             return new List<string>
             {
-                "add package source (package source url) - adds a package source to use when downloading packages",
-                "remove package source (package source url) - removes a package source",
-                "list package sources - lists the currently in-use package sources",
-                "add package alias (alias name)=(actual package name) - adds an alias to a package name for convenience",
-                "remove package alias (alias name) - removes an alias",
-                "list package aliases - lists the currently in-use package aliases",
-                "update (package name or alias) [restart] - updates the specified package and optionally restarts the robot to load updated packages"
+                "mmbot add package source (package source url) - adds a package source to use when downloading packages",
+                "mmbot remove package source (package source url) - removes a package source",
+                "mmbot list package sources - lists the currently in-use package sources",
+                "mmbot add package alias (alias name)=(actual package name) - adds an alias to a package name for convenience",
+                "mmbot remove package alias (alias name) - removes an alias",
+                "mmbot list package aliases - lists the currently in-use package aliases",
+                "mmbot update (package name or alias) [restart] - updates the specified package and optionally restarts the robot to load updated packages"
             };
         }
     }
