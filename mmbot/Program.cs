@@ -50,8 +50,6 @@ namespace mmbot
 
         private static void SetupRobot(Options options)
         {
-            AppDomain.CurrentDomain.GetAssemblies().ForEach(Console.WriteLine);
-
             var childAppDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString("N"));
             var wrapper = childAppDomain.CreateInstanceAndUnwrap(typeof (RobotWrapper).Assembly.FullName,
                 typeof (RobotWrapper).FullName) as RobotWrapper;
