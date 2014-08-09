@@ -36,6 +36,13 @@ namespace MMBot
         private readonly IScriptRunner _scriptRunner;
         private readonly IScriptStore _scriptStore;
         private IDisposable _watchSubscription;
+        public event EventHandler<EventArgs> ResetRequested;
+
+        protected virtual void OnResetRequested()
+        {
+            var handler = ResetRequested;
+            if (handler != null) handler(this, EventArgs.Empty);
+        }
 
         public Robot(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, IDictionary<string, IAdapter> adapters, IRouter router, IBrain brain, IScriptStore scriptStore, IScriptRunner scriptRunner)
             : this(logConfig)
@@ -397,12 +404,20 @@ namespace MMBot
         public async Task Reset()
         {
             Emit("Resetting", true);
-            await Shutdown();
+            try
+            {
+                await Shutdown();
+            }
+            catch (Exception e)
+            {
+                // Ignore
+            }
 
-            _loadedScriptTypes.ForEach(LoadScript);
-            await Run();
-            _brain.Initialize(this);
-            Emit("ResetComplete", true);
+            OnResetRequested();
+            //_loadedScriptTypes.ForEach(LoadScript);
+            //await Run();
+            //_brain.Initialize(this);
+            //Emit("ResetComplete", true);
         }
 
         public virtual async Task Run()
@@ -472,6 +487,8 @@ namespace MMBot
             Emit("ShuttingDown", true);
             _isReady = false;
             
+			Router.Stop();
+			
             // Cleanup script file watcher
             if (_watchSubscription != null)
             {
