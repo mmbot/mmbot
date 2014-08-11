@@ -189,6 +189,12 @@ namespace MMBot.Scripts
                 });
 
                 var result = scriptServiceRoot.Executor.Execute(path);
+
+                if (result.ExpectingClosingChar.HasValue) 
+                {
+                    _logger.Error(string.Format("{0}: closing {1} expected", path, result.ExpectingClosingChar.Value));
+                }
+
                 if (result.CompileExceptionInfo != null)
                 {
                     _logger.Error(result.CompileExceptionInfo.SourceException.Message);
@@ -202,7 +208,7 @@ namespace MMBot.Scripts
 
                 scriptHashes[CurrentScriptSource.Name] = hash;
 
-                return result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
+                return !result.ExpectingClosingChar.HasValue && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
             
         }
