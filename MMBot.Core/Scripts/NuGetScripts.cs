@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using NuGet;
 
 namespace MMBot.Scripts
@@ -20,7 +20,6 @@ namespace MMBot.Scripts
         const string Alias = "alias|aliases";
         const string List = "list";
         const string ParamWithNoSpaces = @"[^\s]+";
-        const string ParamInQuotes = @"""[^""]+""";
         const string Update = "update";
         const string Restart = "restart";
 
@@ -47,7 +46,7 @@ namespace MMBot.Scripts
 
         private void Remember(string key, object value, Robot robot)
         {
-	        robot.Brain.Set<object>(key, value);
+	        robot.Brain.Set(key, value);
         }
 
         private bool AddSource(string source, Robot robot)
@@ -57,12 +56,9 @@ namespace MMBot.Scripts
 	        {
 		        return false;
 	        }
-	        else
-	        {
-		        sources.Add(source);
-		        Remember(NuGetRepositoriesSetting, sources, robot);
-		        return true;
-	        }
+            sources.Add(source);
+            Remember(NuGetRepositoriesSetting, sources, robot);
+            return true;
         }
 
         private bool RemoveSource(string source, Robot robot)
@@ -74,10 +70,7 @@ namespace MMBot.Scripts
 		        Remember(NuGetRepositoriesSetting, sources, robot);
 		        return true;
 	        }
-	        else
-	        {
-		        return false;
-	        }
+            return false;
         }
         
         private void RememberConfiguredAliases(Robot robot)
@@ -137,25 +130,17 @@ namespace MMBot.Scripts
             return bool.Parse(robot.Brain.Get<string>(NuGetResetAfterUpdateSetting).Result);
         }
 
-        private string BuildCommand(string[] parts, IEnumerable<int> optionalParams = null)
+        private string BuildCommand(IEnumerable<string> parts, IEnumerable<int> optionalParams = null)
         {
-	        bool[] optional = new bool[parts.Count()];
-	        optionalParams = optionalParams ?? new int[0];
-	        foreach(var optionalParam in optionalParams)
-	        {
-		        optional[optionalParam] = true;
-	        }
-
-	        var sb = new StringBuilder();
-	        for(var i = 0; i < parts.Length; i++)
-	        {
-		        if(i > 0)
-		        {
-			        sb.Append(string.Format(@"\s{0}", optional[i] ? "*" : string.Empty));
-		        }
-		        sb.Append(string.Format("({0}){1}", parts[i], optional[i] ? "?" : string.Empty));
-	        }
-	        return sb.ToString();
+            return string.Join(@"\s",
+                parts.Select((part, i) =>
+                {
+                    var optional = (optionalParams ?? new int[0]).Contains(i);
+                    return string.Format("{0}({1}){2}", 
+                        optional ? "*" : string.Empty,
+                        part,
+                        optional ? "?" : string.Empty);
+                }));
         }
 
         private AggregateRepository BuildPackagesRepository(Robot robot)
@@ -177,41 +162,29 @@ namespace MMBot.Scripts
             RememberConfiguredAliases(robot);
             RememberConfiguredAutoReset(robot);
 
-            robot.Respond(BuildCommand(new[] {List, Package, Source}), msg =>
-            {
-                msg.Send(GetRememberedSources(robot).ToArray());
-            });
+            robot.Respond(BuildCommand(new[] {List, Package, Source}), 
+                msg => msg.Send(GetRememberedSources(robot).ToArray()));
 
             robot.Respond(BuildCommand(new []{Add, Package, Source, ParamWithNoSpaces}), msg =>
             {
-	            var source = msg.Match[4].ToString();
-	            if (!AddSource(source, robot))
-	            {
-		            msg.Send("I already know about this one.");
-	            }
-	            else
-	            {
-		            msg.Send("Consider it done.");
-	            }
+                var source = msg.Match[4].ToString(CultureInfo.InvariantCulture);
+                msg.Send(!AddSource(source, robot) 
+                    ? "I already know about this one." 
+                    : "Consider it done.");
             });
 
             robot.Respond(BuildCommand(new []{Remove, Package, Source, ParamWithNoSpaces}), msg =>
             {
-	            var source = msg.Match[4].ToString();
-	            if (RemoveSource(source, robot))
-	            {
-		            msg.Send("I'll forget it immediately.");
-	            }
-	            else
-	            {
-		            msg.Send("It's easy to forget what you never knew.");
-	            }
+                var source = msg.Match[4].ToString(CultureInfo.InvariantCulture);
+                msg.Send(RemoveSource(source, robot)
+                    ? "I'll forget it immediately."
+                    : "It's easy to forget what you never knew.");
             });
 
             robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart}, new[] {3}), msg =>
             {
 	            //ID of the package to be looked up
-	            string packageId = msg.Match[3].ToString();
+	            var packageId = msg.Match[3].ToString(CultureInfo.InvariantCulture);
 	            string unaliasedPackageId;
 	
 	            var knownAliases = GetRememberedAliases(robot);
@@ -239,7 +212,7 @@ namespace MMBot.Scripts
 
 	            //Initialize the package manager
 	            string path = GetPackagesPath();
-	            PackageManager packageManager = new PackageManager(repo, path);
+	            var packageManager = new PackageManager(repo, path);
 
 	            //Download and unzip the package
 	            packageManager.InstallPackage(unaliasedPackageId);
@@ -253,20 +226,19 @@ namespace MMBot.Scripts
                 }
             });
 
-            robot.Respond(BuildCommand(new []{List, Package, Alias}), msg => {
-	            msg.Send(GetRememberedAliases(robot).Select(kvp => string.Format("{0} = {1}", kvp.Key, kvp.Value)).ToArray());
-            });
+            robot.Respond(BuildCommand(new []{List, Package, Alias}), 
+                msg => msg.Send(GetRememberedAliases(robot).Select(kvp => string.Format("{0} = {1}", kvp.Key, kvp.Value)).ToArray()));
 
             robot.Respond(BuildCommand(new []{Add, Package, Alias, ParamWithNoSpaces}), msg =>
             {
-	            var alias = msg.Match[4].ToString();
+	            var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
 	            AddAlias(alias, robot);
 	            msg.Send("I'll be sure to remember that.");
             });
 
             robot.Respond(BuildCommand(new []{Remove, Package, Alias, ParamWithNoSpaces}), msg =>
             {
-	            var alias = msg.Match[4].ToString();
+	            var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
 	            RemoveAlias(alias, robot);
 	            msg.Send("As you wish.");
             });
