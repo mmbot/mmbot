@@ -213,6 +213,7 @@
     <Compile Include="Scripts\IScriptRunner.cs" />
     <Compile Include="Scripts\IScriptStore.cs" />
     <Compile Include="Scripts\LocalScriptStore.cs" />
+    <Compile Include="Scripts\NuGetScripts.cs" />
     <Compile Include="Scripts\ScriptCsScriptFile.cs" />
     <Compile Include="Scripts\ScriptMetadata.cs" />
     <Compile Include="Scripts\ScriptRunner.cs" />
