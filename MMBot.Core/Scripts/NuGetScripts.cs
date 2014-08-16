@@ -208,10 +208,10 @@ namespace MMBot.Scripts
 	            }
             });
 
-            robot.Respond(BuildCommand(new[] { Update, ParamWithNoSpaces, Restart}, new[] {2}), msg =>
+            robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart}, new[] {3}), msg =>
             {
 	            //ID of the package to be looked up
-	            string packageId = msg.Match[2].ToString();
+	            string packageId = msg.Match[3].ToString();
 	            string unaliasedPackageId;
 	
 	            var knownAliases = GetRememberedAliases(robot);
