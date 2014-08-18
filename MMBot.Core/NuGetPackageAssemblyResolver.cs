@@ -128,14 +128,24 @@ namespace MMBot
                 try
                 {
                     var assembly = Assembly.LoadFrom(assemblyFile);
-                    return assembly.GetTypes().Where(t => type.IsAssignableFrom(t) && !t.IsAbstract && !t.IsGenericTypeDefinition);
+                    return GetTypesFromAssembly(assembly, type);
                 }
                 catch (Exception ex)
                 {
                     _log.WarnFormat("Could not load assembly '{0}': {1}", ex, assemblyFile, ex.Message);
                     return new Type[0];
                 }
-            });
+            }).Concat(GetTypesFromAssembly(typeof(NuGetPackageAssemblyResolver).Assembly, type));
+        }
+
+        private IEnumerable<Type> GetTypesFromAssembly(Assembly assembly, Type type)
+        {
+            if (assembly == null)
+            {
+                return new Type[0];
+            }
+            return
+                assembly.GetTypes().Where(t => type.IsAssignableFrom(t) && !t.IsAbstract && !t.IsGenericTypeDefinition);
         }
 
         public static IEnumerable<string> FilterAssembliesToMostRecent(IEnumerable<string> assemblies)

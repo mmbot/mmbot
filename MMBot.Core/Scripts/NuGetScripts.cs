@@ -7,7 +7,7 @@ using NuGet;
 
 namespace MMBot.Scripts
 {
-    class NuGetScripts : IMMBotScript
+    public class NuGetScripts : IMMBotScript
     {
         private const string NuGetRepositoriesSetting = "MMBOT_NUGET_REPOS";
         private const string NuGetPackageAliasesSetting = "MMBOT_NUGET_PACKAGE_ALIASES";
