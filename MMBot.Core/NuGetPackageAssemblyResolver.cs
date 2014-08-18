@@ -135,7 +135,7 @@ namespace MMBot
                     _log.WarnFormat("Could not load assembly '{0}': {1}", ex, assemblyFile, ex.Message);
                     return new Type[0];
                 }
-            }).Concat(GetTypesFromAssembly(typeof(NuGetPackageAssemblyResolver).Assembly, type));
+            }).Concat(GetTypesFromAssembly(typeof(NuGetPackageAssemblyResolver).Assembly, type)).Distinct();
         }
 
         private IEnumerable<Type> GetTypesFromAssembly(Assembly assembly, Type type)
