@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using Roslyn.Compilers.CSharp;
 using ScriptCs;
 using ScriptCs.Contracts;
+using ScriptCs.Hosting;
 
 namespace MMBot.Scripts
 {
@@ -190,9 +191,9 @@ namespace MMBot.Scripts
 
                 var result = scriptServiceRoot.Executor.Execute(path);
 
-                if (result.ExpectingClosingChar.HasValue) 
+                if (result.IsCompleteSubmission) 
                 {
-                    _logger.Error(string.Format("{0}: closing {1} expected", path, result.ExpectingClosingChar.Value));
+                    _logger.Error(string.Format("{0}: closing {1} expected", path, result.IsCompleteSubmission));
                 }
 
                 if (result.CompileExceptionInfo != null)
@@ -208,7 +209,7 @@ namespace MMBot.Scripts
 
                 scriptHashes[CurrentScriptSource.Name] = hash;
 
-                return !result.ExpectingClosingChar.HasValue && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
+                return !result.IsCompleteSubmission && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
             
         }
