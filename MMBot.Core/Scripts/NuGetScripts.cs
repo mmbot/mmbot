@@ -183,41 +183,47 @@ namespace MMBot.Scripts
 
             robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart}, new[] {3}), msg =>
             {
-	            //ID of the package to be looked up
-	            var packageId = msg.Match[3].ToString(CultureInfo.InvariantCulture);
-	            string unaliasedPackageId;
-	
-	            var knownAliases = GetRememberedAliases(robot);
-	            if(!knownAliases.TryGetValue(packageId.ToLower(), out unaliasedPackageId))
-	            {
-		            unaliasedPackageId = packageId;
-	            }
+                //ID of the package to be looked up
+                var packageId = msg.Match[3].ToString(CultureInfo.InvariantCulture);
+                string unaliasedPackageId;
 
-	            msg.Send("Building repositories...");
-	            IPackageRepository repo = BuildPackagesRepository(robot);
+                var knownAliases = GetRememberedAliases(robot);
+                if (!knownAliases.TryGetValue(packageId.ToLower(), out unaliasedPackageId))
+                {
+                    unaliasedPackageId = packageId;
+                }
 
-	            //Get the list of all NuGet packages with ID 'EntityFramework'   
-	            msg.Send("Finding package...");
-	            List<IPackage> packages = repo.FindPackagesById(unaliasedPackageId).ToList();
+                msg.Send("Building repositories...");
+                IPackageRepository repo = BuildPackagesRepository(robot);
 
-	            if (packages.Any())
-	            {
-		            msg.Send("Found it! Downloading...");
-	            }
-	            else
-	            {
-		            msg.Send("I couldn't find it...sorry!");
-		            return;
-	            }
+                //Get the list of all NuGet packages with ID 'EntityFramework'   
+                msg.Send("Finding package...");
+                List<IPackage> packages = repo.FindPackagesById(unaliasedPackageId).ToList();
 
-	            //Initialize the package manager
-	            string path = GetPackagesPath();
-	            var packageManager = new PackageManager(repo, path);
+                IPackage latestPackageVersion;
 
-	            //Download and unzip the package
-	            packageManager.InstallPackage(unaliasedPackageId);
-	            msg.Send("Finished downloading...");
+                if (packages.Any())
+                {
+                    //try to get the "absolute latest version" and fall back to packages.Last() if none are marked as such
+                    latestPackageVersion = packages.Any(p => p.IsAbsoluteLatestVersion)
+                                               ? packages.First(p => p.IsAbsoluteLatestVersion)
+                                               : packages.Last();
+                    msg.Send("Found it! Downloading...");
+                }
+                else
+                {
+                    msg.Send("I couldn't find it...sorry!");
+                    return;
+                }
 
+                //Initialize the package manager
+                string path = GetPackagesPath();
+                var packageManager = new PackageManager(repo, path);
+
+                //Download and unzip the package
+                packageManager.InstallPackage(latestPackageVersion, false, true);//TODO: allow these flags to be configurable? allow user to specify version?
+                msg.Send("Finished downloading...");
+                
                 if (ShouldAutoResetAfterUpdate(robot) || msg.Match.Length == 4)
                 {
                     //They submitted the reset parameter or auto-reset is on.
