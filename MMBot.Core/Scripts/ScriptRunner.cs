@@ -193,9 +193,9 @@ namespace MMBot.Scripts
 
                 var result = scriptServiceRoot.Executor.Execute(path);
 
-                if (result.IsCompleteSubmission) 
+                if (!result.IsCompleteSubmission) 
                 {
-                    _logger.Error(string.Format("{0}: closing {1} expected", path, result.IsCompleteSubmission));
+                    _logger.Error(string.Format("{0}: error compiling script - {1}", path, result.CompileExceptionInfo.SourceException.Message));
                 }
 
                 if (result.CompileExceptionInfo != null)
@@ -211,7 +211,7 @@ namespace MMBot.Scripts
 
                 scriptHashes[CurrentScriptSource.Name] = hash;
 
-                return !result.IsCompleteSubmission && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
+                return result.IsCompleteSubmission && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
             
         }
