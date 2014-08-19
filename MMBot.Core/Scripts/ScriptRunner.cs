@@ -13,6 +13,7 @@ using Microsoft.Owin;
 using MMBot.ScriptCS;
 using Newtonsoft.Json.Linq;
 using Roslyn.Compilers.CSharp;
+using Roslyn.Scripting.CSharp;
 using ScriptCs;
 using ScriptCs.Contracts;
 using ScriptCs.Hosting;
@@ -139,7 +140,8 @@ namespace MMBot.Scripts
 
             var scriptName = Path.GetFileNameWithoutExtension(path);
 
-            if (scriptName != null && scriptHashes.ContainsKey(scriptName) && scriptHashes[scriptName] == hash)
+            string value;
+            if (scriptName != null && scriptHashes.TryGetValue(scriptName, out value) && value == hash)
             {
                 return false;
             }
@@ -161,7 +163,7 @@ namespace MMBot.Scripts
 
                 scriptServicesBuilder.Cache(false);
 
-                scriptServicesBuilder.LoadModules("csx", new string[0]);
+                scriptServicesBuilder.LoadModules("csx");
                 var scriptServiceRoot = scriptServicesBuilder.Build();
 
                 var defaultReferences = ScriptExecutor.DefaultReferences.ToArray();
