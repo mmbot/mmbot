@@ -224,7 +224,7 @@ namespace MMBot.Scripts
                 packageManager.InstallPackage(latestPackageVersion, false, true);//TODO: allow these flags to be configurable? allow user to specify version?
                 msg.Send("Finished downloading...");
                 
-                if (ShouldAutoResetAfterUpdate(robot) || msg.Match.Length == 4)
+                if (ShouldAutoResetAfterUpdate(robot) || (msg.Match.Length == 5))
                 {
                     //They submitted the reset parameter or auto-reset is on.
                     msg.Send("Resetting...please wait.");
