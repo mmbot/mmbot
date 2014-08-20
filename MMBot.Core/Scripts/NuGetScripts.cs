@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NuGet;
 
 namespace MMBot.Scripts
@@ -224,7 +225,7 @@ namespace MMBot.Scripts
                 packageManager.InstallPackage(latestPackageVersion, false, true);//TODO: allow these flags to be configurable? allow user to specify version?
                 msg.Send("Finished downloading...");
                 
-                if (ShouldAutoResetAfterUpdate(robot) || (msg.Match.Length == 5))
+                if (ShouldAutoResetAfterUpdate(robot) || (msg.Match.Length >= 5 && Regex.IsMatch(msg.Match[4], Restart)))
                 {
                     //They submitted the reset parameter or auto-reset is on.
                     msg.Send("Resetting...please wait.");
