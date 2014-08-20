@@ -168,8 +168,9 @@ namespace MMBot.Scripts
 
                 var defaultReferences = ScriptExecutor.DefaultReferences.ToArray();
 
-                var packageReferences =
-                    scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory);
+                var fileSystem = new FileSystem();
+                //where clause hack using the exact same code that the hack in scriptCS sues to filter their list of assemblies in ShouldLoadAssembly in RuntimeServices.cs
+                var packageReferences = scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory).Where(fileSystem.IsPathRooted);
 
                 scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(NuGetPackageAssemblyResolver.FilterAssembliesToMostRecent(packageReferences)).ToArray());
                 scriptServiceRoot.Executor.ImportNamespaces(
