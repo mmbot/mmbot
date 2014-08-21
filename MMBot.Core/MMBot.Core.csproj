@@ -59,9 +59,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\akavache.portable.3.1.1\lib\net45\Akavache.Portable.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+    <Reference Include="Autofac, Version=3.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Autofac.3.3.0\lib\net40\Autofac.dll</HintPath>
+      <HintPath>..\packages\Autofac.3.3.1\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Integration.Mef">
+      <HintPath>..\packages\Autofac.Mef.3.0.3\lib\net40\Autofac.Integration.Mef.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging, Version=2.1.2.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -83,16 +86,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.2.0.2\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Web.XmlTransform, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Web.XmlTransform, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Web.Xdt.1.0.0\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Web.Xdt.2.1.1\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NuGet.Core, Version=2.7.41101.299, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Nuget.Core.2.7.2\lib\net40-Client\NuGet.Core.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NuGet.Core, Version=2.8.50506.491, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NuGet.Core.2.8.2\lib\net40-Client\NuGet.Core.dll</HintPath>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -105,33 +109,31 @@
     <Reference Include="Roslyn.Compilers">
       <HintPath>..\packages\Roslyn.Compilers.Common.1.2.20906.2\lib\net45\Roslyn.Compilers.dll</HintPath>
     </Reference>
-    <Reference Include="Roslyn.Compilers, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\Roslyn.Compilers.Common.1.2.20906.2\lib\net45\Roslyn.Compilers.dll</HintPath>
-    </Reference>
     <Reference Include="Roslyn.Compilers.CSharp, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Roslyn.Compilers.CSharp.1.2.20906.2\lib\net45\Roslyn.Compilers.CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptCs.Contracts, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ScriptCs.Contracts, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ScriptCs.Contracts.0.9.0\lib\net45\ScriptCs.Contracts.dll</HintPath>
+      <HintPath>..\packages\ScriptCs.Contracts.0.10.2\lib\net45\ScriptCs.Contracts.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptCs.Core, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ScriptCs.Core, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ScriptCs.Core.0.9.0\lib\net45\ScriptCs.Core.dll</HintPath>
+      <HintPath>..\packages\ScriptCs.Core.0.10.2\lib\net45\ScriptCs.Core.dll</HintPath>
     </Reference>
-    <Reference Include="ScriptCs.Engine.Roslyn, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ScriptCs.Engine.Roslyn, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ScriptCs.Engine.Roslyn.0.9.0\lib\net45\ScriptCs.Engine.Roslyn.dll</HintPath>
+      <HintPath>..\packages\ScriptCs.Engine.Roslyn.0.10.2\lib\net45\ScriptCs.Engine.Roslyn.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="ScriptCs.Hosting, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ScriptCs.Hosting, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ScriptCs.Hosting.0.9.0\lib\net45\ScriptCs.Hosting.dll</HintPath>
+      <HintPath>..\packages\ScriptCs.Hosting.0.10.2\lib\net45\ScriptCs.Hosting.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Reactive.Core, Version=2.1.30214.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -193,6 +195,7 @@
     <Compile Include="Router\Route.cs" />
     <Compile Include="ScriptCS\MMBot2ScriptPackInternal.cs" />
     <Compile Include="ScriptProcessingException.cs" />
+    <None Include="app.config" />
     <None Include="Scripts\Auth.csx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

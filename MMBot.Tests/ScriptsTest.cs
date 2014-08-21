@@ -174,7 +174,8 @@ namespace MMBot.Tests
 
             robot.AutoLoadScripts = false;
             var adapter = robot.Adapters.First().Value as StubAdapter;
-            robot.LoadScriptFile(Path.GetFullPath(Path.Combine("ScriptFiles", "ScriptRespondBad.csx")));
+            var scriptPath = Path.GetFullPath(Path.Combine("ScriptFiles", "ScriptRespondBad.csx"));
+            robot.LoadScriptFile(scriptPath);
             robot.AutoLoadScripts = false;
             await robot.Run();
 

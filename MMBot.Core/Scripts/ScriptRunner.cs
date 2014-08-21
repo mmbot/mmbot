@@ -13,8 +13,10 @@ using Microsoft.Owin;
 using MMBot.ScriptCS;
 using Newtonsoft.Json.Linq;
 using Roslyn.Compilers.CSharp;
+using Roslyn.Scripting.CSharp;
 using ScriptCs;
 using ScriptCs.Contracts;
+using ScriptCs.Hosting;
 
 namespace MMBot.Scripts
 {
@@ -138,7 +140,8 @@ namespace MMBot.Scripts
 
             var scriptName = Path.GetFileNameWithoutExtension(path);
 
-            if (scriptName != null && scriptHashes.ContainsKey(scriptName) && scriptHashes[scriptName] == hash)
+            string value;
+            if (scriptName != null && scriptHashes.TryGetValue(scriptName, out value) && value == hash)
             {
                 return false;
             }
@@ -160,13 +163,14 @@ namespace MMBot.Scripts
 
                 scriptServicesBuilder.Cache(false);
 
-                scriptServicesBuilder.LoadModules("csx", new string[0]);
+                scriptServicesBuilder.LoadModules("csx");
                 var scriptServiceRoot = scriptServicesBuilder.Build();
 
                 var defaultReferences = ScriptExecutor.DefaultReferences.ToArray();
 
-                var packageReferences =
-                    scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory);
+                var fileSystem = new FileSystem();
+                //where clause hack using the exact same code that the hack in scriptCS sues to filter their list of assemblies in ShouldLoadAssembly in RuntimeServices.cs
+                var packageReferences = scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory).Where(fileSystem.IsPathRooted);
 
                 scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(NuGetPackageAssemblyResolver.FilterAssembliesToMostRecent(packageReferences)).ToArray());
                 scriptServiceRoot.Executor.ImportNamespaces(
@@ -190,9 +194,9 @@ namespace MMBot.Scripts
 
                 var result = scriptServiceRoot.Executor.Execute(path);
 
-                if (result.ExpectingClosingChar.HasValue) 
+                if (!result.IsCompleteSubmission) 
                 {
-                    _logger.Error(string.Format("{0}: closing {1} expected", path, result.ExpectingClosingChar.Value));
+                    _logger.Error(string.Format("{0}: error compiling script - {1}", path, result.CompileExceptionInfo.SourceException.Message));
                 }
 
                 if (result.CompileExceptionInfo != null)
@@ -208,7 +212,7 @@ namespace MMBot.Scripts
 
                 scriptHashes[CurrentScriptSource.Name] = hash;
 
-                return !result.ExpectingClosingChar.HasValue && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
+                return result.IsCompleteSubmission && result.CompileExceptionInfo == null && result.ExecuteExceptionInfo == null;
             }
             
         }
