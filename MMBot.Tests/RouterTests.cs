@@ -252,7 +252,10 @@ namespace MMBot.Tests
 
             public void Dispose()
             {
-                Server.Dispose();
+                if(Server != null)
+                {
+                    Server.Dispose();
+                }
                 __robot.Shutdown().Wait();
             }
         }
