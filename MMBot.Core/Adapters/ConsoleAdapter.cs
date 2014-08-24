@@ -35,7 +35,7 @@ namespace MMBot.Adapters
             {
                 var message = Console.ReadLine();
 
-                if (message.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                if (message != null && message.Equals("exit", StringComparison.OrdinalIgnoreCase))
                 {
                     Environment.Exit(0);
                 }
