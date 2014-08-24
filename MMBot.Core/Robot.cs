@@ -1,5 +1,4 @@
-﻿using Autofac;
-using Common.Logging;
+﻿using Common.Logging;
 using Common.Logging.Simple;
 using MMBot.Brains;
 using MMBot.Router;
@@ -28,7 +27,6 @@ namespace MMBot
         private string[] _admins;
         private IBrain _brain;
         private IDictionary<string, string> _config;
-        private IContainer _container;
         private Dictionary<string, EventEmitItem> _emitTable = new Dictionary<string, EventEmitItem>();
         private bool _isReady = false;
         private string _name = "mmbot";
@@ -102,19 +100,6 @@ namespace MMBot
         public IBrain Brain
         {
             get { return _brain; }
-        }
-
-        public IContainer Container
-        {
-            get
-            {
-                if (_container == null)
-                {
-                    _container = CreateContainer();
-                }
-
-                return _container;
-            }
         }
 
         public string[] Emitters
@@ -501,15 +486,6 @@ namespace MMBot
                 await _brain.Close();
             }
             Emit("ShutdownComplete", true);
-        }
-
-        protected IContainer CreateContainer()
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterInstance<ILog>(Logger);
-            builder.RegisterInstance<Robot>(this);
-            builder.RegisterType<ScriptRunner>();
-            return builder.Build();
         }
 
         private string PrepareHearRegexPattern(string regex)

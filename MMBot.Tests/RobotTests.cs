@@ -137,7 +137,7 @@ namespace MMBot.Tests
             var scriptRunner = new ScriptRunner(loggerConfigurator.GetLogger());
             
             var robot = builder
-                        .Build(c => c.RegisterInstance(scriptRunner).As<IScriptRunner>());
+                        .Build(c => c.Register<IScriptRunner>(scriptRunner));
 
             scriptRunner.Initialize(robot);
 

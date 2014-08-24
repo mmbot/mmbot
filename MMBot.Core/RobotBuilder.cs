@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Autofac;
+using Common.Logging;
 using MMBot.Adapters;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs;
+using TinyIoC;
 
 namespace MMBot
 {
@@ -21,7 +22,6 @@ namespace MMBot
         private string _workingDirectory;
         private string _name;
         private IDictionary<string, string> _config = new Dictionary<string, string>();
-        private readonly ContainerBuilder _containerBuilder;
         private IRobotPluginLocator _pluginLocator;
         private Type _scriptStoreType;
         private Type _scriptRunnerType;
@@ -29,25 +29,19 @@ namespace MMBot
 
         protected RobotBuilder()
         {
-            _containerBuilder = new ContainerBuilder();
         }
 
         public RobotBuilder(LoggerConfigurator logConfig) : this()
         {
             _logConfig = logConfig;
         }
-
-        public ContainerBuilder ContainerBuilder
-        {
-            get { return _containerBuilder; }
-        }
-
+        
         public Robot Build()
         {
             return Build(c => { });
         }
 
-        public Robot Build(Action<ContainerBuilder> preBuild)
+        public Robot Build(Action<TinyIoCContainer> preBuild)
         {
             preBuild = preBuild ?? (c => { });
 
@@ -68,23 +62,23 @@ namespace MMBot
                 fileSystem.CurrentDirectory = _workingDirectory;
             }
 
-            ContainerBuilder.RegisterType<Robot>().SingleInstance();
-            ContainerBuilder.RegisterInstance(robotPluginLocator).As<IRobotPluginLocator>();
-            ContainerBuilder.RegisterType(_brainType ?? typeof(AkavacheBrain)).As<IBrain>().SingleInstance();
-            ContainerBuilder.RegisterType(_scriptStoreType ?? typeof(LocalScriptStore)).As<IScriptStore>().SingleInstance();
-            ContainerBuilder.RegisterType(_scriptRunnerType ?? typeof(ScriptRunner)).As<IScriptRunner>().SingleInstance();
-            ContainerBuilder.RegisterType(_routerType ?? typeof(NullRouter)).As<IRouter>().SingleInstance();
-            ContainerBuilder.RegisterTypes(_adapterTypes.ToArray());
-            ContainerBuilder.RegisterInstance(_logConfig);
-            ContainerBuilder.RegisterType<ConsoleAdapter>();
-            ContainerBuilder.Register(context => context.Resolve<LoggerConfigurator>().GetLogger());
-            ContainerBuilder.RegisterInstance(fileSystem);
+            var container = TinyIoCContainer.Current;
 
-            preBuild(ContainerBuilder);
+            container.Register<Robot>();
+            container.Register(robotPluginLocator);
+            container.Register(typeof (IBrain), _brainType ?? typeof (AkavacheBrain)).AsSingleton();
+            container.Register(typeof (IScriptStore), _scriptStoreType ?? typeof (LocalScriptStore)).AsSingleton();
+            container.Register(typeof (IScriptRunner), _scriptRunnerType ?? typeof (ScriptRunner)).AsSingleton();
+            container.Register(typeof (IRouter), _routerType ?? typeof (NullRouter)).AsSingleton();
+            _adapterTypes.ForEach(t => container.Register(t));
+            container.Register(_logConfig);
+            container.Register<ConsoleAdapter>();
+            container.Register<ILog>((c, o) => c.Resolve<LoggerConfigurator>().GetLogger());
+            container.Register<FileSystem>(fileSystem);
 
-            var container = ContainerBuilder.Build();
+            preBuild(container);
 
-            var adapters = _adapterTypes.Select(a => container.Resolve(a, new NamedParameter("adapterId", a.Name))).ToDictionary(a => a.GetType().Name, a => a as IAdapter);
+            var adapters = _adapterTypes.Select(a => container.Resolve(a, new NamedParameterOverloads(new Dictionary<string, object>{{"adapterId", a.Name}}))).ToDictionary(a => a.GetType().Name, a => a as IAdapter);
 
             // Need to explicitly add the ConsoleAdapter as it may not be found before now
             if (Environment.UserInteractive)
@@ -95,7 +89,11 @@ namespace MMBot
                     var name = typeof (ConsoleAdapter).Name;
                     if(!adapters.ContainsKey(name))
                     {
-                        adapters.Add(name, container.Resolve<ConsoleAdapter>(new NamedParameter("adapterId", name)));
+                        adapters.Add(name, container.Resolve<ConsoleAdapter>(
+                            new NamedParameterOverloads(new Dictionary<string, object>
+                            {
+                                {"adapterId", name}
+                            })));
                     }
                 }
                 catch (Exception e)
@@ -105,10 +103,13 @@ namespace MMBot
             }
 
             var robot = container.Resolve<Robot>(
-                new NamedParameter("name", _name ?? _config.GetValueOrDefault("MMBOT_ROBOT_NAME") ?? "mmbot"), 
-                new NamedParameter("config", _config),
-                new NamedParameter("adapters", adapters));
-
+                new NamedParameterOverloads(new Dictionary<string, object>
+                {
+                    {"name", _name ?? _config.GetValueOrDefault("MMBOT_ROBOT_NAME") ?? "mmbot"},
+                    {"config", _config},
+                    {"adapters", adapters}
+                }));
+                
             robot.AutoLoadScripts = _scriptProbe;
             robot.Watch = _watch;
 
