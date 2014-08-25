@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,6 +16,9 @@ using MMBot.Router.Nancy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Owin;
+
+using TinyIoC;
+
 using Xunit;
 using HttpStatusCode = System.Net.HttpStatusCode;
 
@@ -198,8 +202,10 @@ namespace MMBot.Tests
                         .DisableScriptDiscovery()
                         .Build();
 
+
             robot.AutoLoadScripts = false;
             
+            robot.Router.Start();
             setup(robot);
 
             await robot.Run();
@@ -232,8 +238,12 @@ namespace MMBot.Tests
                 set { _server = value; }
             }
 
-            public HttpClient Client {
-                get { return Server.HttpClient; }
+            public HttpClient Client 
+            {
+                get
+                {
+                    return Server.HttpClient;
+                }
             }
 
             public IObservable<Unit> Started
@@ -242,7 +252,7 @@ namespace MMBot.Tests
             }
 
             public override void Start()
-            {
+            {               
                 Server = TestServer.Create(app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
                 IsStarted = true;
 
@@ -252,7 +262,10 @@ namespace MMBot.Tests
 
             public void Dispose()
             {
-                Server.Dispose();
+                if (Server != null)
+                {
+                    Server.Dispose();
+                }
                 __robot.Shutdown().Wait();
             }
         }

@@ -17,7 +17,7 @@ using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
 {
-    public class Robot : IScriptPackContext
+    public class Robot : IScriptPackContext, IDisposable
     {
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
         protected bool _isConfigured = false;
@@ -515,6 +515,9 @@ namespace MMBot
             }
         }
 
-
+        public void Dispose()
+        {
+            Shutdown().Wait();
+        }
     }
 }
