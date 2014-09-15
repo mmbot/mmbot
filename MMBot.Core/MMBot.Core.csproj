@@ -59,13 +59,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\akavache.portable.3.1.1\lib\net45\Akavache.Portable.dll</HintPath>
     </Reference>
-    <Reference Include="Autofac, Version=3.3.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Autofac.3.3.1\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="Autofac.Integration.Mef">
-      <HintPath>..\packages\Autofac.Mef.3.0.3\lib\net40\Autofac.Integration.Mef.dll</HintPath>
-    </Reference>
     <Reference Include="Common.Logging, Version=2.1.2.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Common.Logging.2.1.2\lib\net40\Common.Logging.dll</HintPath>
@@ -224,6 +217,7 @@
     <Compile Include="Scripts\TypedScript.cs" />
     <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="Listeners\TextListener.cs" />
+    <Compile Include="TinyIoC.cs" />
     <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>

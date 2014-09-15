@@ -22,7 +22,7 @@ namespace MMBot
 
         private static MatchResult Match(Regex regex, Message message)
         {
-            if (!(message is TextMessage))
+            if (!(message is TextMessage) ||string.IsNullOrEmpty(((TextMessage)message).Text))
             {
                 return new MatchResult(false);
             }

@@ -38,7 +38,7 @@ namespace MMBot.Router.Nancy
 
         private OwinContext CreateOwinContext()
         {
-            var owinContext = new OwinContext((IDictionary<string, object>)Context.Items[NancyOwinHost.RequestEnvironmentKey]);
+            var owinContext = new OwinContext(Context.GetOwinEnvironment());
             var parameters = Context.Parameters as DynamicDictionary;
             if (parameters != null)
             {
