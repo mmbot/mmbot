@@ -272,7 +272,7 @@ namespace MMBot.Tests
 					{
 						__robot.Shutdown().Wait();
 					}
-					catch (TaskCanceledException)
+					catch (Exception)
 					{
 					}
 				}
