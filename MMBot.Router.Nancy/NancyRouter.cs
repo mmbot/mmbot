@@ -56,7 +56,10 @@ namespace MMBot.Router.Nancy
         {
             _port = port;
             _isConfigured = true;
-	        _useSsl = (_robot.GetConfigVariable("MMBOT_ROUTER_SSL") ?? "").ToLower() == "true";
+	        if (_robot != null)
+	        {
+		        _useSsl = (_robot.GetConfigVariable("MMBOT_ROUTER_SSL") ?? "").ToLower() == "true";
+	        }
         }
 
         public virtual void Start()

@@ -266,7 +266,10 @@ namespace MMBot.Tests
                 {
                     Server.Dispose();
                 }
-                __robot.Shutdown().Wait();
+				if(__robot != null)
+				{
+					__robot.Shutdown().Wait();
+				}
             }
         }
 

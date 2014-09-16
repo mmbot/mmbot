@@ -60,8 +60,8 @@ namespace MMBot.Adapters
 
         public override async Task Close()
         {
-            _cancellationTokenSource.Cancel();
-            await _listeningTask;
+	        _cancellationTokenSource.Cancel();
+	        if (_listeningTask != null) await _listeningTask;
         }
     }
 }
