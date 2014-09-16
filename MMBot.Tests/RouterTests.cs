@@ -268,7 +268,13 @@ namespace MMBot.Tests
                 }
 				if(__robot != null)
 				{
-					__robot.Shutdown().Wait();
+					try
+					{
+						__robot.Shutdown().Wait();
+					}
+					catch (TaskCanceledException)
+					{
+					}
 				}
             }
         }
