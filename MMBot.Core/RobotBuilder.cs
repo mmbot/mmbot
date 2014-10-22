@@ -31,11 +31,12 @@ namespace MMBot
         {
         }
 
-        public RobotBuilder(LoggerConfigurator logConfig) : this()
+        public RobotBuilder(LoggerConfigurator logConfig)
+            : this()
         {
             _logConfig = logConfig;
         }
-        
+
         public Robot Build()
         {
             return Build(c => { });
@@ -57,7 +58,7 @@ namespace MMBot
 
             var fileSystem = new FileSystem();
 
-            if(!string.IsNullOrEmpty(_workingDirectory))
+            if (!string.IsNullOrEmpty(_workingDirectory))
             {
                 fileSystem.CurrentDirectory = _workingDirectory;
             }
@@ -66,10 +67,10 @@ namespace MMBot
 
             container.Register<Robot>();
             container.Register(robotPluginLocator);
-            container.Register(typeof (IBrain), _brainType ?? typeof (AkavacheBrain)).AsSingleton();
-            container.Register(typeof (IScriptStore), _scriptStoreType ?? typeof (LocalScriptStore)).AsSingleton();
-            container.Register(typeof (IScriptRunner), _scriptRunnerType ?? typeof (ScriptRunner)).AsSingleton();
-            container.Register(typeof (IRouter), _routerType ?? typeof (NullRouter)).AsSingleton();
+            container.Register(typeof(IBrain), _brainType ?? typeof(AkavacheBrain)).AsSingleton();
+            container.Register(typeof(IScriptStore), _scriptStoreType ?? typeof(LocalScriptStore)).AsSingleton();
+            container.Register(typeof(IScriptRunner), _scriptRunnerType ?? typeof(ScriptRunner)).AsSingleton();
+            container.Register(typeof(IRouter), _routerType ?? typeof(NullRouter)).AsSingleton();
             _adapterTypes.ForEach(t => container.Register(t));
             container.Register(_logConfig);
             container.Register<ConsoleAdapter>();
@@ -78,28 +79,36 @@ namespace MMBot
 
             preBuild(container);
 
-            var adapters = _adapterTypes.Select(a => container.Resolve(a, new NamedParameterOverloads(new Dictionary<string, object>{{"adapterId", a.Name}}))).ToDictionary(a => a.GetType().Name, a => a as IAdapter);
+            var adapters = _adapterTypes.Select(a => container.Resolve(a, new NamedParameterOverloads(new Dictionary<string, object> { { "adapterId", a.Name } }))).ToDictionary(a => a.GetType().Name, a => a as IAdapter);
 
-            // Need to explicitly add the ConsoleAdapter as it may not be found before now
+            var consoleAdapterName = typeof(ConsoleAdapter).Name;
+
             if (Environment.UserInteractive)
             {
+                // Need to explicitly add the ConsoleAdapter as it may not be found before now
                 try
                 {
                     Console.WriteLine();
-                    var name = typeof (ConsoleAdapter).Name;
-                    if(!adapters.ContainsKey(name))
+
+                    if (!adapters.ContainsKey(consoleAdapterName))
                     {
-                        adapters.Add(name, container.Resolve<ConsoleAdapter>(
+                        adapters.Add(consoleAdapterName, container.Resolve<ConsoleAdapter>(
                             new NamedParameterOverloads(new Dictionary<string, object>
                             {
-                                {"adapterId", name}
+                                {"adapterId", consoleAdapterName}
                             })));
                     }
                 }
                 catch (Exception e)
                 {
-                    // do nothing as we are not a console app
+                    // remove adapter as we are not a console app
+                    adapters.Remove(consoleAdapterName);
                 }
+            }
+            else
+            {
+                // If we're not a console app, remove the ConsoleAdapter from the list
+                adapters.Remove(consoleAdapterName);
             }
 
             var robot = container.Resolve<Robot>(
@@ -109,7 +118,7 @@ namespace MMBot
                     {"config", _config},
                     {"adapters", adapters}
                 }));
-                
+
             robot.AutoLoadScripts = _scriptProbe;
             robot.Watch = _watch;
 
@@ -176,7 +185,7 @@ namespace MMBot
 
         public RobotBuilder UseScriptRunner<TScriptRunner>() where TScriptRunner : IScriptRunner
         {
-            _scriptRunnerType = typeof (TScriptRunner);
+            _scriptRunnerType = typeof(TScriptRunner);
             return this;
         }
 
@@ -197,9 +206,9 @@ namespace MMBot
             return this;
         }
 
-        public RobotBuilder UseRouter(Type routerType) 
+        public RobotBuilder UseRouter(Type routerType)
         {
-            if (!typeof (IRouter).IsAssignableFrom(routerType))
+            if (!typeof(IRouter).IsAssignableFrom(routerType))
             {
                 throw new ArgumentException(string.Format("The type '{0}' does not implement IRouter", routerType));
             }
@@ -209,7 +218,7 @@ namespace MMBot
 
         public RobotBuilder UseBrain<TBrain>() where TBrain : IBrain
         {
-            _brainType = typeof (TBrain);
+            _brainType = typeof(TBrain);
             return this;
         }
 
@@ -224,6 +233,6 @@ namespace MMBot
         }
     }
 
-    // This may cause issues in the way we deal with scriptcs. 
+    // This may cause issues in the way we deal with scriptcs.
     // It wants a script file or a script text, not sure of the implications of each right now
 }

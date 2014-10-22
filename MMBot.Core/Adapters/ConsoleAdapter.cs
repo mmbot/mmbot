@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,19 +18,20 @@ namespace MMBot.Adapters
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public async override Task Run()
+        public override Task Run()
         {
             _listeningTask = Task.Factory.StartNew(() =>
             {
                 StartListening(_cancellationTokenSource.Token);
             }, _cancellationTokenSource.Token);
+            return Task.FromResult(0);
         }
 
-        private async Task StartListening(CancellationToken token)
+        private void StartListening(CancellationToken token)
         {
             _user = Robot.GetUser("ConsoleUser", "ConsoleUser", "Console", Id);
 
-            while (true)
+            while (!token.IsCancellationRequested)
             {
                 var message = Console.ReadLine();
 
@@ -40,11 +40,6 @@ namespace MMBot.Adapters
                     Environment.Exit(0);
                 }
                 Robot.Receive(new TextMessage(_user, message));
-
-                if (token.IsCancellationRequested)
-                {
-                    return;
-                }
             }
         }
 
@@ -60,8 +55,8 @@ namespace MMBot.Adapters
 
         public override async Task Close()
         {
-	        _cancellationTokenSource.Cancel();
-	        if (_listeningTask != null) await _listeningTask;
+            _cancellationTokenSource.Cancel();
+            if (_listeningTask != null) await _listeningTask;
         }
     }
 }
