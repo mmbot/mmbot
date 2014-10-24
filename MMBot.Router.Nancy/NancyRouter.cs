@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
 using Nancy;
@@ -13,7 +11,6 @@ namespace MMBot.Router.Nancy
 {
     public class NancyRouter : IRouter
     {
-        
         private int _port;
         private IDisposable _webappDisposable;
         private Robot _robot;
@@ -21,11 +18,11 @@ namespace MMBot.Router.Nancy
         private readonly IDictionary<Route, Func<OwinContext, object>> _routes = new Dictionary<Route, Func<OwinContext, object>>();
         protected bool IsStarted;
         private readonly Subject<Route> _routeRegistered = new Subject<Route>();
-	    private bool _useSsl;
+        private bool _useSsl;
 
-        public NancyRouter() : this(TimeSpan.FromSeconds(10))
+        public NancyRouter()
+            : this(TimeSpan.FromSeconds(10))
         {
-
         }
 
         public NancyRouter(TimeSpan restartThrottlePeriod)
@@ -56,10 +53,10 @@ namespace MMBot.Router.Nancy
         {
             _port = port;
             _isConfigured = true;
-	        if (_robot != null)
-	        {
-		        _useSsl = (_robot.GetConfigVariable("MMBOT_ROUTER_SSL") ?? "").ToLower() == "true";
-	        }
+            if (_robot != null)
+            {
+                _useSsl = (_robot.GetConfigVariable("MMBOT_ROUTER_SSL") ?? "").ToLower() == "true";
+            }
         }
 
         public virtual void Start()
@@ -71,7 +68,7 @@ namespace MMBot.Router.Nancy
 
             var url = string.Format("http{0}://+:{1}", _useSsl ? "s" : "", _port);
             _webappDisposable = WebApp.Start(url, app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
-            
+
             Robot.Logger.Info(string.Format("Router (Nancy) is running on http{0}://localhost:{1}", _useSsl ? "s" : "", _port));
 
             IsStarted = true;
@@ -84,14 +81,14 @@ namespace MMBot.Router.Nancy
             {
                 return;
             }
-            
+
             _webappDisposable.Dispose();
             _webappDisposable = null;
         }
 
         public virtual void Get(string path, Func<OwinContext, object> actionFunc)
         {
-            var route = new Route{ Method = Route.RouteMethod.Get, Path = path};
+            var route = new Route { Method = Route.RouteMethod.Get, Path = path };
             AddRoute(route, WrapActionWithExceptionHandling(Route.RouteMethod.Get, actionFunc));
             _routeRegistered.OnNext(route);
         }
@@ -110,7 +107,6 @@ namespace MMBot.Router.Nancy
             _routeRegistered.OnNext(route);
         }
 
-
         public virtual void Post(string path, Action<OwinContext> action)
         {
             var route = new Route { Method = Route.RouteMethod.Post, Path = path };
@@ -125,7 +121,8 @@ namespace MMBot.Router.Nancy
 
         private Func<OwinContext, object> WrapActionWithExceptionHandling(Route.RouteMethod method, Func<OwinContext, object> actionFunc)
         {
-            return context => { 
+            return context =>
+            {
                 try
                 {
                     return actionFunc(context);

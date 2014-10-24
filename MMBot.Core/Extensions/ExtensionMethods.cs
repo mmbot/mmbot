@@ -262,13 +262,13 @@ namespace MMBot
             return string.Format("{0}...", Truncate(s, maxLength - 3));
         }
 
-        public static async Task<JToken> ToJsonAsync(this string jsonString)
+        public static Task<JToken> ToJsonAsync(this string jsonString)
         {
             if (jsonString != null && jsonString.StartsWith("["))
             {
-                return await JsonConvert.DeserializeObjectAsync<JArray>(jsonString);
+                return Task.Run(() => (JToken)JsonConvert.DeserializeObject<JArray>(jsonString));
             }
-            return await JsonConvert.DeserializeObjectAsync<JObject>(jsonString);
+            return Task.Run(() => (JToken)JsonConvert.DeserializeObject<JObject>(jsonString));
         }
 
         public static JToken ToJson(this string jsonString)
@@ -285,7 +285,5 @@ namespace MMBot
             }
             return val;
         }
-
-
     }
 }

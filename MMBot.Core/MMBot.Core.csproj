@@ -154,7 +154,6 @@
     <Compile Include="Adapters\AdapterNotConfiguredException.cs" />
     <Compile Include="Adapters\ConsoleAdapter.cs" />
     <Compile Include="Adapters\IAdapter.cs" />
-    <Compile Include="AsyncSynchronizationContext.cs" />
     <Compile Include="Brains\AkavacheBrain.cs" />
     <Compile Include="Adapters\Adapter.cs" />
     <Compile Include="ConfigurationFileParser.cs" />

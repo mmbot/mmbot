@@ -11,8 +11,6 @@ using TinyIoC;
 
 namespace MMBot.Router.Nancy
 {
-    
-
     /// <summary>
     /// TinyIoC bootstrapper - registers default route resolver and registers itself as
     /// INancyModuleCatalog for resolving modules but behaviour can be overridden if required.
@@ -20,6 +18,7 @@ namespace MMBot.Router.Nancy
     public class Bootstrapper : NancyBootstrapperWithRequestContainerBase<TinyIoCContainer>
     {
         private readonly IRouter _router;
+
         /// <summary>
         /// Default assemblies that are ignored for autoregister
         /// </summary>
@@ -112,12 +111,13 @@ namespace MMBot.Router.Nancy
                     case Lifetime.Transient:
                         container.Register(typeRegistration.RegistrationType, typeRegistration.ImplementationType).AsMultiInstance();
                         break;
+
                     case Lifetime.Singleton:
                         container.Register(typeRegistration.RegistrationType, typeRegistration.ImplementationType).AsSingleton();
                         break;
+
                     case Lifetime.PerRequest:
                         throw new InvalidOperationException("Unable to directly register a per request lifetime.");
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -139,12 +139,13 @@ namespace MMBot.Router.Nancy
                     case Lifetime.Transient:
                         container.RegisterMultiple(collectionTypeRegistration.RegistrationType, collectionTypeRegistration.ImplementationTypes).AsMultiInstance();
                         break;
+
                     case Lifetime.Singleton:
                         container.RegisterMultiple(collectionTypeRegistration.RegistrationType, collectionTypeRegistration.ImplementationTypes).AsSingleton();
                         break;
+
                     case Lifetime.PerRequest:
                         throw new InvalidOperationException("Unable to directly register a per request lifetime.");
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -209,7 +210,7 @@ namespace MMBot.Router.Nancy
         {
             return this.ApplicationContainer.ResolveAll<IApplicationStartup>(false);
         }
-        
+
         /// <summary>
         /// Gets all registered request startup tasks
         /// </summary>

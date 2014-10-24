@@ -5,14 +5,11 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
+using System.Xml;
 using Common.Logging;
-using log4net.Core;
-using MMBot.Adapters;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Xml;
-using HtmlAgilityPack;
 
 namespace MMBot
 {
@@ -25,16 +22,22 @@ namespace MMBot
         NameValueCollection _queries = new NameValueCollection();
         private HttpMessageHandler _httpMessageHandler;
 
-        public HttpWrapper(string baseUrl, ILog logger) : this(baseUrl, logger, null){}
+        public HttpWrapper(string baseUrl, ILog logger)
+            : this(baseUrl, logger, null)
+        {
+        }
 
-        public HttpWrapper(string baseUrl, ILog logger, Envelope envelope) : this(baseUrl, logger, envelope, null){}
+        public HttpWrapper(string baseUrl, ILog logger, Envelope envelope)
+            : this(baseUrl, logger, envelope, null)
+        {
+        }
 
         public HttpWrapper(string baseUrl, ILog logger, Envelope envelope, HttpMessageHandler httpMessageHandler)
         {
             _logger = logger;
             _envelope = envelope;
             _baseUrl = new Uri(baseUrl);
-            _httpMessageHandler = httpMessageHandler ?? new HttpClientHandler();            
+            _httpMessageHandler = httpMessageHandler ?? new HttpClientHandler();
         }
 
         public HttpWrapper Query(string name, string value)
@@ -124,7 +127,7 @@ namespace MMBot
 
                 string result = await response.Content.ReadAsStringAsync();
                 HtmlDocument doc = new HtmlDocument();
-                doc.LoadHtml(result);                
+                doc.LoadHtml(result);
                 callback(null, response, doc);
             }
             catch (Exception e)
@@ -141,7 +144,7 @@ namespace MMBot
                 var response = await DoGet();
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
-                return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
+                return JsonConvert.DeserializeObject<dynamic>(result);
             }
             catch (Exception e)
             {
@@ -162,7 +165,7 @@ namespace MMBot
                 string result = await response.Content.ReadAsStringAsync();
 
                 var body = await result.ToJsonAsync();
-                
+
                 callback(null, response, body);
             }
             catch (Exception e)
@@ -308,16 +311,15 @@ namespace MMBot
 
     public static class HttpClientExtensions
     {
-        public static async Task<dynamic> Json(this HttpResponseMessage response)
+        public static Task<dynamic> Json(this HttpResponseMessage response)
         {
-            return await JsonConvert.DeserializeObjectAsync<dynamic>(await response.Content.ReadAsStringAsync());
+            return Task.Run(() => JsonConvert.DeserializeObject<dynamic>(response.Content.ReadAsStringAsync().Result));
         }
 
-        public static async Task Json(this HttpResponseMessage response, Action<JToken> callback)
+        public static void Json(this HttpResponseMessage response, Action<JToken> callback)
         {
-            var result = await JsonConvert.DeserializeObjectAsync<JToken>(await response.Content.ReadAsStringAsync());
+            var result = JsonConvert.DeserializeObject<JToken>(response.Content.ReadAsStringAsync().Result);
             callback(result);
         }
     }
-
 }

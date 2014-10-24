@@ -99,7 +99,7 @@ namespace MMBot
                             })));
                     }
                 }
-                catch (Exception e)
+                catch
                 {
                     // remove adapter as we are not a console app
                     adapters.Remove(consoleAdapterName);

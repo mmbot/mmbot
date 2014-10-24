@@ -5,19 +5,14 @@ using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Common.Logging;
 using Microsoft.Owin.Testing;
-using MMBot.Brains;
 using MMBot.Router.Nancy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Owin;
-
-using TinyIoC;
 
 using Xunit;
 using HttpStatusCode = System.Net.HttpStatusCode;
@@ -33,7 +28,6 @@ namespace MMBot.Tests
 
             using (var router = await SetupRoute(robot => robot.Router.Get("/test/", context => expected)))
             {
-
                 var response = await router.Client.GetAsync("/test/");
 
                 Assert.Equal(expected, await response.Content.ReadAsStringAsync());
@@ -44,9 +38,8 @@ namespace MMBot.Tests
         public async Task WhenReturnJson_WithString_ResponseIsJson()
         {
             JToken token = new JObject(new JProperty("foo", "The Foo"));
-            using(var router = await SetupRoute(robot => robot.Router.Get("/json/test/", context => context.ReturnJson(JsonConvert.SerializeObject(token)))))
+            using (var router = await SetupRoute(robot => robot.Router.Get("/json/test/", context => context.ReturnJson(JsonConvert.SerializeObject(token)))))
             {
-
                 var response = await router.Client.GetAsync("/json/test/");
 
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -70,7 +63,6 @@ namespace MMBot.Tests
                 context.Response.StatusCode = 200;
             })))
             {
-
                 var response =
                     await
                         router.Client.PostAsync("/json/post/test",
@@ -97,7 +89,6 @@ namespace MMBot.Tests
                 context.Response.StatusCode = 200;
             })))
             {
-
                 var response =
                     await
                         router.Client.PostAsync("/route/test/" + expectedRoom + "?message=" + expectedMessage,
@@ -120,13 +111,11 @@ namespace MMBot.Tests
                 robot.Router.Get("/test/", context => expected);
             }))
             {
-
                 var response = await router.Client.GetAsync("/test/");
 
                 Assert.Equal(expected, await response.Content.ReadAsStringAsync());
             }
         }
-
 
         [Fact]
         public async Task WhenGithubWebHook_BodyIsParsed()
@@ -140,13 +129,12 @@ namespace MMBot.Tests
                 context.Response.StatusCode = 200;
             })))
             {
-
                 var content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     {"payload", Resources.GithubWebHookJson}
                 });
 
-                content.Headers.Add("X-GitHub-Event", new[] {"push"});
+                content.Headers.Add("X-GitHub-Event", new[] { "push" });
 
                 var response =
                     await
@@ -156,7 +144,6 @@ namespace MMBot.Tests
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
                 Assert.Equal(3, actualPayload["commits"].Count());
                 Assert.Equal("push", eventType);
-
             }
         }
 
@@ -176,7 +163,6 @@ namespace MMBot.Tests
 
             using (var testNancyRouter = (robot.Router as TestNancyRouter))
             {
-
                 await robot.Run();
 
                 await testNancyRouter.Started.Take(1);
@@ -202,9 +188,8 @@ namespace MMBot.Tests
                         .DisableScriptDiscovery()
                         .Build();
 
-
             robot.AutoLoadScripts = false;
-            
+
             robot.Router.Start();
             setup(robot);
 
@@ -213,18 +198,16 @@ namespace MMBot.Tests
             return (robot.Router as TestNancyRouter);
         }
 
-        
         public class TestNancyRouter : NancyRouter, IDisposable, IMustBeInitializedWithRobot
         {
-            
             private readonly ReplaySubject<Unit> _started = new ReplaySubject<Unit>();
 
-            public TestNancyRouter() : base(TimeSpan.FromSeconds(0))
+            public TestNancyRouter()
+                : base(TimeSpan.FromSeconds(0))
             {
-                
             }
 
-            public void Initialize(Robot robot)
+            public override void Initialize(Robot robot)
             {
                 __robot = robot;
             }
@@ -238,7 +221,7 @@ namespace MMBot.Tests
                 set { _server = value; }
             }
 
-            public HttpClient Client 
+            public HttpClient Client
             {
                 get
                 {
@@ -252,13 +235,12 @@ namespace MMBot.Tests
             }
 
             public override void Start()
-            {               
+            {
                 Server = TestServer.Create(app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
                 IsStarted = true;
 
                 _started.OnNext(Unit.Default);
             }
-
 
             public void Dispose()
             {
@@ -266,18 +248,17 @@ namespace MMBot.Tests
                 {
                     Server.Dispose();
                 }
-				if(__robot != null)
-				{
-					try
-					{
-						__robot.Shutdown().Wait();
-					}
-					catch (Exception)
-					{
-					}
-				}
+                if (__robot != null)
+                {
+                    try
+                    {
+                        __robot.Shutdown().Wait();
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
             }
         }
-
     }
 }

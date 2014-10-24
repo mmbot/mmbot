@@ -9,10 +9,8 @@ namespace MMBot.Spotify
 
         private DirectSoundOut _currentOut;
 
-        private bool _isMuted;
         private float _currentVolume = 1.0f;
         private VolumeWaveProvider16 _volumeWaveProvider;
-
 
         public int EnqueueSamples(int channels, int rate, byte[] samples, int frames)
         {
@@ -58,7 +56,6 @@ namespace MMBot.Spotify
             {
                 return;
             }
-            _isMuted = true;
             _volumeWaveProvider.Volume = 0;
         }
 
@@ -68,8 +65,6 @@ namespace MMBot.Spotify
             {
                 return;
             }
-            
-            _isMuted = false;
             _volumeWaveProvider.Volume = _currentVolume;
         }
 
