@@ -17,14 +17,13 @@ namespace MMBot.Brains
 {
     public class AkavacheBrain : IBrain, IMustBeInitializedWithRobot
     {
-
         private readonly Subject<Tuple<string, Action>> _valueUpdates = new Subject<Tuple<string, Action>>();
-         
+
         public class BrainPersistentBlobCache : PersistentBlobCache
         {
-            public BrainPersistentBlobCache(string cacheDirectory) : base(cacheDirectory)
+            public BrainPersistentBlobCache(string cacheDirectory)
+                : base(cacheDirectory)
             {
-
             }
         }
 
@@ -34,7 +33,7 @@ namespace MMBot.Brains
         {
             _robot = robot;
             BlobCache.ApplicationName = "MMBotBrain";
-            
+
             var configVariable = _robot.GetConfigVariable("MMBOT_BRAIN_PATH");
             _cache = string.IsNullOrWhiteSpace(configVariable) ? BlobCache.LocalMachine : new BrainPersistentBlobCache(configVariable);
 
@@ -47,7 +46,7 @@ namespace MMBot.Brains
             _valueUpdates
                 .ObserveOn(new TaskPoolScheduler(Task.Factory)) // Spin off a TPL thread if we need one
                 .Synchronize() // Queue requests behind executing subscriptions
-                .Subscribe(l => l.Item2(), 
+                .Subscribe(l => l.Item2(),
                 () => _pendingOperations.OnCompleted());
         }
 
@@ -87,9 +86,10 @@ namespace MMBot.Brains
             return "MMBotBrain" + key;
         }
 
-        public async Task Set<T>(string key, T value)
+        public Task Set<T>(string key, T value)
         {
             _valueUpdates.OnNext(Tuple.Create<string, Action>(key, () => _cache.InsertObject(GetKey(key), value).Wait()));
+            return TaskAsyncHelper.Empty;
         }
 
         public async Task Remove<T>(string key)
@@ -129,7 +129,7 @@ namespace MMBot.Brains
         }
 
         /// <summary>
-        /// Insert several objects into the cache, via the JSON serializer. 
+        /// Insert several objects into the cache, via the JSON serializer.
         /// Similarly to InsertAll, partial inserts should not happen.
         /// </summary>
         /// <param name="keyValuePairs">The data to insert into the cache</param>
@@ -154,7 +154,7 @@ namespace MMBot.Brains
         {
             var objCache = This as IObjectBlobCache;
             if (objCache != null) return objCache.GetObjectAsync<T>(key, noTypePrefix);
-            
+
             return This.GetAsync(key).SelectMany(DeserializeObject<T>);
         }
 
@@ -178,7 +178,7 @@ namespace MMBot.Brains
                 .SelectMany(x => This.GetObjectAsync<T>(x, true).Catch(Observable.Empty<T>()))
                 .ToList()
                 .Where(x => x is T)
-                .Select(x => (IEnumerable<T>) x);
+                .Select(x => (IEnumerable<T>)x);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace MMBot.Brains
         /// <param name="key">The key to associate with the object.</param>
         /// <param name="fetchFunc">A Func which will asynchronously return
         /// the latest value for the object should the cache not contain the
-        /// key. 
+        /// key.
         ///
         /// Observable.Start is the most straightforward way (though not the
         /// most efficient!) to implement this Func.</param>
@@ -210,7 +210,7 @@ namespace MMBot.Brains
                     .Do(x => This.InsertObject(key, x, absoluteExpiration))
                     .Finally(() => inflightFetchRequests.TryRemove(prefixedKey, out dontcare))
                     .Multicast(new AsyncSubject<T>()).RefCount();
-            
+
                 return (IObservable<T>)inflightFetchRequests.GetOrAdd(prefixedKey, result);
             });
         }
@@ -255,7 +255,7 @@ namespace MMBot.Brains
         }
 
         /// <summary>
-        /// Returns the time that the key was added to the cache, or returns 
+        /// Returns the time that the key was added to the cache, or returns
         /// null if the key isn't in the cache.
         /// </summary>
         /// <param name="key">The key to return the date for.</param>
@@ -305,12 +305,16 @@ namespace MMBot.Brains
             var fetch = Observable.Defer(() => This.GetObjectCreatedAt<T>(key))
                 .Select(x => fetchPredicate == null || x == null || fetchPredicate(x.Value))
                 .Where(x => x != false)
-                .SelectMany(async _ => {
-                    var ret = default(T);
-                    try {
+                .SelectMany(async _ =>
+                {
+                    T ret;
+                    try
+                    {
                         ret = await fetchFunc();
-                    } catch (Exception) {
-                        if (shouldInvalidateOnError) This.InvalidateObject<T>(key);
+                    }
+                    catch (Exception)
+                    {
+                        if (shouldInvalidateOnError) This.InvalidateObject<T>(key).Wait();
                         throw;
                     }
 
@@ -343,7 +347,7 @@ namespace MMBot.Brains
         /// (first the cached data, then the latest data). Therefore, it's
         /// important for UI applications that in your Subscribe method, you
         /// write the code to merge the second result when it comes in.
-        /// 
+        ///
         /// This also means that await'ing this method is a Bad Idea(tm), always
         /// use Subscribe.
         /// </summary>
@@ -366,7 +370,7 @@ namespace MMBot.Brains
 
         /// <summary>
         /// Invalidates a single object from the cache. It is important that the Type
-        /// Parameter for this method be correct, and you cannot use 
+        /// Parameter for this method be correct, and you cannot use
         /// IBlobCache.Invalidate to perform the same task.
         /// </summary>
         /// <param name="key">The key to invalidate.</param>

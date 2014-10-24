@@ -13,9 +13,9 @@ namespace MMBot.Tests.CompiledScripts
 
         public void Register(Robot robot)
         {
-            robot.Respond(@"(image|img)( me)? (.*)", msg => ImageMe(msg, msg.Match[3], url => msg.Send(url)));
+            robot.Respond(@"(image|img)( me)? (.*)", msg => ImageMe(msg, msg.Match[3], url => msg.Send(url).Wait()).Wait());
 
-            robot.Respond(@"animate( me)? (.*)", msg => ImageMe(msg, msg.Match[2], url => msg.Send(url), true));
+            robot.Respond(@"animate( me)? (.*)", msg => ImageMe(msg, msg.Match[2], url => msg.Send(url).Wait(), true).Wait());
 
             robot.Respond(@"(?:mo?u)?sta(?:s|c)he?(?: me)? (.*)", async msg =>
             {
@@ -30,10 +30,9 @@ namespace MMBot.Tests.CompiledScripts
                 {
                     await ImageMe(msg, imagery, url => msg.Send(mustachify + url), false, true);
                 }
-                
             });
         }
-        
+
         public IEnumerable<string> GetHelp()
         {
             return new[]
@@ -45,7 +44,7 @@ namespace MMBot.Tests.CompiledScripts
             };
         }
 
-        private async Task ImageMe(IResponse<TextMessage> msg, string query, Action<string> cb, bool animated = false, bool faces = false )
+        private async Task ImageMe(IResponse<TextMessage> msg, string query, Action<string> cb, bool animated = false, bool faces = false)
         {
             var res = await msg.Http("http://ajax.googleapis.com/ajax/services/search/images")
                 .Query(new

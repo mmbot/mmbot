@@ -27,14 +27,14 @@ namespace MMBot.Tests
             get { return _messagesObservable; }
         }
 
-        public override async Task Run()
+        public override Task Run()
         {
-            
+            return TaskAsyncHelper.Empty;
         }
 
-        public override async Task Close()
+        public override Task Close()
         {
-            
+            return TaskAsyncHelper.Empty;
         }
 
         public void SimulateMessage(string user, string message)

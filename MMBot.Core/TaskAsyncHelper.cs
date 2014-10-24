@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace MMBot
 {
     public class TaskAsyncHelper
     {
-        private static readonly Task _emptyTask = MakeEmpty();
-
-        private static Task MakeEmpty()
-        {
-            return FromResult<object>(null);
-        }
+        private static readonly Task _emptyTask = Task.FromResult<byte>(0);
 
         public static Task Empty
         {
@@ -21,13 +12,6 @@ namespace MMBot
             {
                 return _emptyTask;
             }
-        }
-
-        public static Task<T> FromResult<T>(T value)
-        {
-            var tcs = new TaskCompletionSource<T>();
-            tcs.SetResult(value);
-            return tcs.Task;
         }
     }
 }

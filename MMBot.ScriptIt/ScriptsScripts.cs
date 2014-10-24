@@ -1,10 +1,8 @@
-﻿using System.IO;
-using MMBot.Scripts;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MMBot.Scripts;
 
 namespace MMBot.ScriptIt
 {
@@ -16,7 +14,7 @@ namespace MMBot.ScriptIt
             {
                 if (!msg.Message.User.IsAdmin(robot))
                 {
-                    msg.Send("You must be an admin to run this command");
+                    await msg.Send("You must be an admin to run this command");
                     return;
                 }
 
@@ -30,7 +28,7 @@ namespace MMBot.ScriptIt
                 try
                 {
                     robot.LoadScriptFile("test1", filePath);
-                    msg.Send(string.Format("Successfully added script: {0}", name));
+                    await msg.Send(string.Format("Successfully added script: {0}", name));
                 }
                 catch (Exception scriptEx)
                 {
@@ -43,18 +41,17 @@ namespace MMBot.ScriptIt
                         }
                         catch { }
                     }
-                    msg.Send(string.Format("Failed to load script: ({0}) - {1}", name, scriptEx.Message));
+                    msg.Send(string.Format("Failed to load script: ({0}) - {1}", name, scriptEx.Message)).Wait();
                 }
                 //???
                 //profit
             });
 
-
             robot.Respond(@"scriptthat (.*)", async msg =>
             {
                 if (!msg.Message.User.IsAdmin(robot))
                 {
-                    msg.Send("You must be an admin to run this command");
+                    await msg.Send("You must be an admin to run this command");
                     return;
                 }
 
@@ -67,7 +64,7 @@ namespace MMBot.ScriptIt
                 }
                 catch (Exception ex)
                 {
-                    msg.Send("Invalid Uri: " + ex.Message);
+                    msg.Send("Invalid Uri: " + ex.Message).Wait();
                     return;
                 }
 

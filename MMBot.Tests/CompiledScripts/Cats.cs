@@ -6,7 +6,6 @@ using MMBot.Scripts;
 
 namespace MMBot.Tests.CompiledScripts
 {
-
     public class Cats : IMMBotScript
     {
         private const string Url = "http://thecatapi.com/api/images/get?format=xml&results_per_page={0}&api_key=MTAzNjQ";
@@ -28,7 +27,7 @@ namespace MMBot.Tests.CompiledScripts
 
                 await CatMeGifCore(msg, number);
             });
-            
+
             robot.Respond(@"(cat|cats)( me)?( \d+)?$", async msg =>
             {
                 int number = 1;
@@ -55,12 +54,12 @@ namespace MMBot.Tests.CompiledScripts
                 var urls = xDoc.SelectNodes("//url");
                 foreach (XmlNode url in urls)
                 {
-                    msg.Send(url.InnerText);
+                    await msg.Send(url.InnerText);
                 }
             }
             catch (Exception)
             {
-                msg.Send("erm....issues, move along");
+                msg.Send("erm....issues, move along").Wait();
             }
         }
 
@@ -73,12 +72,12 @@ namespace MMBot.Tests.CompiledScripts
                 var urls = xDoc.SelectNodes("//url");
                 foreach (XmlNode url in urls)
                 {
-                    msg.Send(url.InnerText);
+                    await msg.Send(url.InnerText);
                 }
             }
             catch (Exception)
             {
-                msg.Send("erm....issues, move along");
+                msg.Send("erm....issues, move along").Wait();
             }
         }
 

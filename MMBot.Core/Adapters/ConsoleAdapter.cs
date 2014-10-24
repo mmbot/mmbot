@@ -24,7 +24,7 @@ namespace MMBot.Adapters
             {
                 StartListening(_cancellationTokenSource.Token);
             }, _cancellationTokenSource.Token);
-            return Task.FromResult(0);
+            return TaskAsyncHelper.Empty;
         }
 
         private void StartListening(CancellationToken token)

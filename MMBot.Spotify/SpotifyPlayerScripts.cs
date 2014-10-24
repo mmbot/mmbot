@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MMBot.Adapters;
 using MMBot.Scripts;
 using SpotiFire;
 
@@ -33,10 +28,9 @@ namespace MMBot.Spotify
                     Observable.FromEventPattern<SpotifyPlayer.PlayerState>(e => _player.StateChanged += e,
                         e => _player.StateChanged -= e).Select(s => Unit.Default))
                         .Throttle(TimeSpan.FromMilliseconds(300))
-                .Subscribe(a => UpdateLoungeTopic());
+                .Subscribe(a => UpdateLoungeTopic().Wait());
 
             _player.LoungeRoom = robot.GetConfigVariable("MMBOT_SPOTIFY_LOUNGE");
-            
 
             robot.Respond(@"spotify shuffle( on| off)?", async msg =>
             {
@@ -55,7 +49,7 @@ namespace MMBot.Spotify
 
             robot.Respond(@"spotify play( album)?( .*)?", async msg =>
             {
-                if(!await Login(msg)) return;
+                if (!await Login(msg)) return;
 
                 bool isAlbum = !string.IsNullOrEmpty(msg.Match[1]);
                 string query = msg.Match[2].Trim();
@@ -114,8 +108,6 @@ namespace MMBot.Spotify
                         await msg.Send(message);
                     }
                 }
-
-                
             });
 
             robot.Respond(@"spotify (en)?queue( album)? (.*)", async msg =>
@@ -159,7 +151,7 @@ namespace MMBot.Spotify
                             message = await _player.QueueUpTrack(track, true);
                         }
                         else
-                        {                             
+                        {
                             await msg.Send(string.Format("Could not find any tracks matching '{0}'", query));
                             msg.Message.Done = true;
                         }
@@ -186,7 +178,6 @@ namespace MMBot.Spotify
                 bool isPlaylist = msg.Match[1].Trim().ToLowerInvariant() == "playlist";
 
                 string query = msg.Match[2].Trim();
-
 
                 if (_spotifyLinkRegex.IsMatch(query))
                 {
@@ -225,7 +216,7 @@ namespace MMBot.Spotify
                             msg.Message.Done = true;
                         }
                     }
-                    else if(isArtist)
+                    else if (isArtist)
                     {
                         var artist = await _player.SearchForArtist(query);
                         if (artist != null)
@@ -237,7 +228,6 @@ namespace MMBot.Spotify
                             await msg.Send(string.Format("Could not find any artists matching '{0}'", query));
                             msg.Message.Done = true;
                         }
-
                     }
                     else if (isPlaylist)
                     {
@@ -256,23 +246,20 @@ namespace MMBot.Spotify
                     {
                         await msg.Send("Please specify album/artist/playlist. e.g. spotify show artist Journey");
                     }
-
                 }
             });
 
             robot.Respond(@"spotify clear queue", async msg =>
             {
-
                 var count = await _player.ClearQueue();
 
                 await msg.Send(string.Format("{0} items have been cleared from the queue.", count));
             });
 
-
             robot.Respond(@"spotify next", async msg =>
             {
                 if (!await CheckForPlayingSession(msg)) return;
-                
+
                 if (!_player.Queue.Any())
                 {
                     await msg.Send("There is no next track");
@@ -289,7 +276,7 @@ namespace MMBot.Spotify
                 if (!await CheckForPlayingSession(msg)) return;
                 await _player.Pause();
             });
-            
+
             robot.Respond(@"mute", async msg =>
             {
                 if (!await CheckForPlayingSession(msg)) return;
@@ -311,16 +298,14 @@ namespace MMBot.Spotify
                     return;
                 }
 
-
                 IEnumerable<string> queue = _player.Queue.Take(20).Select(item => item.GetDisplayName()).ToArray();
                 if (_player.Queue.Count() > 20)
                 {
                     queue = queue.Concat(new[] { string.Format("+ {0} not listed", _player.Queue.Count() - 20) });
                 }
                 await msg.Send(string.Join(Environment.NewLine, queue.ToArray()));
-                
             });
-            
+
             robot.Respond(@"spotify remove (.*) from( the)? queue", async msg =>
             {
                 if (!await Login(msg)) return;
@@ -331,8 +316,7 @@ namespace MMBot.Spotify
                 }
 
                 int count = await _player.RemoveFromQueue(msg.Match[1]);
-                
-                
+
                 if (count == 0)
                 {
                     await msg.Send("There were no matching tracks in the queue");
@@ -346,7 +330,7 @@ namespace MMBot.Spotify
             robot.Respond(@"(turn|crank) it (up|down)( to (\d+))?", async msg =>
             {
                 if (!await CheckForPlayingSession(msg)) return;
-                
+
                 string direction = msg.Match[2].Trim();
                 string amount = msg.Match[4].Trim();
 
@@ -362,7 +346,6 @@ namespace MMBot.Spotify
                 {
                     _player.TurnUpVolume(10);
                 }
-                
             });
 
             robot.Respond(@"spotify ship it", async msg =>
@@ -382,12 +365,15 @@ namespace MMBot.Spotify
             {
                 case SpotifyPlayer.PlayerState.Disconnected:
                     break;
+
                 case SpotifyPlayer.PlayerState.Stopped:
                     stateDisplayText = "Stopped";
                     break;
+
                 case SpotifyPlayer.PlayerState.Paused:
                     stateDisplayText = "Paused";
                     break;
+
                 case SpotifyPlayer.PlayerState.Playing:
                     stateDisplayText = "Now Playing";
                     break;
@@ -396,14 +382,11 @@ namespace MMBot.Spotify
                 ? string.Concat(stateDisplayText, " - ", _player.CurrentTrack.GetDisplayName())
                 : stateDisplayText;
 
-            foreach(var adapter in _robot.Adapters.Where(a => a.Value.Rooms.Contains(_player.LoungeRoom)))
+            foreach (var adapter in _robot.Adapters.Where(a => a.Value.Rooms.Contains(_player.LoungeRoom)))
             {
                 await adapter.Value.Topic(_player.LoungeRoom, message);
             }
         }
-
-        
-
 
         public IEnumerable<string> GetHelp()
         {
@@ -428,7 +411,6 @@ namespace MMBot.Spotify
             };
         }
 
-
         private async Task<bool> Login(IResponse<TextMessage> msg)
         {
             string errorMessage;
@@ -437,7 +419,7 @@ namespace MMBot.Spotify
                 await _player.Login();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 errorMessage = ex.Message;
             }
@@ -447,7 +429,6 @@ namespace MMBot.Spotify
             }
             return false;
         }
-
 
         private async Task ListAlbumTracks(Album album, IResponse<TextMessage> msg)
         {
@@ -474,21 +455,20 @@ namespace MMBot.Spotify
             await msg.Send(sb.ToString());
         }
 
-
         private async Task ListArtistAlbums(Artist artist, IResponse<TextMessage> msg)
         {
             var sb = new StringBuilder();
             sb.AppendFormat("Artist - {0}\r\n", artist.Name);
             var browse = await artist.Browse(ArtistBrowseType.NoTracks);
             sb.AppendFormat("Albums: \r\n");
-            var albums = browse.Albums.Where(a => a.Type == AlbumType.Album && a.IsAvailable ).Distinct(new GenericEqualityComparer<Album>((x, y) => x.Name == y.Name && x.Year == y.Year, x => x.Name.GetHashCode())).ToArray();
+            var albums = browse.Albums.Where(a => a.Type == AlbumType.Album && a.IsAvailable).Distinct(new GenericEqualityComparer<Album>((x, y) => x.Name == y.Name && x.Year == y.Year, x => x.Name.GetHashCode())).ToArray();
             foreach (var album in albums.Take(30))
             {
                 sb.AppendFormat("  {0} ({1})\r\n", album.Name, album.Year);
             }
             int totalAlbums = albums.Count();
-            if(totalAlbums > 30)
-            { 
+            if (totalAlbums > 30)
+            {
                 sb.AppendFormat(" (+{0} unlisted) \r\n", totalAlbums - 10);
             }
             await msg.Send(sb.ToString());
@@ -506,7 +486,6 @@ namespace MMBot.Spotify
 
         public void Cleanup()
         {
-            
             _player.Pause();
             _player.Dispose();
             _player = null;
