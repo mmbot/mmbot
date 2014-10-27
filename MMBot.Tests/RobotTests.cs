@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Threading.Tasks;
-using Autofac;
-using Common.Logging;
-using Common.Logging.Simple;
-using MMBot.Adapters;
-using MMBot.Brains;
-using MMBot.Scripts;
-using Xunit;
-
-using MMBot.XMPP;
-using MMBot;
 using System.Threading;
+using System.Threading.Tasks;
+using Common.Logging;
+using MMBot.Scripts;
+using MMBot.XMPP;
+using Xunit;
 
 namespace MMBot.Tests
 {
-    
     public class RobotTests
     {
         [Fact]
@@ -28,7 +21,7 @@ namespace MMBot.Tests
             var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                         .UseAdapter<StubAdapter>()
                         .DisablePluginDiscovery()
-                        .WithConfiguration(new Dictionary<string, string>{{"param1", "param1Value"}})
+                        .WithConfiguration(new Dictionary<string, string> { { "param1", "param1Value" } })
                         .Build();
             Assert.Equal(robot.GetConfigVariable(paramName), paramValue);
         }
@@ -39,7 +32,7 @@ namespace MMBot.Tests
             var paramName = "param1";
             var paramValue = "param1Value";
             Environment.SetEnvironmentVariable(paramName, paramValue);
-            using(Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
+            using (Disposable.Create(() => Environment.SetEnvironmentVariable(paramName, null)))
             {
                 var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                             .UseAdapter<StubAdapter>()
@@ -61,7 +54,7 @@ namespace MMBot.Tests
                 var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
                             .UseAdapter<StubAdapter>()
                             .DisablePluginDiscovery()
-                            .WithConfiguration(new Dictionary<string, string>{{paramName, newParamValue}})
+                            .WithConfiguration(new Dictionary<string, string> { { paramName, newParamValue } })
                             .Build();
                 Assert.Equal(robot.GetConfigVariable(paramName), newParamValue);
             }
@@ -90,7 +83,7 @@ namespace MMBot.Tests
 
             var adapter = robot.Adapters.First().Value as StubAdapter;
             robot.LoadScript<StubEchoScript>();
-            
+
             var expectedMessages = new[]
             {
                 Tuple.Create("test1", "Hello Test 1"),
@@ -98,7 +91,7 @@ namespace MMBot.Tests
                 Tuple.Create("test3", "Hello Test 3")
             };
             await robot.Run();
-            expectedMessages.ForEach(t => adapter.SimulateMessage(t.Item1, "mmbot " +  t.Item2));
+            expectedMessages.ForEach(t => adapter.SimulateMessage(t.Item1, "mmbot " + t.Item2));
 
             var expectedMessagesValues = expectedMessages.Select(t => string.Concat(t.Item1, t.Item2));
             Console.WriteLine("Expected:");
@@ -121,7 +114,7 @@ namespace MMBot.Tests
                         .DisableScriptDiscovery()
                         .Build();
 
-            robot.Speak("InvalidAdapter", "Room", "Foo");
+            robot.Speak("InvalidAdapter", "Room", "Foo").Wait();
         }
 
         [Fact]
@@ -135,7 +128,7 @@ namespace MMBot.Tests
                 .DisableScriptDiscovery();
 
             var scriptRunner = new ScriptRunner(loggerConfigurator.GetLogger());
-            
+
             var robot = builder
                         .Build(c => c.Register<IScriptRunner>(scriptRunner));
 
@@ -144,7 +137,7 @@ namespace MMBot.Tests
             robot.LoadScript<StubEchoScript>();
 
             bool isCleanedUp = false;
-            using(scriptRunner.StartScriptProcessingSession(new ScriptSource("TestScript", string.Empty)))
+            using (scriptRunner.StartScriptProcessingSession(new ScriptSource("TestScript", string.Empty)))
             {
                 robot.RegisterCleanup(() => isCleanedUp = true);
             }
@@ -159,14 +152,14 @@ namespace MMBot.Tests
         {
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.ConfigureForConsole();
-            using(var robot = new RobotBuilder(logConfig)
+            using (var robot = new RobotBuilder(logConfig)
                         .DisablePluginDiscovery()
                         .DisableScriptDiscovery()
                         .UseAdapter<StubAdapter>()
                         .UseAdapter<StubAdapter2>()
                         .UseBrain<StubBrain>()
-                        .Build()){
-            
+                        .Build())
+            {
                 robot.AutoLoadScripts = false;
 
                 var adapter1 = robot.Adapters.Values.OfType<StubAdapter>().First();
@@ -198,7 +191,6 @@ namespace MMBot.Tests
                 Console.WriteLine("Testing Adapter 2");
                 expectedMessages.ForEach(t => adapter2.SimulateMessage(t.Item1, "mmbot " + t.Item2));
 
-            
                 Console.WriteLine("Expected:");
                 Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
                 actualMessagesValues = adapter2.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
@@ -212,7 +204,8 @@ namespace MMBot.Tests
 
         public class StubAdapter2 : StubAdapter
         {
-            public StubAdapter2(ILog logger, string adapterId) : base(logger, adapterId)
+            public StubAdapter2(ILog logger, string adapterId)
+                : base(logger, adapterId)
             {
             }
         }
@@ -231,7 +224,7 @@ namespace MMBot.Tests
                 Assert.NotNull(data);
                 Assert.Equal(data, "Emitted");
             });
-            
+
             robot.Emit("Test", "Emitted");
         }
 
@@ -258,7 +251,7 @@ namespace MMBot.Tests
         public async Task XmppRobot()
         {
             //enter config values to enable this test
-            var config = new Dictionary<string, string>();         
+            var config = new Dictionary<string, string>();
             //config.Add("MMBOT_XMPP_HOST", "userver");
             //config.Add("MMBOT_XMPP_CONNECT_HOST", "userver");
             //config.Add("MMBOT_XMPP_USERNAME", "mmbot");
@@ -276,8 +269,8 @@ namespace MMBot.Tests
             var robot = new RobotBuilder(logConfig)
                         .WithConfiguration(config)
                         .UseAdapter<XmppAdapter>()
-                        .Build(); 
-            
+                        .Build();
+
             robot.AutoLoadScripts = false;
             robot.LoadScript<CompiledScripts.Ping>();
 
@@ -296,8 +289,7 @@ namespace MMBot.Tests
 
             //will wait for two commands
             while (cmdReceived < 2)
-                Thread.Sleep(1000);            
+                Thread.Sleep(1000);
         }
     }
 }
-

@@ -209,7 +209,7 @@ namespace MMBot
             });
         }
 
-        public async void Speak(string room, params string[] messages)
+        public async Task Speak(string room, params string[] messages)
         {
             foreach (
                 var adapter in
@@ -228,7 +228,7 @@ namespace MMBot
             }
         }
 
-        public async void Speak(string adapterId, string room, params string[] messages)
+        public async Task Speak(string adapterId, string room, params string[] messages)
         {
             var adapter = GetAdapter(adapterId);
 
