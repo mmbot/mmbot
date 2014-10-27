@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using MMBot.Brains;
 using Newtonsoft.Json;
@@ -39,7 +38,7 @@ namespace MMBot.RedisBrain
         {
             var database = _redis.GetDatabase();
             var value = await database.StringGetAsync(key);
-            if (typeof (T) == typeof (string))
+            if (typeof(T) == typeof(string))
             {
                 // :(
                 return (T)(object)(string)value;
@@ -55,8 +54,7 @@ namespace MMBot.RedisBrain
             }
             var serialized = value.ToString();
 
-            
-            return await JsonConvert.DeserializeObjectAsync<T>(serialized);
+            return JsonConvert.DeserializeObject<T>(serialized);
         }
 
         public async Task Set<T>(string key, T value)
@@ -72,7 +70,7 @@ namespace MMBot.RedisBrain
                 await database.StringSetAsync(key, value as byte[]);
                 return;
             }
-            var serialized = await JsonConvert.SerializeObjectAsync(value);
+            var serialized = JsonConvert.SerializeObject(value);
             await database.StringSetAsync(key, serialized);
         }
 

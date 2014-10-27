@@ -26,37 +26,37 @@ namespace MMBot.Scripts
 
         private void RememberConfiguredSources(Robot robot)
         {
-	        var configuredSources = robot.GetConfigVariable(NuGetRepositoriesSetting) ?? string.Empty;
-	        foreach(var source in configuredSources.Split(','))
-	        {
-		        AddSource(source, robot);
-	        }
+            var configuredSources = robot.GetConfigVariable(NuGetRepositoriesSetting) ?? string.Empty;
+            foreach (var source in configuredSources.Split(','))
+            {
+                AddSource(source, robot);
+            }
         }
 
         private List<string> GetRememberedSources(Robot robot)
         {
-	        var sources = robot.Brain.Get<List<string>>(NuGetRepositoriesSetting).Result;
-	        if(sources == null)
-	        {
-		        sources = new List<string>();
-		        Remember(NuGetRepositoriesSetting, sources, robot);
-	        }
+            var sources = robot.Brain.Get<List<string>>(NuGetRepositoriesSetting).Result;
+            if (sources == null)
+            {
+                sources = new List<string>();
+                Remember(NuGetRepositoriesSetting, sources, robot);
+            }
 
-	        return sources;
+            return sources;
         }
 
         private void Remember(string key, object value, Robot robot)
         {
-	        robot.Brain.Set(key, value);
+            robot.Brain.Set(key, value);
         }
 
         private bool AddSource(string source, Robot robot)
         {
-	        var sources = GetRememberedSources(robot);
-	        if (sources.Contains(source))
-	        {
-		        return false;
-	        }
+            var sources = GetRememberedSources(robot);
+            if (sources.Contains(source))
+            {
+                return false;
+            }
             sources.Add(source);
             Remember(NuGetRepositoriesSetting, sources, robot);
             return true;
@@ -64,55 +64,55 @@ namespace MMBot.Scripts
 
         private bool RemoveSource(string source, Robot robot)
         {
-	        var sources = GetRememberedSources(robot);
-	        if (sources.Contains(source))
-	        {
-		        sources.Remove(source);
-		        Remember(NuGetRepositoriesSetting, sources, robot);
-		        return true;
-	        }
+            var sources = GetRememberedSources(robot);
+            if (sources.Contains(source))
+            {
+                sources.Remove(source);
+                Remember(NuGetRepositoriesSetting, sources, robot);
+                return true;
+            }
             return false;
         }
-        
+
         private void RememberConfiguredAliases(Robot robot)
         {
-	        var configuredAliases = robot.GetConfigVariable(NuGetPackageAliasesSetting) ?? string.Empty;
-            foreach (var alias in configuredAliases.Split(new []{','}, StringSplitOptions.RemoveEmptyEntries))
+            var configuredAliases = robot.GetConfigVariable(NuGetPackageAliasesSetting) ?? string.Empty;
+            foreach (var alias in configuredAliases.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 AddAlias(alias, robot);
             }
         }
 
-        private Dictionary<string,string> GetRememberedAliases(Robot robot)
+        private Dictionary<string, string> GetRememberedAliases(Robot robot)
         {
-	        var aliases = robot.Brain.Get<Dictionary<string,string>>(NuGetPackageAliasesSetting).Result;
-	        if(aliases == null)
-	        {
-		        aliases = new Dictionary<string,string>();
-		        Remember(NuGetPackageAliasesSetting, aliases, robot);
-	        }
-	        return aliases;
+            var aliases = robot.Brain.Get<Dictionary<string, string>>(NuGetPackageAliasesSetting).Result;
+            if (aliases == null)
+            {
+                aliases = new Dictionary<string, string>();
+                Remember(NuGetPackageAliasesSetting, aliases, robot);
+            }
+            return aliases;
         }
 
         private void AddAlias(string alias, Robot robot)
         {
-	        var aliases = GetRememberedAliases(robot);
-	        var parts = alias.Split('=');
-	
-	        alias = parts[0].ToLower();
-	        var packageName = parts[1];
-	
-	        aliases[alias] = packageName;
+            var aliases = GetRememberedAliases(robot);
+            var parts = alias.Split('=');
 
-	        Remember(NuGetPackageAliasesSetting, aliases, robot);
+            alias = parts[0].ToLower();
+            var packageName = parts[1];
+
+            aliases[alias] = packageName;
+
+            Remember(NuGetPackageAliasesSetting, aliases, robot);
         }
 
         private void RemoveAlias(string alias, Robot robot)
         {
-	        var aliases = GetRememberedAliases(robot);
-	        alias = alias.Split(',')[0];
-	        aliases.Remove(alias);
-	        Remember(NuGetPackageAliasesSetting, aliases, robot);
+            var aliases = GetRememberedAliases(robot);
+            alias = alias.Split(',')[0];
+            aliases.Remove(alias);
+            Remember(NuGetPackageAliasesSetting, aliases, robot);
         }
 
         private void RememberConfiguredAutoReset(Robot robot)
@@ -137,7 +137,7 @@ namespace MMBot.Scripts
                 parts.Select((part, i) =>
                 {
                     var optional = (optionalParams ?? new int[0]).Contains(i);
-                    return string.Format("{0}({1}){2}", 
+                    return string.Format("{0}({1}){2}",
                         optional ? "*" : string.Empty,
                         part,
                         optional ? "?" : string.Empty);
@@ -147,14 +147,13 @@ namespace MMBot.Scripts
         private AggregateRepository BuildPackagesRepository(Robot robot)
         {
             var packageSources = GetRememberedSources(robot).Where(s => !string.IsNullOrWhiteSpace(s));
-	        return new AggregateRepository(packageSources
-		        .Select(s => PackageRepositoryFactory.Default.CreateRepository(s)));
-
+            return new AggregateRepository(packageSources
+                .Select(s => PackageRepositoryFactory.Default.CreateRepository(s)));
         }
 
         private string GetPackagesPath()
         {
-	        return Path.Combine(Directory.GetCurrentDirectory(), "packages");
+            return Path.Combine(Directory.GetCurrentDirectory(), "packages");
         }
 
         public void Register(Robot robot)
@@ -163,18 +162,18 @@ namespace MMBot.Scripts
             RememberConfiguredAliases(robot);
             RememberConfiguredAutoReset(robot);
 
-            robot.Respond(BuildCommand(new[] {List, Package, Source}), 
+            robot.Respond(BuildCommand(new[] { List, Package, Source }),
                 msg => msg.Send(GetRememberedSources(robot).ToArray()));
 
-            robot.Respond(BuildCommand(new []{Add, Package, Source, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Add, Package, Source, ParamWithNoSpaces }), msg =>
             {
                 var source = msg.Match[4].ToString(CultureInfo.InvariantCulture);
-                msg.Send(!AddSource(source, robot) 
-                    ? "I already know about this one." 
+                msg.Send(!AddSource(source, robot)
+                    ? "I already know about this one."
                     : "Consider it done.");
             });
 
-            robot.Respond(BuildCommand(new []{Remove, Package, Source, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Remove, Package, Source, ParamWithNoSpaces }), msg =>
             {
                 var source = msg.Match[4].ToString(CultureInfo.InvariantCulture);
                 msg.Send(RemoveSource(source, robot)
@@ -182,7 +181,7 @@ namespace MMBot.Scripts
                     : "It's easy to forget what you never knew.");
             });
 
-            robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart}, new[] {3}), msg =>
+            robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart }, new[] { 3 }), async msg =>
             {
                 //ID of the package to be looked up
                 var packageId = msg.Match[3].ToString(CultureInfo.InvariantCulture);
@@ -194,11 +193,11 @@ namespace MMBot.Scripts
                     unaliasedPackageId = packageId;
                 }
 
-                msg.Send("Building repositories...");
+                await msg.Send("Building repositories...");
                 IPackageRepository repo = BuildPackagesRepository(robot);
 
-                //Get the list of all NuGet packages with ID 'EntityFramework'   
-                msg.Send("Finding package...");
+                //Get the list of all NuGet packages with ID 'EntityFramework'
+                await msg.Send("Finding package...");
                 List<IPackage> packages = repo.FindPackagesById(unaliasedPackageId).ToList();
 
                 IPackage latestPackageVersion;
@@ -209,11 +208,11 @@ namespace MMBot.Scripts
                     latestPackageVersion = packages.Any(p => p.IsAbsoluteLatestVersion)
                                                ? packages.First(p => p.IsAbsoluteLatestVersion)
                                                : packages.Last();
-                    msg.Send("Found it! Downloading...");
+                    await msg.Send("Found it! Downloading...");
                 }
                 else
                 {
-                    msg.Send("I couldn't find it...sorry!");
+                    await msg.Send("I couldn't find it...sorry!");
                     return;
                 }
 
@@ -223,31 +222,31 @@ namespace MMBot.Scripts
 
                 //Download and unzip the package
                 packageManager.InstallPackage(latestPackageVersion, false, true);//TODO: allow these flags to be configurable? allow user to specify version?
-                msg.Send("Finished downloading...");
-                
+                await msg.Send("Finished downloading...");
+
                 if (ShouldAutoResetAfterUpdate(robot) || (msg.Match.Length >= 5 && Regex.IsMatch(msg.Match[4], Restart)))
                 {
                     //They submitted the reset parameter or auto-reset is on.
-                    msg.Send("Resetting...please wait.");
-                    robot.Reset();
+                    await msg.Send("Resetting...please wait.");
+                    await robot.Reset();
                 }
             });
 
-            robot.Respond(BuildCommand(new []{List, Package, Alias}), 
+            robot.Respond(BuildCommand(new[] { List, Package, Alias }),
                 msg => msg.Send(GetRememberedAliases(robot).Select(kvp => string.Format("{0} = {1}", kvp.Key, kvp.Value)).ToArray()));
 
-            robot.Respond(BuildCommand(new []{Add, Package, Alias, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Add, Package, Alias, ParamWithNoSpaces }), msg =>
             {
-	            var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
-	            AddAlias(alias, robot);
-	            msg.Send("I'll be sure to remember that.");
+                var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
+                AddAlias(alias, robot);
+                msg.Send("I'll be sure to remember that.");
             });
 
-            robot.Respond(BuildCommand(new []{Remove, Package, Alias, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Remove, Package, Alias, ParamWithNoSpaces }), msg =>
             {
-	            var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
-	            RemoveAlias(alias, robot);
-	            msg.Send("As you wish.");
+                var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
+                RemoveAlias(alias, robot);
+                msg.Send("As you wish.");
             });
         }
 

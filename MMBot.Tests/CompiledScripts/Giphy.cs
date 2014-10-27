@@ -14,8 +14,6 @@ namespace MMBot.Tests.CompiledScripts
         {
             var apiKey = GetApiKey(robot);
 
-            
-
             robot.Respond(@"(gif|giphy)( me)? (.*)", async msg =>
             {
                 var query = msg.Match[3];
@@ -27,10 +25,9 @@ namespace MMBot.Tests.CompiledScripts
         private static string GetApiKey(Robot robot)
         {
             return robot.GetConfigVariable("MMBOT_GIPHY_APIKEY") ?? "dc6zaTOxFJmzC";
-
         }
 
-        public static async Task GifMe(Robot robot, string query, IResponse<TextMessage> msg )
+        public static async Task GifMe(Robot robot, string query, IResponse<TextMessage> msg)
         {
             await GifMeCore(msg, query, GetApiKey(robot));
         }
@@ -56,13 +53,13 @@ namespace MMBot.Tests.CompiledScripts
             }
             catch (Exception)
             {
-                msg.Send("erm....issues, move along");
+                msg.Send("erm....issues, move along").Wait();
             }
         }
 
         public IEnumerable<string> GetHelp()
         {
-            return new[] {"mmbot gif me <query> - Returns an animated gif matching the requested search term."};
+            return new[] { "mmbot gif me <query> - Returns an animated gif matching the requested search term." };
         }
     }
 }

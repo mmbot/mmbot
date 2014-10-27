@@ -25,23 +25,23 @@ namespace MMBot.Tests.CompiledScripts
         {
             var res = await msg.Http(String.Format(Url, query))
                 .Get();
-            
+
             try
             {
-                res.Content.ReadAsStringAsync().ContinueWith(async readTask =>
+                await res.Content.ReadAsStringAsync().ContinueWith(async readTask =>
                 {
                     await msg.Send(readTask.Result);
                 });
             }
             catch (Exception)
             {
-                msg.Send("erm....issues, move along");
+                msg.Send("erm....issues, move along").Wait();
             }
         }
 
         public IEnumerable<string> GetHelp()
         {
-            return new[] {"mmbot ascii me <query> - Returns ASCII art of the query text."};
+            return new[] { "mmbot ascii me <query> - Returns ASCII art of the query text." };
         }
     }
 }

@@ -68,7 +68,7 @@ namespace MMBot.HipChat
             }
         }
 
-        public override async Task Run()
+        public override Task Run()
         {
             if (!_isConfigured)
             {
@@ -77,6 +77,8 @@ namespace MMBot.HipChat
             Logger.Info(string.Format("Logging into HipChat..."));
 
             SetupHipChatClient();
+
+            return TaskAsyncHelper.Empty;
         }
 
         private void SetupHipChatClient()
@@ -235,7 +237,7 @@ namespace MMBot.HipChat
             var mucManager = new MucManager(_client);
             mucManager.ChangeSubject(new Jid(roomName), string.Join(" ", messages));
 
-            return Task.FromResult(0);
+            return TaskAsyncHelper.Empty;
         }
 
         public override Task Close()
@@ -243,7 +245,7 @@ namespace MMBot.HipChat
             _client.Close();
             _client = null;
 
-            return Task.FromResult(0);
+            return TaskAsyncHelper.Empty;
         }
     }
 }

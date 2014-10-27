@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -18,7 +17,7 @@ namespace MMBot.Tests
         {
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK));
             var http = new HttpWrapper("http://foo.com/",
-                new TestLogger(), 
+                new TestLogger(),
                 new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
@@ -64,18 +63,17 @@ namespace MMBot.Tests
                 new Envelope(new TextMessage(CreateTestUser(), "test")),
                 stubHandler);
 
-            http.Query(new Dictionary<string, string>{{"foo", "Foo"}, {"bar", "Bar"}});
-            
+            http.Query(new Dictionary<string, string> { { "foo", "Foo" }, { "bar", "Bar" } });
+
             await http.Get();
 
             Assert.Equal("http://foo.com/?foo=Foo&bar=Bar", stubHandler.LastRequest.RequestUri.ToString());
         }
 
-
         [Fact]
         public async Task WhenGetJsonIsCalled_ResponseContentIsDeserialized()
         {
-            var expectedString = JsonConvert.SerializeObject(new {Id=4, Foo = "Foo", Bar = "Bar", Date = DateTime.Now});
+            var expectedString = JsonConvert.SerializeObject(new { Id = 4, Foo = "Foo", Bar = "Bar", Date = DateTime.Now });
             var expected = JsonConvert.DeserializeObject(expectedString);
 
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
@@ -89,10 +87,8 @@ namespace MMBot.Tests
 
             var actual = await http.GetJson();
 
-
             Assert.True(new JTokenEqualityComparer().Equals((JToken)expected, (JToken)actual));
         }
-
 
         [Fact]
         public async Task WhenGetJsonWithCallbackReturnsErrorHttpStatusCode_CodeIsAccessibleViaResponseParameter()
@@ -116,11 +112,10 @@ namespace MMBot.Tests
                 Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
             });
             Assert.True(callback);
-
         }
 
         [Fact]
-        public async Task WhenGetJson_AndContentContainsGarbage_ThrowsException()
+        public void WhenGetJson_AndContentContainsGarbage_ThrowsException()
         {
             var expected = "dfsgsdf%#@$%^&*()";
 
@@ -156,12 +151,10 @@ namespace MMBot.Tests
                 callback = true;
                 Assert.NotNull(err);
                 Assert.IsType<JsonReaderException>(err);
-                
             });
 
             Assert.True(callback);
         }
-
 
         [Fact]
         public async Task WhenGetXmlIsCalled_ResponseContentIsDeserialized()
@@ -207,14 +200,13 @@ namespace MMBot.Tests
                 Assert.Equal(HttpStatusCode.NotFound, res.StatusCode);
             });
             Assert.True(callback);
-
         }
 
         [Fact]
-        public async Task WhenGetXmlIsCalled_AndContentIsGarbage_ExceptionIsThrown()
+        public void WhenGetXmlIsCalled_AndContentIsGarbage_ExceptionIsThrown()
         {
             var expectedString = "!@#$%^&*()_+<root><foo@#$%^&*()_>$%^&*(OP)_Foo</foo><bar>Bar</bar></root>";
-            
+
             var stubHandler = new FakeHttpMessageHandler(new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(expectedString)
@@ -249,7 +241,6 @@ namespace MMBot.Tests
                 Assert.IsType<HttpRequestException>(err);
             });
             Assert.True(callback);
-
         }
     }
 }

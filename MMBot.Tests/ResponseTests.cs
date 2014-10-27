@@ -1,39 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Common.Logging;
-using Common.Logging.Simple;
 using Xunit;
-
-using MMBot;
 
 namespace MMBot.Tests
 {
     public class ResponseTests
     {
         [Fact]
-        public async Task WhenRandomIsCalledWithEmptyList_ADefaultIsReturned()
+        public void WhenRandomIsCalledWithEmptyList_ADefaultIsReturned()
         {
             var response = CreateTestResponse();
             Assert.Equal(default(string), response.Random<string>(new List<string>()));
         }
 
         [Fact]
-        public async Task WhenRandomIsCalledWithOneValue_TheValueCanBeReturned()
+        public void WhenRandomIsCalledWithOneValue_TheValueCanBeReturned()
         {
             var response = CreateTestResponse();
-            var msg = response.Random(new string[] {"One"});
+            var msg = response.Random(new string[] { "One" });
             Assert.Equal("One", msg);
         }
 
         [Fact]
-        public async Task WhenRandomIsCalled_AllValuesCanBeReturned()
+        public void WhenRandomIsCalled_AllValuesCanBeReturned()
         {
             var numRandoms = 50;
             var response = CreateTestResponse();
-            var values = new string[] {"One", "Two"};
+            var values = new string[] { "One", "Two" };
 
             var msgs = new List<string>(numRandoms);
             for (var i = 0; i < numRandoms; i++) msgs.Add(response.Random(values));

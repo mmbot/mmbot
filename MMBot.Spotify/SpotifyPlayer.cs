@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MMBot.Adapters;
 using SpotiFire;
 
 namespace MMBot.Spotify
@@ -18,6 +15,7 @@ namespace MMBot.Spotify
         private IPlayer _player = new NAudioPlayer();
         private bool _isShuffleOn;
         private static Random _random = new Random(DateTime.Now.Millisecond);
+
         private static byte[] key = new byte[]
         {
             0x01, 0xAE, 0x58, 0xF9, 0xD6, 0xA5, 0x00, 0x8D, 0x43, 0xE3, 0x80, 0xB0, 0x6B, 0x9F, 0xC4, 0xFC,
@@ -57,6 +55,7 @@ namespace MMBot.Spotify
         private string _loungeRoom;
 
         public event EventHandler<Track> TrackChanged;
+
         public event EventHandler<PlayerState> StateChanged;
 
         public enum PlayerState
@@ -66,7 +65,6 @@ namespace MMBot.Spotify
             Paused,
             Playing,
         }
-
 
         public SpotifyPlayer(Robot robot)
         {
@@ -197,7 +195,7 @@ namespace MMBot.Spotify
         {
             await Play(playlist.Tracks[0]);
             await PrependToQueue(playlist.Tracks.Skip(1));
-            
+
             await SaveQueue();
             return string.Format("Queued up {0} tracks from playlist {1}", playlist.Tracks.Count,
                 playlist.Name);
@@ -224,8 +222,6 @@ namespace MMBot.Spotify
             }
             return message;
         }
-
-
 
         public async Task<Track> SearchForTrack(string query)
         {
@@ -283,7 +279,6 @@ namespace MMBot.Spotify
             await Play();
         }
 
-
         private void OnMusicDelivered(Session sender, MusicDeliveryEventArgs e)
         {
             if (e.Samples.Length > 0)
@@ -299,7 +294,7 @@ namespace MMBot.Spotify
         private void OnTrackEnded(Session sender, SessionEventArgs e)
         {
             _currentTrack = null;
-            PlayNextInQueue();
+            PlayNextInQueue().Wait();
         }
 
         public void Mute()
@@ -335,7 +330,7 @@ namespace MMBot.Spotify
         public async Task<int> ClearQueue()
         {
             int count = _queue.Count;
-            if(count > 0)
+            if (count > 0)
             {
                 _queue.Clear();
                 await SaveQueue();
@@ -352,7 +347,6 @@ namespace MMBot.Spotify
 
             return _queue.Count - count;
         }
-
 
         private async Task SaveQueue()
         {
@@ -428,16 +422,17 @@ namespace MMBot.Spotify
             return null;
         }
 
-        public async Task Pause()
+        public Task Pause()
         {
             _session.PlayerPause();
             if (CurrentTrack != null)
             {
                 OnStateChanged(PlayerState.Paused);
             }
+            return TaskAsyncHelper.Empty;
         }
 
-        private async Task SetCurrentTrack(Track track)
+        private Task SetCurrentTrack(Track track)
         {
             _currentTrack = track;
             if (LoungeRoom != null)
@@ -447,6 +442,7 @@ namespace MMBot.Spotify
                     OnStateChanged(PlayerState.Stopped);
                 }
             }
+            return TaskAsyncHelper.Empty;
         }
 
         public async Task<Link> ParseLink(string query)
@@ -454,7 +450,6 @@ namespace MMBot.Spotify
             await Login();
             return _session.ParseLink(query);
         }
-
 
         public void SetVolume(int level)
         {
@@ -470,7 +465,6 @@ namespace MMBot.Spotify
         {
             _player.TurnDown(amount);
         }
-
 
         protected virtual void OnTrackChanged(Track e)
         {
@@ -489,21 +483,18 @@ namespace MMBot.Spotify
             State = e;
         }
 
-
         public void Dispose()
         {
             _session.Logout().Wait();
             _player.Reset();
-            
+
             _session.PlayerUnload();
             _session.ForgetMe();
-            
-            
+
             _session.Dispose();
             _currentTrack = null;
             _session = null;
             _player = null;
         }
     }
-
 }

@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using agsXMPP;
 using agsXMPP.protocol.client;
 using agsXMPP.protocol.iq.roster;
 using agsXMPP.protocol.x.muc;
-using agsXMPP.sasl;
 using Common.Logging;
 
 namespace MMBot.XMPP
@@ -25,16 +24,14 @@ namespace MMBot.XMPP
         private string _confServer;
         private XmppClientConnection _xmppConnection;
         private TaskCompletionSource<bool> _loginTcs;
-        private TaskCompletionSource<bool> _reconnectTcs;
 
-        private bool _isConfigured = false;
         private object _connectSync = new object();
         private const int CONNECT_TIMEOUT = 8000;
         private const int RECONNECT_TIMEOUT = 20000;
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
-        
 
-        public XmppAdapter(ILog logger, string adapterId) : base(logger, adapterId)
+        public XmppAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
         {
         }
 
@@ -63,8 +60,7 @@ namespace MMBot.XMPP
             int.TryParse(Robot.GetConfigVariable("MMBOT_XMPP_PORT"), out _port);
             _confServer = Robot.GetConfigVariable("MMBOT_XMPP_CONFERENCE_SERVER");
 
-            
-            if (_host == null || _connectHost == null | _username == null  || _password == null)
+            if (_host == null || _connectHost == null | _username == null || _password == null)
             {
                 var helpSb = new StringBuilder();
                 helpSb.AppendLine("The XMPP adapter is not configured correctly and hence will not be enabled.");
@@ -74,22 +70,17 @@ namespace MMBot.XMPP
                 helpSb.AppendLine("  MMBOT_XMPP_PASSWORD - the password");
                 helpSb.AppendLine("  MMBOT_XMPP_CONFERENCE_SERVER - a conference server to use when connecting to rooms");
                 helpSb.AppendLine("  MMBOT_XMPP_ROOMS - A comma separated list of room names that mmbot should join");
-                helpSb.AppendLine( "More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
+                helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
-                _isConfigured = false;
             }
-            else
-            {
-                _isConfigured = true;
-            }
-}
+        }
 
         public override Task Run()
         {
             _loginTcs = new TaskCompletionSource<bool>();
             Task<bool> connect = _loginTcs.Task;
-            
-            if (_xmppConnection != null) 
+
+            if (_xmppConnection != null)
             {
                 _xmppConnection.Close();
                 _xmppConnection = null;
@@ -161,7 +152,7 @@ namespace MMBot.XMPP
         {
             //TODO do something for autojoin
         }
-        
+
         private void OnMessage(object sender, agsXMPP.protocol.client.Message message)
         {
             if (!String.IsNullOrEmpty(message.Body) && message.From.Resource != _username)
@@ -239,7 +230,6 @@ namespace MMBot.XMPP
                 }
                 Thread.Sleep(RECONNECT_TIMEOUT);
             }
-            
         }
 
         public override Task Close()
@@ -268,7 +258,6 @@ namespace MMBot.XMPP
 
         private void OnClientRosterItem(object sender, RosterItem item)
         {
-            
             if (!_roster.ContainsKey(item.Jid.User))
             {
                 _roster.Add(item.Jid.User, item.Name);
@@ -287,7 +276,6 @@ namespace MMBot.XMPP
             {
                 _xmppConnection.Send(new agsXMPP.protocol.client.Message(new Jid(envelope.User.Name), MessageType.chat, string.Join(Environment.NewLine, messages)));
             }
-                
         }
     }
 }
