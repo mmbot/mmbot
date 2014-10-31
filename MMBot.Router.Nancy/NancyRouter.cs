@@ -21,6 +21,7 @@ namespace MMBot.Router.Nancy
         private readonly IDictionary<Route, Func<OwinContext, object>> _routes = new Dictionary<Route, Func<OwinContext, object>>();
         protected bool IsStarted;
         private readonly Subject<Route> _routeRegistered = new Subject<Route>();
+	    private bool _useSsl;
 
         public NancyRouter() : this(TimeSpan.FromSeconds(10))
         {
@@ -55,6 +56,10 @@ namespace MMBot.Router.Nancy
         {
             _port = port;
             _isConfigured = true;
+	        if (_robot != null)
+	        {
+		        _useSsl = (_robot.GetConfigVariable("MMBOT_ROUTER_SSL") ?? "").ToLower() == "true";
+	        }
         }
 
         public virtual void Start()
@@ -64,10 +69,10 @@ namespace MMBot.Router.Nancy
                 throw new InvalidOperationException("The router has not yet been configured. You must call Configure before calling start");
             }
 
-            var url = string.Format("http://+:{0}", _port);
+            var url = string.Format("http{0}://+:{1}", _useSsl ? "s" : "", _port);
             _webappDisposable = WebApp.Start(url, app => app.UseNancy(options => options.Bootstrapper = new Bootstrapper(this)));
             
-            Robot.Logger.Info(string.Format("Router (Nancy) is running on http://localhost:{0}", _port));
+            Robot.Logger.Info(string.Format("Router (Nancy) is running on http{0}://localhost:{1}", _useSsl ? "s" : "", _port));
 
             IsStarted = true;
         }

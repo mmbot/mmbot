@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Autofac;
 using Microsoft.Owin;
 
 namespace MMBot.Router

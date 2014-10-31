@@ -137,7 +137,7 @@ namespace MMBot.Tests
             var scriptRunner = new ScriptRunner(loggerConfigurator.GetLogger());
             
             var robot = builder
-                        .Build(c => c.RegisterInstance(scriptRunner).As<IScriptRunner>());
+                        .Build(c => c.Register<IScriptRunner>(scriptRunner));
 
             scriptRunner.Initialize(robot);
 
@@ -159,54 +159,55 @@ namespace MMBot.Tests
         {
             var logConfig = new LoggerConfigurator(LogLevel.Trace);
             logConfig.ConfigureForConsole();
-            var robot = new RobotBuilder(logConfig)
+            using(var robot = new RobotBuilder(logConfig)
                         .DisablePluginDiscovery()
                         .DisableScriptDiscovery()
                         .UseAdapter<StubAdapter>()
                         .UseAdapter<StubAdapter2>()
                         .UseBrain<StubBrain>()
-                        .Build();
+                        .Build()){
             
-            robot.AutoLoadScripts = false;
+                robot.AutoLoadScripts = false;
 
-            var adapter1 = robot.Adapters.Values.OfType<StubAdapter>().First();
-            var adapter2 = robot.Adapters.Values.OfType<StubAdapter2>().First();
+                var adapter1 = robot.Adapters.Values.OfType<StubAdapter>().First();
+                var adapter2 = robot.Adapters.Values.OfType<StubAdapter2>().First();
 
-            robot.LoadScript<StubEchoScript>();
+                robot.LoadScript<StubEchoScript>();
 
-            var expectedMessages = new[]
-            {
-                Tuple.Create("test1", "Hello Test 1"),
-                Tuple.Create("test2", "Hello Test 2"),
-                Tuple.Create("test3", "Hello Test 3")
+                var expectedMessages = new[]
+                {
+                    Tuple.Create("test1", "Hello Test 1"),
+                    Tuple.Create("test2", "Hello Test 2"),
+                    Tuple.Create("test3", "Hello Test 3")
+                };
+                await robot.Run();
+
+                Console.WriteLine("Testing Adapter 1");
+                expectedMessages.ForEach(t => adapter1.SimulateMessage(t.Item1, "mmbot " + t.Item2));
+
+                var expectedMessagesValues = expectedMessages.Select(t => string.Concat(t.Item1, t.Item2));
+                Console.WriteLine("Expected:");
+                Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
+                var actualMessagesValues = adapter1.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
+                Console.WriteLine("Actual:");
+                Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
+
+                Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+                Assert.Equal(0, adapter2.Messages.Count());
+
+                Console.WriteLine("Testing Adapter 2");
+                expectedMessages.ForEach(t => adapter2.SimulateMessage(t.Item1, "mmbot " + t.Item2));
+
+            
+                Console.WriteLine("Expected:");
+                Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
+                actualMessagesValues = adapter2.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
+                Console.WriteLine("Actual:");
+                Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
+
+                Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
+                Assert.Equal(3, adapter1.Messages.Count());
             };
-            await robot.Run();
-
-            Console.WriteLine("Testing Adapter 1");
-            expectedMessages.ForEach(t => adapter1.SimulateMessage(t.Item1, "mmbot " + t.Item2));
-
-            var expectedMessagesValues = expectedMessages.Select(t => string.Concat(t.Item1, t.Item2));
-            Console.WriteLine("Expected:");
-            Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
-            var actualMessagesValues = adapter1.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
-            Console.WriteLine("Actual:");
-            Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
-
-            Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
-            Assert.Equal(0, adapter2.Messages.Count());
-
-            Console.WriteLine("Testing Adapter 2");
-            expectedMessages.ForEach(t => adapter2.SimulateMessage(t.Item1, "mmbot " + t.Item2));
-
-            
-            Console.WriteLine("Expected:");
-            Console.WriteLine(string.Join(Environment.NewLine, expectedMessagesValues));
-            actualMessagesValues = adapter2.Messages.Select(t => string.Concat(t.Item1.User.Name, t.Item2.FirstOrDefault()));
-            Console.WriteLine("Actual:");
-            Console.WriteLine(string.Join(Environment.NewLine, actualMessagesValues));
-
-            Assert.True(expectedMessagesValues.SequenceEqual(actualMessagesValues));
-            Assert.Equal(3, adapter1.Messages.Count());
         }
 
         public class StubAdapter2 : StubAdapter
