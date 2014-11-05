@@ -171,6 +171,9 @@ UpgradeLog*.htm
 App_Data/*.mdf
 App_Data/*.ldf
 
+# VS "14" changes
+*.sln.ide
+
 #############
 ## Windows detritus
 #############
