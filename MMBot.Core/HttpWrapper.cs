@@ -141,7 +141,7 @@ namespace MMBot
                 var response = await DoGet();
                 response.EnsureSuccessStatusCode();
                 var result = await response.Content.ReadAsStringAsync();
-                return await JsonConvert.DeserializeObjectAsync<dynamic>(result);
+                return JsonConvert.DeserializeObject<dynamic>(result);
             }
             catch (Exception e)
             {
@@ -161,7 +161,7 @@ namespace MMBot
 
                 string result = await response.Content.ReadAsStringAsync();
 
-                var body = await result.ToJsonAsync();
+                var body = result.ToJson();
                 
                 callback(null, response, body);
             }
@@ -310,12 +310,12 @@ namespace MMBot
     {
         public static async Task<dynamic> Json(this HttpResponseMessage response)
         {
-            return await JsonConvert.DeserializeObjectAsync<dynamic>(await response.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<dynamic>(await response.Content.ReadAsStringAsync());
         }
 
         public static async Task Json(this HttpResponseMessage response, Action<JToken> callback)
         {
-            var result = await JsonConvert.DeserializeObjectAsync<JToken>(await response.Content.ReadAsStringAsync());
+            var result = JsonConvert.DeserializeObject<JToken>(await response.Content.ReadAsStringAsync());
             callback(result);
         }
     }
