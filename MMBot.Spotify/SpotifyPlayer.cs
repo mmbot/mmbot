@@ -225,54 +225,28 @@ namespace MMBot.Spotify
             return message;
         }
 
-
-
         public async Task<Track> SearchForTrack(string query)
         {
             var tracks = await _session.SearchTracks(query, 0, 1);
-
-            if (!tracks.Tracks.Any())
-            {
-                return null;
-            }
-
-            return tracks.Tracks[0];
+            return tracks.Tracks.FirstOrDefault();
         }
 
         public async Task<Album> SearchForAlbum(string query)
         {
             var albums = await _session.SearchAlbums(query, 0, 1);
-
-            if (!albums.Albums.Any())
-            {
-                return null;
-            }
-
-            return albums.Albums[0];
+            return albums.Albums.FirstOrDefault();
         }
 
         public async Task<Playlist> SearchForPlaylist(string query)
         {
             var playlists = await _session.SearchPlaylist(query, 0, 1);
-
-            if (!playlists.Albums.Any())
-            {
-                return null;
-            }
-
-            return playlists.Playlists[0];
+            return playlists.Playlists.FirstOrDefault();
         }
 
         public async Task<Artist> SearchForArtist(string query)
         {
             var artists = await _session.SearchArtists(query, 0, 1);
-
-            if (!artists.Artists.Any())
-            {
-                return null;
-            }
-
-            return artists.Artists[0];
+            return artists.Artists.FirstOrDefault();
         }
 
         public async Task Play(Track track)
@@ -282,7 +256,6 @@ namespace MMBot.Spotify
             await SetCurrentTrack(track);
             await Play();
         }
-
 
         private void OnMusicDelivered(Session sender, MusicDeliveryEventArgs e)
         {
