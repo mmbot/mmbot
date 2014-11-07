@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Common.Logging;
 using MMBot.Brains;
 using MMBot.Router;
@@ -144,8 +145,17 @@ namespace MMBot
             {
                 return new Type[0];
             }
-            return
+            try
+            {
+                return
                 assembly.GetTypes().Where(t => type.IsAssignableFrom(t) && !t.IsAbstract && !t.IsGenericTypeDefinition);
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                
+                throw new Exception(FormatReflectionTypeLoadException(assembly.Location,ex));
+            }
+            
         }
 
         public static IEnumerable<string> FilterAssembliesToMostRecent(IEnumerable<string> assemblies)
@@ -190,5 +200,69 @@ namespace MMBot
             }
             return router;
         }
+
+        internal static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine(string.Format("Could not enumerate all types for '{0}'.", fileName));
+
+            if (!e.LoaderExceptions.Any())
+            {
+                sb.AppendLine(string.Format("Exception message: {0}", e));
+                return sb.ToString();
+            }
+
+            var nsbAssemblyName = typeof(NuGetPackageAssemblyResolver).Assembly.GetName();
+            var nsbPublicKeyToken = BitConverter.ToString(nsbAssemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
+            var files = new List<string>();
+            var sbFileLoadException = new StringBuilder();
+            var sbGenericException = new StringBuilder();
+
+            foreach (var ex in e.LoaderExceptions)
+            {
+                var loadException = ex as FileLoadException;
+
+                if (loadException != null)
+                {
+                    var assemblyName = new AssemblyName(loadException.FileName);
+                    var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
+                    if (nsbAssemblyName.Name == assemblyName.Name &&
+                        nsbAssemblyName.CultureInfo.ToString() == assemblyName.CultureInfo.ToString() &&
+                        nsbPublicKeyToken == assemblyPublicKeyToken)
+                    {
+                        continue;
+                    }
+
+                    if (!files.Contains(loadException.FileName))
+                    {
+                        files.Add(loadException.FileName);
+                        sbFileLoadException.AppendLine(loadException.FileName);
+                    }
+                    continue;
+                }
+
+                sbGenericException.AppendLine(ex.ToString());
+            }
+
+            if (sbGenericException.ToString().Length > 0)
+            {
+                sb.AppendLine("Exceptions:");
+                sb.AppendLine(sbGenericException.ToString());
+            }
+
+            if (sbFileLoadException.ToString().Length > 0)
+            {
+                sb.AppendLine("It looks like you may be missing binding redirects in your config file for the following assemblies:");
+                sb.Append(sbFileLoadException);
+                sb.AppendLine("For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx");
+            }
+
+          
+            return sb.ToString();
+        }
+
     }
+
+
 }
