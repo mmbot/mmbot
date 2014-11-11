@@ -262,18 +262,14 @@ namespace MMBot
             return string.Format("{0}...", Truncate(s, maxLength - 3));
         }
 
-        public static async Task<JToken> ToJsonAsync(this string jsonString)
+        public static JToken ToJson(this string jsonString)
         {
             if (jsonString != null && jsonString.StartsWith("["))
             {
-                return await JsonConvert.DeserializeObjectAsync<JArray>(jsonString);
+                return JsonConvert.DeserializeObject<JArray>(jsonString);
             }
-            return await JsonConvert.DeserializeObjectAsync<JObject>(jsonString);
-        }
 
-        public static JToken ToJson(this string jsonString)
-        {
-            return jsonString.ToJsonAsync().Result;
+            return JsonConvert.DeserializeObject<JObject>(jsonString);
         }
 
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue defaultValue = default(TValue))
@@ -285,7 +281,5 @@ namespace MMBot
             }
             return val;
         }
-
-
     }
 }

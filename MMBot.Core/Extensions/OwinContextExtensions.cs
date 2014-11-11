@@ -34,7 +34,7 @@ namespace MMBot
         public static async Task<JToken> ReadBodyAsJsonAsync(this IOwinContext context)
         {
             var body = await context.ReadBodyAsStringAsync();
-            return await body.ToJsonAsync();
+            return body.ToJson();
         }
         
         public static string ReadBodyAsString(this IOwinContext context)
