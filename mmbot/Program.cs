@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
+using System.ServiceProcess;
 using System.Threading;
 using MMBot;
-using System.ServiceProcess;
 
 namespace mmbot
 {
-
-    class Program 
+    class Program
     {
-
         static void Main(string[] args)
         {
             var options = new Options();
@@ -46,13 +44,11 @@ namespace mmbot
             }
         }
 
-     
-
         private static void SetupRobot(Options options)
         {
             var childAppDomain = AppDomain.CreateDomain(Guid.NewGuid().ToString("N"));
-            var wrapper = childAppDomain.CreateInstanceAndUnwrap(typeof (RobotWrapper).Assembly.FullName,
-                typeof (RobotWrapper).FullName) as RobotWrapper;
+            var wrapper = childAppDomain.CreateInstanceAndUnwrap(typeof(RobotWrapper).Assembly.FullName,
+                typeof(RobotWrapper).FullName) as RobotWrapper;
 
             wrapper.Start(options); //Blocks, waiting on a reset event.
             AppDomain.Unload(childAppDomain);
@@ -60,11 +56,10 @@ namespace mmbot
         }
     }
 
-    
     public class RobotWrapper : MarshalByRefObject
     {
         private Options _options;
-        
+
         public Options Options
         {
             get { return _options; }
@@ -74,11 +69,16 @@ namespace mmbot
         {
             _options = options;
             var robot = Initializer.StartBot(options).Result;
+
+            if (robot == null)
+            {
+                // Something went wrong. Abort
+                Environment.Exit(-1);
+            }
+
             var resetEvent = new AutoResetEvent(false);
             robot.ResetRequested += (sender, args) => resetEvent.Set();
             resetEvent.WaitOne();
         }
-
-        
     }
 }

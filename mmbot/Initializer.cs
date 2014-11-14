@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using MMBot;
 using Common.Logging;
+using MMBot;
 
 namespace mmbot
 {
@@ -49,14 +49,15 @@ namespace mmbot
             try
             {
                 robot = builder.Build();
-                if(robot == null)
-                {
-                    return null;
-                }
             }
             catch (Exception e)
             {
                 logConfig.GetLogger().Fatal("Could not build robot. Try installing the latest version of any mmbot packages (mmbot.jabbr, mmbot.slack etc) if there was a breaking change.", e);
+            }
+
+            if (robot == null)
+            {
+                return null;
             }
 
             await robot.Run().ContinueWith(t =>
@@ -168,13 +169,13 @@ namespace mmbot
         }
 
         public const string IntroText = @"
-                      _           _   
-                     | |         | |  
-  _ __ ___  _ __ ___ | |__   ___ | |_ 
+                      _           _
+                     | |         | |
+  _ __ ___  _ __ ___ | |__   ___ | |_
  | '_ ` _ \| '_ ` _ \| '_ \ / _ \| __|
- | | | | | | | | | | | |_) | (_) | |_ 
+ | | | | | | | | | | | |_) | (_) | |_
  |_| |_| |_|_| |_| |_|_.__/ \___/ \__|
-                                      
+
  >>> mmbot chat robot
 
  http://github.com/mmbot/mmbot
