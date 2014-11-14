@@ -5,9 +5,9 @@
 *
 * <commands>
 *     mmbot help - Displays all of the help commands that mmbot knows about.;
-*     mmbot help &lt;query&gt; - Displays all help commands that match &lt;query&gt;.;
+*     mmbot help (query) - Displays all help commands that match (query).;
 *     mmbot list scripts - Displays a list of all the loaded script files;
-*     mmbot man &lt;query&gt; - Displays the details for the script that matches &lt;query&gt;.;
+*     mmbot man (query) - Displays the details for the script that matches (query).;
 * </commands>
 * 
 * <author>
