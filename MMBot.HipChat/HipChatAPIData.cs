@@ -29,4 +29,37 @@ namespace MMBot.HipChat
         public string Name { get; set; }
         public string MentionName { get; set; }
     }
+
+    public class HipchatSendRoomNotificationRequest
+    {
+        public HipchatSendRoomNotificationRequest()
+        {
+            Color = "yellow";
+            Notify = true;
+            MessageFormat = "text";
+        }
+
+        public string Color { get; set; }
+
+        public string Message { get; set; }
+
+        public bool Notify { get; set; }
+
+        public string MessageFormat { get; set; }
+    }
+
+    public class HipchatPrivateMessageUserRequest
+    {
+        public HipchatPrivateMessageUserRequest()
+        {
+            Notify = true;
+            MessageFormat = "text";
+        }
+
+        public string Message { get; set; }
+
+        public bool Notify { get; set; }
+
+        public string MessageFormat { get; set; }
+    }
 }

@@ -28,6 +28,8 @@ namespace MMBot.HipChat
 
         private HipchatViewUserResponse _botUser;
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
+        private readonly Dictionary<string, int> _roomMap = new Dictionary<string, int>();
+        private readonly Dictionary<string, string> _nicks = new Dictionary<string, string>();
 
         public HipChatAdapter(ILog logger, string adapterId)
             : base(logger, adapterId)
@@ -158,10 +160,18 @@ namespace MMBot.HipChat
 
             if (messages == null || !messages.Any()) return;
 
+            int roomId;
+            if (!_roomMap.TryGetValue(envelope.User.Room, out roomId))
+            {
+                // There's no public room with the envelopes key, so send this
+                // as a private message to the user instead.
+                await Reply(envelope, messages);
+                return;
+            }
+
             foreach (var message in messages)
             {
-                var to = new Jid(envelope.User.Room);
-                _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
+                _api.SendRoomNotification(roomId, message);
             }
         }
 
@@ -171,11 +181,11 @@ namespace MMBot.HipChat
 
             if (messages == null || !messages.Any()) return;
 
-            var userAddress = _roster.Where(kvp => kvp.Value == envelope.User.Name).Select(kvp => kvp.Key).First() + '@' + _host;
+            var userId = "@" + _nicks[envelope.User.Name];
+
             foreach (var message in messages)
             {
-                var to = new Jid(userAddress);
-                _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
+                _api.PrivateMessageUser(userId, message);
             }
         }
 
@@ -201,6 +211,8 @@ namespace MMBot.HipChat
             {
                 var roomInfo = _api.GetRoom(room.Id);
 
+                _roomMap.Add(roomInfo.XmppJid, room.Id);
+
                 var jid = new Jid(roomInfo.XmppJid);
                 mucManager.JoinRoom(jid, _botUser.Name);
                 Rooms.Add(room.Name);
@@ -214,6 +226,9 @@ namespace MMBot.HipChat
             if (!_roster.ContainsKey(item.Jid.User))
             {
                 _roster.Add(item.Jid.User, item.Name);
+
+                _nicks.Add(item.Name, item.GetAttribute("mention_name"));
+
                 Logger.Info(string.Format("User '{0}' logged in", item.Name));
             }
         }
