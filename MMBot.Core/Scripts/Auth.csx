@@ -8,11 +8,11 @@
 * </configuration>
 *
 * <commands>
-*    mmbot give &lt;user&gt; the &lt;role&gt; role - assigns user to role
-*    mmbot remove &lt;user&gt; from the &lt;role&gt; - removes user from role;
-*    mmbot list roles for &lt;user&gt; - lists roles that the user has
-*    mmbot list admins - lists the admin users
-*    mmbot dump roles - dumps all user role assignments
+*    mmbot give (user) the (role) role - assigns user to role;
+*    mmbot remove (user) from the (role) - removes user from role;
+*    mmbot list roles for (user) - lists roles that the user has;
+*    mmbot list admins - lists the admin users;
+*    mmbot dump roles - dumps all user role assignments;
 * </commands>
 * 
 * <notes>

@@ -8,10 +8,10 @@
 * </configuration>
 *
 * <commands>
-*     mmbot repeat every &lt;time&gt; &lt;command&gt;- Repeat an mmbot command on a schedule (e.g. 4m, 1s, 24h).;
-*     mmbot schedule for &lt;time> &lt;command&gt; - Schedule an mmbot command.;
+*     mmbot repeat every (time) (command)- Repeat an mmbot command on a schedule (e.g. 4m, 1s, 24h).;
+*     mmbot schedule for (time) (command) - Schedule an mmbot command.;
 *     mmbot list schedule- Lists all scheduled jobs.;
-*     mmbot stop job &lt;job|all&gt;- kills a scheduled job, all for all jobs.;
+*     mmbot stop job (job|all)- kills a scheduled job, all for all jobs.;
 * </commands>
 * 
 * <notes>
