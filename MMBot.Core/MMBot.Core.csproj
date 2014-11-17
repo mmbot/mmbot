@@ -216,7 +216,6 @@
     <Compile Include="Scripts\ScriptRunner.cs" />
     <Compile Include="Scripts\ScriptSource.cs" />
     <Compile Include="Scripts\TypedScript.cs" />
-    <Compile Include="TaskAsyncHelper.cs" />
     <Compile Include="Listeners\TextListener.cs" />
     <Compile Include="TinyIoC.cs" />
     <Compile Include="User.cs" />

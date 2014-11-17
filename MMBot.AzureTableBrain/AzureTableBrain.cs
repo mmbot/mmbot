@@ -16,7 +16,7 @@ namespace MMBot.AzureTableBrain
         public void Initialize(Robot robot)
         {
             _robot = robot;
-            
+
             CloudStorageAccount storageAccount;
 
             string useDevelopmentStorage = _robot.GetConfigVariable("MMBOT_AZURETABLEBRAIN_USEDEVELOPMENTSTORAGE");
@@ -27,7 +27,7 @@ namespace MMBot.AzureTableBrain
             {
                 _robot.Logger.Info("Using DevelopmentStorageAccount, Azure Storage Emulator must be running");
                 _robot.Logger.Info("Configure STORAGE_ACCOUNT_NAME and ACCESS_KEY for production storage");
-                
+
                 storageAccount = CloudStorageAccount.DevelopmentStorageAccount;
             }
             else
@@ -50,7 +50,7 @@ namespace MMBot.AzureTableBrain
         public Task Close()
         {
             // No cleanup required
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public async Task<T> Get<T>(string key)

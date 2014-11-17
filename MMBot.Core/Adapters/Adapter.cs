@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -28,38 +27,37 @@ namespace MMBot
 
         public virtual Task Send(Envelope envelope, params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public virtual Task Emote(Envelope envelope, params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public virtual Task Reply(Envelope envelope, params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public virtual Task Topic(Envelope envelope, params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public virtual Task Topic(string roomName, params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public virtual Task Play(Envelope envelope, params string[] messages)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public abstract Task Run();
 
         public abstract Task Close();
-        
 
         public virtual void Receive(Message message)
         {
@@ -68,12 +66,14 @@ namespace MMBot
 
         public IList<string> Rooms
         {
-            get; protected set;
+            get;
+            protected set;
         }
 
         public IList<string> LogRooms
         {
-            get; protected set;
+            get;
+            protected set;
         }
     }
 }
