@@ -159,6 +159,7 @@
     <Compile Include="Adapters\Adapter.cs" />
     <Compile Include="ConfigurationFileParser.cs" />
     <Compile Include="Envelope.cs" />
+    <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Extensions\OwinContextExtensions.cs" />
