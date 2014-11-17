@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using MMBot;
+using MMBot.Scripts;
 
 namespace mmbot
 {
@@ -51,7 +54,17 @@ namespace mmbot
                 typeof(RobotWrapper).FullName) as RobotWrapper;
 
             wrapper.Start(options); //Blocks, waiting on a reset event.
+
+            //Select and ToList called to force re-instantiation of all strings and list itself inside of this outer AppDomain
+            //or we will get crazy exceptions related to disposing/unloading of the child AppDomain in which the bot itself runs
+            var dirsToDelete = wrapper.DirectoriesToDeleteOnReset.Select(s => s + string.Empty).ToList();
+                
             AppDomain.Unload(childAppDomain);
+            foreach (var dir in dirsToDelete.Where(Directory.Exists))
+            {
+                Directory.Delete(dir, true);
+            }
+
             SetupRobot(options);
         }
     }
@@ -65,6 +78,13 @@ namespace mmbot
             get { return _options; }
         }
 
+        public RobotWrapper()
+        {
+            DirectoriesToDeleteOnReset = new List<string>();
+        }
+
+        public List<string> DirectoriesToDeleteOnReset { get; set; }
+
         public void Start(Options options)
         {
             _options = options;
@@ -76,9 +96,23 @@ namespace mmbot
                 Environment.Exit(-1);
             }
 
+            robot.On<bool>(Robot.ResetEventName,
+                     (b) =>
+                         {
+                             var getDirsToDelete = robot.Brain.Get<List<string>>(NuGetScripts.NugetFoldersToDeleteSetting);
+                             getDirsToDelete.Wait();
+                             var result = getDirsToDelete.Result;
+                             if (result != null)
+                             {
+                                 DirectoriesToDeleteOnReset = result;
+                             }
+                         });
+
             var resetEvent = new AutoResetEvent(false);
             robot.ResetRequested += (sender, args) => resetEvent.Set();
             resetEvent.WaitOne();
         }
     }
+
+
 }
