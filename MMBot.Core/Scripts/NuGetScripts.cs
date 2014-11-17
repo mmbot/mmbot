@@ -13,7 +13,14 @@ namespace MMBot.Scripts
         private const string NuGetRepositoriesSetting = "MMBOT_NUGET_REPOS";
         private const string NuGetPackageAliasesSetting = "MMBOT_NUGET_PACKAGE_ALIASES";
         private const string NuGetResetAfterUpdateSetting = "MMBOT_NUGET_RESET";
-
+        public static string NugetFoldersToDeleteSetting
+        {
+            get
+            {
+                return "MMBOT_NUGET_DELETE_DIRECTORIES";
+            }
+        }
+      
         const string Add = "add|remember";
         const string Remove = "remove|delete|del|rem|forget";
         const string Package = "pkg|package";
@@ -163,18 +170,18 @@ namespace MMBot.Scripts
             RememberConfiguredAliases(robot);
             RememberConfiguredAutoReset(robot);
 
-            robot.Respond(BuildCommand(new[] {List, Package, Source}), 
+            robot.Respond(BuildCommand(new[] { List, Package, Source }),
                 msg => msg.Send(GetRememberedSources(robot).ToArray()));
 
-            robot.Respond(BuildCommand(new []{Add, Package, Source, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Add, Package, Source, ParamWithNoSpaces }), msg =>
             {
                 var source = msg.Match[4].ToString(CultureInfo.InvariantCulture);
-                msg.Send(!AddSource(source, robot) 
-                    ? "I already know about this one." 
+                msg.Send(!AddSource(source, robot)
+                    ? "I already know about this one."
                     : "Consider it done.");
             });
 
-            robot.Respond(BuildCommand(new []{Remove, Package, Source, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Remove, Package, Source, ParamWithNoSpaces }), msg =>
             {
                 var source = msg.Match[4].ToString(CultureInfo.InvariantCulture);
                 msg.Send(RemoveSource(source, robot)
@@ -182,7 +189,7 @@ namespace MMBot.Scripts
                     : "It's easy to forget what you never knew.");
             });
 
-            robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart}, new[] {3}), msg =>
+            robot.Respond(BuildCommand(new[] { Update, Package, ParamWithNoSpaces, Restart }, new[] { 3 }), msg =>
             {
                 //ID of the package to be looked up
                 var packageId = msg.Match[3].ToString(CultureInfo.InvariantCulture);
@@ -224,30 +231,44 @@ namespace MMBot.Scripts
                 //Download and unzip the package
                 packageManager.InstallPackage(latestPackageVersion, false, true);//TODO: allow these flags to be configurable? allow user to specify version?
                 msg.Send("Finished downloading...");
-                
+
+                var postInstallState = packageManager.LocalRepository.GetPackages().Cast<LocalPackage>().ToList();
+                var packageGroups = postInstallState.GroupBy(p => p.Id);
+                var latestVersions = new List<IPackage>();
+
+                foreach (var packageGroup in packageGroups)
+                {
+                    var latestPackage = packageGroup.First(p => packageGroup.Max(p2 => p2.Version) == p.Version);
+                    latestVersions.Add(latestPackage);
+                }
+
+                var packageFoldersToDelete = postInstallState.Except(latestVersions).Select(p => Path.Combine(path, p.Id + "." + p.Version)).ToList();
+                var setDeleteFolders = robot.Brain.Set(NugetFoldersToDeleteSetting, packageFoldersToDelete);
+
                 if (ShouldAutoResetAfterUpdate(robot) || (msg.Match.Length >= 5 && Regex.IsMatch(msg.Match[4], Restart)))
                 {
                     //They submitted the reset parameter or auto-reset is on.
                     msg.Send("Resetting...please wait.");
+                    setDeleteFolders.Wait();
                     robot.Reset();
                 }
             });
 
-            robot.Respond(BuildCommand(new []{List, Package, Alias}), 
+            robot.Respond(BuildCommand(new[] { List, Package, Alias }),
                 msg => msg.Send(GetRememberedAliases(robot).Select(kvp => string.Format("{0} = {1}", kvp.Key, kvp.Value)).ToArray()));
 
-            robot.Respond(BuildCommand(new []{Add, Package, Alias, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Add, Package, Alias, ParamWithNoSpaces }), msg =>
             {
-	            var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
-	            AddAlias(alias, robot);
-	            msg.Send("I'll be sure to remember that.");
+                var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
+                AddAlias(alias, robot);
+                msg.Send("I'll be sure to remember that.");
             });
 
-            robot.Respond(BuildCommand(new []{Remove, Package, Alias, ParamWithNoSpaces}), msg =>
+            robot.Respond(BuildCommand(new[] { Remove, Package, Alias, ParamWithNoSpaces }), msg =>
             {
-	            var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
-	            RemoveAlias(alias, robot);
-	            msg.Send("As you wish.");
+                var alias = msg.Match[4].ToString(CultureInfo.InvariantCulture);
+                RemoveAlias(alias, robot);
+                msg.Send("As you wish.");
             });
         }
 
