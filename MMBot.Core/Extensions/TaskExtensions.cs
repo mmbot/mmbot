@@ -36,7 +36,8 @@ namespace MMBot
 
         public static Task<T> ToTaskOfT<T>(this Task t)
         {
-            if (t is Task<T>) return (Task<T>)t;
+            var taskOfT = t as Task<T>;
+            if (taskOfT != null) return taskOfT;
             var tcs = new TaskCompletionSource<T>();
             t.ContinueWith(ant =>
             {

@@ -25,13 +25,12 @@ namespace MMBot.Tests.CompiledScripts
         {
             var res = await msg.Http(String.Format(Url, query))
                 .Get();
-            
+
             try
             {
-                res.Content.ReadAsStringAsync().ContinueWith(async readTask =>
-                {
-                    await msg.Send(readTask.Result);
-                });
+                var ascii = await res.Content.ReadAsStringAsync();
+
+                await msg.Send(ascii);
             }
             catch (Exception)
             {
@@ -41,7 +40,7 @@ namespace MMBot.Tests.CompiledScripts
 
         public IEnumerable<string> GetHelp()
         {
-            return new[] {"mmbot ascii me <query> - Returns ASCII art of the query text."};
+            return new[] { "mmbot ascii me <query> - Returns ASCII art of the query text." };
         }
     }
 }
