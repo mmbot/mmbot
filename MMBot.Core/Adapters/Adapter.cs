@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -26,32 +25,32 @@ namespace MMBot
             Robot = robot;
         }
 
-        public virtual Task Send(Envelope envelope, params string[] messages)
+        public virtual Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Emote(Envelope envelope, params string[] messages)
+        public virtual Task Emote(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Reply(Envelope envelope, params string[] messages)
+        public virtual Task Reply(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Topic(Envelope envelope, params string[] messages)
+        public virtual Task Topic(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Topic(string roomName, params string[] messages)
+        public virtual Task Topic(string roomName, IDictionary<string, string> adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Play(Envelope envelope, params string[] messages)
+        public virtual Task Play(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
@@ -59,7 +58,6 @@ namespace MMBot
         public abstract Task Run();
 
         public abstract Task Close();
-        
 
         public virtual void Receive(Message message)
         {
@@ -68,12 +66,14 @@ namespace MMBot
 
         public IList<string> Rooms
         {
-            get; protected set;
+            get;
+            protected set;
         }
 
         public IList<string> LogRooms
         {
-            get; protected set;
+            get;
+            protected set;
         }
     }
 }

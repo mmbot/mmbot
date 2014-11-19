@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -15,6 +15,7 @@ namespace MMBot.Jabbr
 
         // TODO: Move to environment variables / config
         private string _host;
+
         private string _nick;
         private string _password;
         private string[] _rooms;
@@ -28,7 +29,7 @@ namespace MMBot.Jabbr
 
         private void Configure()
         {
-            _host = Robot.GetConfigVariable("MMBOT_JABBR_HOST") ?? "https://jabbr.net" ;
+            _host = Robot.GetConfigVariable("MMBOT_JABBR_HOST") ?? "https://jabbr.net";
             _nick = Robot.GetConfigVariable("MMBOT_JABBR_NICK");
             _password = Robot.GetConfigVariable("MMBOT_JABBR_PASSWORD");
             _rooms = (Robot.GetConfigVariable("MMBOT_JABBR_ROOMS") ?? string.Empty)
@@ -61,7 +62,6 @@ namespace MMBot.Jabbr
             }
         }
 
-
         public override void Initialize(Robot robot)
         {
             base.Initialize(robot);
@@ -85,11 +85,10 @@ namespace MMBot.Jabbr
             _client.UserJoined += OnUserJoined;
 
             _client.UserLeft += OnUserLeft;
-            
+
             _client.PrivateMessage += OnPrivateMessage;
 
             _client.TopicChanged += OnTopicChanged;
-            
         }
 
         void OnTopicChanged(string room, string topic, string who)
@@ -152,9 +151,9 @@ namespace MMBot.Jabbr
             var user = Robot.GetUser(message.User.Name, message.User.Name, room, Id);
 
             //TODO: Filter out messages from mmbot itself using the current nick
-            if(user.Name != _nick)
+            if (user.Name != _nick)
             {
-                Task.Run(() => 
+                Task.Run(() =>
                 Robot.Receive(new TextMessage(user, message.Content)));
             }
         }
@@ -170,9 +169,9 @@ namespace MMBot.Jabbr
             SetupJabbrClient();
 
             var result = await _client.Connect(_nick, _password);
-            
+
             _client.StateChanged += OnClientStateChanged;
-            
+
             Logger.Info(string.Format("Logged on successfully. {0} is currently in the following rooms:", _nick));
             foreach (var room in result.Rooms)
             {
@@ -212,33 +211,29 @@ namespace MMBot.Jabbr
             return TaskAsyncHelper.Empty;
         }
 
-        public override async Task Topic(Envelope envelope, params string[] messages)
+        public override Task Topic(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
-            await base.Topic(envelope, messages);
-            
             if (envelope != null && envelope.Room != null)
             {
                 var message = string.Join(" ", messages);
-                await _client.Send(string.Format("/topic {0}", message.Substring(0, Math.Min(80, message.Length))), envelope.Room);
+                return _client.Send(string.Format("/topic {0}", message.Substring(0, Math.Min(80, message.Length))), envelope.Room);
             }
+
+            return Task.FromResult(0);
         }
 
-        public override async Task Topic(string roomName, params string[] messages)
+        public override async Task Topic(string roomName, IDictionary<string, string> adapterArgs, params string[] messages)
         {
-            await base.Topic(roomName, messages);
-
             var room = await _client.GetRoomInfo(roomName);
-            if(room != null)
+            if (room != null)
             {
                 var message = string.Join(" ", messages);
                 await _client.Send(string.Format("/topic {0}", message.Substring(0, Math.Min(80, message.Length))), room.Name);
             }
         }
 
-        public override async Task Send(Envelope envelope, params string[] messages)
+        public override async Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
-            await base.Send(envelope, messages);
-
             if (messages == null)
             {
                 return;
@@ -257,10 +252,8 @@ namespace MMBot.Jabbr
             }
         }
 
-        public override async Task Reply(Envelope envelope, params string[] messages)
+        public override async Task Reply(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
         {
-            await base.Reply(envelope, messages);
-
             foreach (var message in messages.Where(message => !string.IsNullOrWhiteSpace(message)))
             {
                 await _client.Send(string.Format("@{0} {1}", envelope.User.Name, message), envelope.User.Room);
