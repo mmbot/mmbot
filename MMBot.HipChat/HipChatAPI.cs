@@ -63,13 +63,13 @@ namespace MMBot.HipChat
             }
         }
 
-        public void SendRoomNotification(int roomId, string message)
+        public void SendRoomNotification(int roomId, string color, string message)
         {
             using (GetJsConfigScope())
             {
                 SendRoomNotificationEndpoint.Fmt(roomId)
                     .AddQueryParam("auth_token", authToken)
-                    .PostJsonToUrl(new HipchatSendRoomNotificationRequest { Message = message });
+                    .PostJsonToUrl(new HipchatSendRoomNotificationRequest { Message = message, Color = color });
             }
         }
 
