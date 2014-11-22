@@ -55,7 +55,7 @@ namespace MMBot.Tests
             Robot.Receive(new TopicMessage(Robot.GetUser(user, user, "testRoom", Id), topic));
         }
 
-        public override Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             var payload = Tuple.Create(envelope, messages);
             _messages.Add(payload);

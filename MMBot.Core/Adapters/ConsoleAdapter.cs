@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +43,7 @@ namespace MMBot.Adapters
             }
         }
 
-        public override Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             foreach (var message in messages.Where(message => !string.IsNullOrWhiteSpace(message)))
             {

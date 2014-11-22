@@ -272,7 +272,7 @@ namespace MMBot.XMPP
             }
         }
 
-        public override Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (_confServer.HasValue() && envelope.User.Room.Contains(_confServer))
             {

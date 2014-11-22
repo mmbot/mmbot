@@ -156,7 +156,7 @@ namespace MMBot.HipChat
             }
         }
 
-        public override Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (messages == null || !messages.Any()) return Task.FromResult(0);
 
@@ -176,7 +176,7 @@ namespace MMBot.HipChat
             return Task.FromResult(0);
         }
 
-        public override Task Reply(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (messages == null || !messages.Any()) return Task.FromResult(0);
 
@@ -190,7 +190,7 @@ namespace MMBot.HipChat
             return Task.FromResult(0);
         }
 
-        public override Task Emote(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Emote(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (messages == null || !messages.Any()) return Task.FromResult(0);
 
@@ -238,7 +238,7 @@ namespace MMBot.HipChat
         {
         }
 
-        public override Task Topic(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Topic(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (envelope != null && envelope.User != null)
             {
@@ -248,7 +248,7 @@ namespace MMBot.HipChat
             return Task.FromResult(0);
         }
 
-        public override Task Topic(string roomName, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Topic(string roomName, AdapterArguments adapterArgs, params string[] messages)
         {
             var mucManager = new MucManager(_client);
             mucManager.ChangeSubject(new Jid(roomName), string.Join(" ", messages));

@@ -18,7 +18,7 @@ namespace MMBot
     public class Robot : IScriptPackContext, IDisposable
     {
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
-        public readonly IDictionary<string, string> EmptyAdapterArgs = new Dictionary<string, string>();
+        public readonly AdapterArguments EmptyAdapterArgs = new AdapterArguments();
         protected bool _isConfigured = false;
         private readonly IDictionary<string, IAdapter> _adapters = new Dictionary<string, IAdapter>();
         private readonly List<IListener> _listeners = new List<IListener>();
@@ -212,7 +212,7 @@ namespace MMBot
             });
         }
 
-        public async Task Speak(string room, IDictionary<string, string> adapterArgs, params string[] messages)
+        public async Task Speak(string room, AdapterArguments adapterArgs, params string[] messages)
         {
             foreach (
                 var adapter in
@@ -236,7 +236,7 @@ namespace MMBot
             return Speak(room, EmptyAdapterArgs, messages);
         }
 
-        public async Task Speak(string adapterId, string room, IDictionary<string, string> adapterArgs, params string[] messages)
+        public async Task Speak(string adapterId, string room, AdapterArguments adapterArgs, params string[] messages)
         {
             var adapter = GetAdapter(adapterId);
 

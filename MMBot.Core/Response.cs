@@ -32,19 +32,19 @@ namespace MMBot
     public interface IResponse<out T> where T : Message
     {
         Task Send(params string[] messages);
-        Task Send(IDictionary<string, string> adapterArgs, params string[] messages);
+        Task Send(AdapterArguments adapterArgs, params string[] messages);
         Task SendFormat(string format, params object[] args);
-        Task SendFormat(IDictionary<string, string> adapterArgs, string format, params object[] args);
+        Task SendFormat(AdapterArguments adapterArgs, string format, params object[] args);
         Task Reply(params string[] message);
-        Task Reply(IDictionary<string, string> adapterArgs, params string[] message);
+        Task Reply(AdapterArguments adapterArgs, params string[] message);
         Task ReplyFormat(string format, params object[] args);
-        Task ReplyFormat(IDictionary<string, string> adapterArgs, string format, params object[] args);
+        Task ReplyFormat(AdapterArguments adapterArgs, string format, params object[] args);
         Task Emote(params string[] message);
-        Task Emote(IDictionary<string, string> adapterArgs, params string[] message);
+        Task Emote(AdapterArguments adapterArgs, params string[] message);
         Task Topic(params string[] message);
-        Task Topic(IDictionary<string, string> adapterArgs, params string[] message);
+        Task Topic(AdapterArguments adapterArgs, params string[] message);
         Task Play(params string[] message);
-        Task Play(IDictionary<string, string> adapterArgs, params string[] message);
+        Task Play(AdapterArguments adapterArgs, params string[] message);
         TRand Random<TRand>(IEnumerable<TRand> message);
 
         void Finish();
@@ -77,7 +77,7 @@ namespace MMBot
             Message = rosterMessage;
         }
 
-        public Task Send(IDictionary<string, string> adapterArgs, params string[] messages)
+        public Task Send(AdapterArguments adapterArgs, params string[] messages)
         {
             var adapter = FindAdapter();
             if (adapter == null) return Task.FromResult(0);
@@ -90,7 +90,7 @@ namespace MMBot
             return Send(_robot.EmptyAdapterArgs, messages);
         }
 
-        public Task SendFormat(IDictionary<string, string> adapterArgs, string format, params object[] args)
+        public Task SendFormat(AdapterArguments adapterArgs, string format, params object[] args)
         {
             return Send(adapterArgs, string.Format(format, args));
         }
@@ -100,7 +100,7 @@ namespace MMBot
             return Send(string.Format(format, args));
         }
 
-        public Task Reply(IDictionary<string, string> adapterArgs, params string[] message)
+        public Task Reply(AdapterArguments adapterArgs, params string[] message)
         {
             var adapter = FindAdapter();
             if (adapter == null) return Task.FromResult(0);
@@ -113,7 +113,7 @@ namespace MMBot
             return Reply(_robot.EmptyAdapterArgs, message);
         }
 
-        public Task ReplyFormat(IDictionary<string, string> adapterArgs, string format, params object[] args)
+        public Task ReplyFormat(AdapterArguments adapterArgs, string format, params object[] args)
         {
             return Reply(adapterArgs, string.Format(format, args));
         }
@@ -123,7 +123,7 @@ namespace MMBot
             return Reply(_robot.EmptyAdapterArgs, string.Format(format, args));
         }
 
-        public Task Emote(IDictionary<string, string> adapterArgs, params string[] message)
+        public Task Emote(AdapterArguments adapterArgs, params string[] message)
         {
             var adapter = FindAdapter();
             if (adapter == null) return Task.FromResult(0);
@@ -136,7 +136,7 @@ namespace MMBot
             return Emote(_robot.EmptyAdapterArgs, message);
         }
 
-        public Task Topic(IDictionary<string, string> adapterArgs, params string[] message)
+        public Task Topic(AdapterArguments adapterArgs, params string[] message)
         {
             var adapter = FindAdapter();
             if (adapter == null) return Task.FromResult(0);
@@ -149,7 +149,7 @@ namespace MMBot
             return Topic(_robot.EmptyAdapterArgs, message);
         }
 
-        public Task Play(IDictionary<string, string> adapterArgs, params string[] message)
+        public Task Play(AdapterArguments adapterArgs, params string[] message)
         {
             var adapter = FindAdapter();
             if (adapter == null) return Task.FromResult(0);

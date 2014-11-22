@@ -25,32 +25,32 @@ namespace MMBot
             Robot = robot;
         }
 
-        public virtual Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public virtual Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Emote(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public virtual Task Emote(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Reply(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public virtual Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Topic(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public virtual Task Topic(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Topic(string roomName, IDictionary<string, string> adapterArgs, params string[] messages)
+        public virtual Task Topic(string roomName, AdapterArguments adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }
 
-        public virtual Task Play(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public virtual Task Play(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             return TaskAsyncHelper.Empty;
         }

@@ -94,7 +94,7 @@ namespace MMBot.Slack
             Logger.Info("The Slack adapter is connected");
         }
 
-        public override async Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override async Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (messages == null)
             {
@@ -166,7 +166,7 @@ namespace MMBot.Slack
             }
         }
 
-        public override async Task Reply(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override async Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             foreach (var message in messages)
             {
