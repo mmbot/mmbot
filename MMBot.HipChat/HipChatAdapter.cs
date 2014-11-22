@@ -168,9 +168,20 @@ namespace MMBot.HipChat
                 return Reply(envelope, adapterArgs, messages);
             }
 
+            var color = adapterArgs.Color ?? "";
+            color = color.ToLowerInvariant();
+
+            if (color != "yellow" &&
+                color != "green" &&
+                color != "red" &&
+                color != "purple" &&
+                color != "gray" &&
+                color != "random")
+                color = "yellow";
+
             foreach (var message in messages)
             {
-                _api.SendRoomNotification(roomId, message);
+                _api.SendRoomNotification(roomId, color, message);
             }
 
             return Task.FromResult(0);
