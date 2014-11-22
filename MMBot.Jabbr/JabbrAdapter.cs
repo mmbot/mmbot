@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -211,7 +210,7 @@ namespace MMBot.Jabbr
             return TaskAsyncHelper.Empty;
         }
 
-        public override Task Topic(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override Task Topic(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (envelope != null && envelope.Room != null)
             {
@@ -222,7 +221,7 @@ namespace MMBot.Jabbr
             return Task.FromResult(0);
         }
 
-        public override async Task Topic(string roomName, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override async Task Topic(string roomName, AdapterArguments adapterArgs, params string[] messages)
         {
             var room = await _client.GetRoomInfo(roomName);
             if (room != null)
@@ -232,7 +231,7 @@ namespace MMBot.Jabbr
             }
         }
 
-        public override async Task Send(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override async Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (messages == null)
             {
@@ -252,7 +251,7 @@ namespace MMBot.Jabbr
             }
         }
 
-        public override async Task Reply(Envelope envelope, IDictionary<string, string> adapterArgs, params string[] messages)
+        public override async Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             foreach (var message in messages.Where(message => !string.IsNullOrWhiteSpace(message)))
             {
