@@ -52,6 +52,7 @@ build/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
+packages
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -170,6 +171,9 @@ UpgradeLog*.htm
 # SQL Server files
 App_Data/*.mdf
 App_Data/*.ldf
+
+# VS "14" changes
+*.sln.ide
 
 #############
 ## Windows detritus

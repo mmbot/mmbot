@@ -19,6 +19,8 @@ namespace MMBot
 {
     public class Robot : IScriptPackContext, IDisposable
     {
+        public static string ResetEventName = "Resetting";
+
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
         protected bool _isConfigured = false;
         private readonly IDictionary<string, IAdapter> _adapters = new Dictionary<string, IAdapter>();
@@ -39,7 +41,10 @@ namespace MMBot
         protected virtual void OnResetRequested()
         {
             var handler = ResetRequested;
-            if (handler != null) handler(this, EventArgs.Empty);
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
         }
 
         public Robot(string name, IDictionary<string, string> config, LoggerConfigurator logConfig, IDictionary<string, IAdapter> adapters, IRouter router, IBrain brain, IScriptStore scriptStore, IScriptRunner scriptRunner)
@@ -388,7 +393,7 @@ namespace MMBot
 
         public async Task Reset()
         {
-            Emit("Resetting", true);
+            Emit(ResetEventName, true);
             try
             {
                 await Shutdown();

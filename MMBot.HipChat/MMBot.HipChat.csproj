@@ -83,7 +83,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Responses.cs" />
+    <Compile Include="HipChatAPIData.cs" />
     <Compile Include="HipChatAPI.cs" />
     <Compile Include="HipChatAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

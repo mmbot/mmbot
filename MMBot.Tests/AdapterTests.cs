@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Common.Logging;
 using MMBot.Adapters;
 using MMBot.HipChat;
@@ -63,13 +64,19 @@ namespace MMBot.Tests
         [Fact]
         public void WhenConfiguredWithConsoleAdapter_CanInstantiateRobot()
         {
-            var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
-            .UseAdapter<ConsoleAdapter>()
-            .DisablePluginDiscovery()
-            .DisableScriptDiscovery()
-            .Build();
+			// This stinks but the test runners in TeamCity and AppVeyor 
+			// will cause this test to fail as the Console Adapter is removed
+			// when not in an interactive session.
+	        if (Environment.UserInteractive)
+	        {
+		        var robot = new RobotBuilder(new LoggerConfigurator(LogLevel.All))
+			        .UseAdapter<ConsoleAdapter>()
+			        .DisablePluginDiscovery()
+			        .DisableScriptDiscovery()
+			        .Build();
 
-            Assert.True(robot.Adapters.Values.OfType<ConsoleAdapter>().Any());
+		        Assert.True(robot.Adapters.Values.OfType<ConsoleAdapter>().Any());
+	        }
         }
     }
 
