@@ -8,7 +8,6 @@ using Common.Logging;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
-using Roslyn.Compilers.CSharp;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
 
