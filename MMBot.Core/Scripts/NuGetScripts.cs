@@ -13,14 +13,7 @@ namespace MMBot.Scripts
         private const string NuGetRepositoriesSetting = "MMBOT_NUGET_REPOS";
         private const string NuGetPackageAliasesSetting = "MMBOT_NUGET_PACKAGE_ALIASES";
         private const string NuGetResetAfterUpdateSetting = "MMBOT_NUGET_RESET";
-        public static string NugetFoldersToDeleteSetting
-        {
-            get
-            {
-                return "MMBOT_NUGET_DELETE_DIRECTORIES";
-            }
-        }
-
+       
         const string Add = "add|remember";
         const string Remove = "remove|delete|del|rem|forget";
         const string Package = "pkg|package";
@@ -243,13 +236,17 @@ namespace MMBot.Scripts
                 }
 
                 var packageFoldersToDelete = postInstallState.Except(latestVersions).Select(p => Path.Combine(path, p.Id + "." + p.Version)).ToList();
-                var setDeleteFolders = robot.Brain.Set(NugetFoldersToDeleteSetting, packageFoldersToDelete);
+
+                if (packageFoldersToDelete.Any())
+                {
+                    PackageDirCleaner.RegisterDirectoriesToDelete(packageFoldersToDelete);
+                    msg.Send("Old package versions to cleanup on next reset: ",string.Join(", ",packageFoldersToDelete));
+                }
 
                 if (ShouldAutoResetAfterUpdate(robot) || (msg.Match.Length >= 5 && Regex.IsMatch(msg.Match[4], Restart)))
                 {
                     //They submitted the reset parameter or auto-reset is on.
                     msg.Send("Resetting...please wait.");
-                    setDeleteFolders.Wait();
                     robot.Reset();
                 }
             });
