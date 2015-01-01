@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
@@ -36,11 +34,10 @@ namespace MMBot.Slack
         private string _userToken;
         private string[] _commandTokens;
 
-        public SlackAdapter(ILog logger, string adapterId) : base(logger, adapterId)
+        public SlackAdapter(ILog logger, string adapterId)
+            : base(logger, adapterId)
         {
-            
         }
-
 
         public override void Initialize(Robot robot)
         {
@@ -91,17 +88,14 @@ namespace MMBot.Slack
                 _isConfigured = false;
                 return;
             }
-         
+
             _isConfigured = true;
 
             Logger.Info("The Slack adapter is connected");
         }
 
-        public async override Task Send(Envelope envelope, params string[] messages)
+        public override async Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
-            await base.Send(envelope, messages);
-            
-
             if (messages == null)
             {
                 return;
@@ -148,10 +142,9 @@ namespace MMBot.Slack
                 var client = new HttpClient
                 {
                     BaseAddress = new Uri(string.Format("https://{0}.slack.com", _team)),
-
                 };
                 var response = await
-                    client.PostAsync(new Uri(string.Format("api/chat.postMessage?token={0}&channel={1}&text={2}&username={3}&parse=full&link_names=1&unfurl_links=1&icon_url={4}&pretty=1", 
+                    client.PostAsync(new Uri(string.Format("api/chat.postMessage?token={0}&channel={1}&text={2}&username={3}&parse=full&link_names=1&unfurl_links=1&icon_url={4}&pretty=1",
                         _userToken,
                         WebUtility.UrlEncode(channel),
                         WebUtility.UrlEncode(message),
@@ -159,10 +152,11 @@ namespace MMBot.Slack
                         WebUtility.UrlEncode(_icon)
                         ), UriKind.Relative),
                         new StringContent(string.Empty));
-                
+
                 var content = await response.Content.ReadAsStringAsync();
                 var json = JToken.Parse(content);
-                if (!json["ok"].Value<bool>()) {
+                if (!json["ok"].Value<bool>())
+                {
                     throw new Exception(string.Format("Error returned from slack '{0}'", json["error"].Value<string>()));
                 }
             }
@@ -172,14 +166,14 @@ namespace MMBot.Slack
             }
         }
 
-        public async override Task Reply(Envelope envelope, params string[] messages)
+        public override async Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
-            foreach(var message in messages)
+            foreach (var message in messages)
             {
-                await Send(envelope, string.Format("{0}:{1}", envelope.User.Name, message));
+                await Send(envelope, adapterArgs, string.Format("{0}:{1}", envelope.User.Name, message));
             }
         }
-        
+
         private async Task Post(string url, string args)
         {
             try
@@ -187,7 +181,6 @@ namespace MMBot.Slack
                 var client = new HttpClient
                 {
                     BaseAddress = new Uri(string.Format("https://{0}.slack.com", _team)),
-                
                 };
                 await
                     client.PostAsync(new Uri(string.Format("{0}?token={1}", url, _token), UriKind.Relative),
@@ -221,7 +214,7 @@ namespace MMBot.Slack
                     var hubotMsg = form["text"];
                     var roomName = form["channel_name"];
 
-                    // validate the token 
+                    // validate the token
                     if (form["token"] != _token)
                     {
                         Logger.Warn(string.Format("An invalid token was received from the Slack Hubot hook. Please check that the token '{0}' was expected.", form["token"]));
@@ -236,13 +229,13 @@ namespace MMBot.Slack
                     {
                         hubotMsg = WebUtility.HtmlDecode(hubotMsg);
                     }
-            
 
                     var author = GetAuthor(form);
                     // author = self.robot.brain.userForId author.id, author
                     _channelMapping[author.Room] = form["channel_id"];
 
-                    if(!string.IsNullOrWhiteSpace(hubotMsg) && author != null) {
+                    if (!string.IsNullOrWhiteSpace(hubotMsg) && author != null)
+                    {
                         // Pass to the robot
                         Receive(new TextMessage(author, hubotMsg));
 
@@ -283,7 +276,6 @@ namespace MMBot.Slack
                         hubotMsg = WebUtility.HtmlDecode(hubotMsg);
                     }
 
-
                     var author = GetAuthor(form);
                     // author = self.robot.brain.userForId author.id, author
                     _channelMapping[author.Room] = form["channel_id"];
@@ -306,7 +298,6 @@ namespace MMBot.Slack
 
         private User GetAuthor(IFormCollection form)
         {
-            
             return new User(
                 form["user_id"],
                 form["user_name"],
@@ -317,7 +308,6 @@ namespace MMBot.Slack
 
         public async override Task Close()
         {
-            
         }
 
         private async Task GetChannels()
@@ -325,7 +315,6 @@ namespace MMBot.Slack
             var client = new HttpClient
             {
                 BaseAddress = new Uri(string.Format("https://{0}.slack.com", _team)),
-
             };
             var response = await
                 client.GetAsync(new Uri(string.Format("api/channels.list?token={0}&pretty=1",
@@ -338,7 +327,7 @@ namespace MMBot.Slack
                 Logger.Warn("Could not fetch list of channels. You may find issues with mmbot not speaking in channels until messages have been posted there.");
                 return;
             }
-            
+
             _channelMapping = json["channels"].ToDictionary(c => c["name"].ToString(), c => c["id"].ToString());
 
             Logger.Info(string.Format("Discovered {0} Slack rooms", _channelMapping.Count()));

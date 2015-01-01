@@ -29,12 +29,10 @@ namespace MMBot.Tests
 
         public override async Task Run()
         {
-            
         }
 
         public override async Task Close()
         {
-            
         }
 
         public void SimulateMessage(string user, string message)
@@ -57,12 +55,12 @@ namespace MMBot.Tests
             Robot.Receive(new TopicMessage(Robot.GetUser(user, user, "testRoom", Id), topic));
         }
 
-        public override Task Send(Envelope envelope, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             var payload = Tuple.Create(envelope, messages);
             _messages.Add(payload);
             _messagesObservable.OnNext(payload);
-            return base.Send(envelope, messages);
+            return base.Send(envelope, adapterArgs, messages);
         }
 
         public async Task<IEnumerable<Tuple<Envelope, string[]>>> GetEmittedMessages(int count)
