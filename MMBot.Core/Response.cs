@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -60,7 +57,7 @@ namespace MMBot
         public Response(Robot robot, T textMessage, MatchResult matchResult)
         {
             _robot = robot;
-            
+
             _envelope = new Envelope(textMessage);
             Matches = matchResult.Match;
             Match = matchResult.Match == null || matchResult.Match.Count == 0 ? new string[0] : matchResult.Match[0].Groups.Cast<Group>().Select(g => g.Value).ToArray();
@@ -122,17 +119,17 @@ namespace MMBot
 
         public Task Topic(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public Task Play(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         public Task Locked(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
+            return Task.FromResult(0);
         }
 
         static Random _random = new Random(DateTime.Now.Millisecond);
@@ -153,13 +150,12 @@ namespace MMBot
         public string[] Match { get; private set; }
 
         public MatchCollection Matches { get; private set; }
-        
+
         public T Message { get; private set; }
 
         public HttpWrapper Http(string url)
         {
             return new HttpWrapper(url, _robot.Logger, _envelope);
         }
-        
     }
 }

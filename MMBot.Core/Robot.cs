@@ -1,18 +1,16 @@
-﻿using Common.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Logging;
 using Common.Logging.Simple;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
@@ -36,6 +34,7 @@ namespace MMBot
         private readonly IScriptRunner _scriptRunner;
         private readonly IScriptStore _scriptStore;
         private IDisposable _watchSubscription;
+
         public event EventHandler<EventArgs> ResetRequested;
 
         protected virtual void OnResetRequested()
@@ -58,7 +57,7 @@ namespace MMBot
             _router = router;
             _scriptRunner = scriptRunner;
             _isConfigured = true;
-            Initialize(adapters.Values.ToArray().Concat(new object[]{router, brain, scriptRunner}).ToArray());
+            Initialize(adapters.Values.ToArray().Concat(new object[] { router, brain, scriptRunner }).ToArray());
         }
 
         protected Robot(LoggerConfigurator logConfig)
@@ -217,26 +216,20 @@ namespace MMBot
             });
         }
 
-        public async void Speak(string room, params string[] messages)
+        public void Speak(string room, params string[] messages)
         {
-            foreach (
-                var adapter in
-                    _adapters.Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase)))
-            {
-                try
-                {
-                    await adapter.Value.Send(
-                        new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
-                            string.Join(Environment.NewLine, messages))), messages);
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(string.Format("Could not Speak to adapter {0} on room {1}", adapter.Key, room), e);
-                }
-            }
+            var envelopeMessage = string.Join(Environment.NewLine, messages);
+
+            var tasks = _adapters
+                .Where(a => a.Value.Rooms.Contains(room, StringComparer.InvariantCultureIgnoreCase))
+                .Select(adapter => adapter.Value
+                    .Send(new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key), envelopeMessage)), messages)
+                    .CatchAndLog(Logger, "Could not Speak to adapter {0} on room {1}", adapter.Key, room));
+
+            Task.WaitAll(tasks.ToArray());
         }
 
-        public async void Speak(string adapterId, string room, params string[] messages)
+        public async Task Speak(string adapterId, string room, params string[] messages)
         {
             var adapter = GetAdapter(adapterId);
 
@@ -261,9 +254,9 @@ namespace MMBot
         public IAdapter GetAdapter(string adapterId)
         {
             var adapter = (from a in Adapters
-                where string.Equals(a.Key, adapterId, StringComparison.InvariantCultureIgnoreCase) ||
-                      string.Equals(a.Key, string.Concat(adapterId, "Adapter"), StringComparison.InvariantCultureIgnoreCase)
-                select a.Value).FirstOrDefault();
+                           where string.Equals(a.Key, adapterId, StringComparison.InvariantCultureIgnoreCase) ||
+                                 string.Equals(a.Key, string.Concat(adapterId, "Adapter"), StringComparison.InvariantCultureIgnoreCase)
+                           select a.Value).FirstOrDefault();
 
             return adapter;
         }
@@ -289,7 +282,6 @@ namespace MMBot
         {
             ScriptData.Add(metadata);
         }
-
 
         public string GetConfigVariable(string name)
         {
@@ -400,7 +392,7 @@ namespace MMBot
             }
             catch (Exception e)
             {
-                // Ignore
+                Logger.Error("Error shutting down", e);
             }
 
             OnResetRequested();
@@ -472,9 +464,9 @@ namespace MMBot
         {
             Emit("ShuttingDown", true);
             _isReady = false;
-            
-			Router.Stop();
-			
+
+            Router.Stop();
+
             // Cleanup script file watcher
             if (_watchSubscription != null)
             {
