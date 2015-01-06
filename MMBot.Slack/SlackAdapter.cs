@@ -220,14 +220,9 @@ namespace MMBot.Slack
 
         private void HandleTeamJoinMessage(JsonObject raw)
         {
-            var newUser = raw["user"].FromJson<User>();
+            var newUser = raw.GetUnescaped("user").FromJson<User>();
 
-            if (String.IsNullOrEmpty(newUser.Id) || String.IsNullOrEmpty(newUser.Name))
-            {
-                // Not sure why this happens. Log to debug.
-                Logger.Debug("Slack team_join with null data: " + raw["user"]);
-                return;
-            }
+            Logger.DebugFormat("User {0}({1} joined the team", newUser.Id, newUser.Name);
 
             if (!newUser.IsBot)
             {
@@ -237,7 +232,7 @@ namespace MMBot.Slack
 
         private void HandleChannelCreatedMessage(JsonObject raw)
         {
-            var channel = raw["channel"].FromJson<Channel>();
+            var channel = raw.GetUnescaped("channel").FromJson<Channel>();
 
             Logger.DebugFormat("Channel {0}({1}) created", channel.Id, channel.Name);
 
@@ -261,7 +256,7 @@ namespace MMBot.Slack
 
         private void HandleChannelRenameMessage(JsonObject raw)
         {
-            var channel = raw["channel"].FromJson<Channel>();
+            var channel = raw.GetUnescaped("channel").FromJson<Channel>();
             var oldChannel = _rooms.FirstOrDefault(c => StringComparer.InvariantCultureIgnoreCase.Equals(c.Id, channel.Id));
             if (oldChannel == null)
             {
@@ -357,8 +352,13 @@ namespace MMBot.Slack
 
             if (channel != null)
             {
-                room = channel.Id;
-                EnsureBotInRoom(channel);
+                //room = channel.Id;
+                //EnsureBotInRoom(channel);
+
+                // Currently bots cannot self enter a room.
+                // Instead we'll just log for now.
+                Logger.ErrorFormat("Bots cannot join rooms. Invite bot into room {0}({1})", channel.Id, channel.Name);
+                return;
             }
 
             var im = _ims.FirstOrDefault(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Id, room) ||
