@@ -352,13 +352,16 @@ namespace MMBot.Slack
 
             if (channel != null)
             {
-                //room = channel.Id;
+                room = channel.Id;
                 //EnsureBotInRoom(channel);
 
-                // Currently bots cannot self enter a room.
-                // Instead we'll just log for now.
-                Logger.ErrorFormat("Bots cannot join rooms. Invite bot into room {0}({1})", channel.Id, channel.Name);
-                return;
+                if (!channel.IsMember)
+                {
+                    // Currently bots cannot self enter a room.
+                    // Instead we'll just log for now.
+                    Logger.ErrorFormat("Bots cannot join rooms. Invite bot into room {0}({1})", channel.Id, channel.Name);
+                    return;
+                }
             }
 
             var im = _ims.FirstOrDefault(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Id, room) ||
