@@ -311,20 +311,22 @@ namespace MMBot.Slack
             }
         }
 
-        private void EnsureBotInRoom(Channel channel)
+        private bool EnsureBotInRoom(Channel channel)
         {
             if (channel.IsMember)
-                return;
+                return true;
 
             var response = _api.ChannelsJoin(channel.Name);
 
             if (!response.Ok)
             {
                 Logger.ErrorFormat("Could not join channel {0} ({1})", channel.Name, response.Error);
-                return;
+                return false;
             }
 
             channel.IsMember = true;
+
+	        return true;
         }
 
         private void EnsureBotInRoom(Im directMessage)
@@ -352,13 +354,14 @@ namespace MMBot.Slack
 
             if (channel != null)
             {
-                //room = channel.Id;
-                //EnsureBotInRoom(channel);
-
-                // Currently bots cannot self enter a room.
-                // Instead we'll just log for now.
-                Logger.ErrorFormat("Bots cannot join rooms. Invite bot into room {0}({1})", channel.Id, channel.Name);
-                return;
+				room = channel.Id;
+                if(!EnsureBotInRoom(channel))
+                {
+					// Currently bots cannot self enter a room.
+	                // Instead we'll just log for now.
+	                Logger.ErrorFormat("Bots cannot join rooms. Invite bot into room {0}({1})", channel.Id, channel.Name);
+					return;
+                }
             }
 
             var im = _ims.FirstOrDefault(i => StringComparer.InvariantCultureIgnoreCase.Equals(i.Id, room) ||
