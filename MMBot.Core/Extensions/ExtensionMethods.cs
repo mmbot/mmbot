@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -17,9 +16,12 @@ namespace MMBot
         /// <summary>
         /// Adds the parameter items to this list.
         /// </summary>
-        public static void AddAll<T>(this List<T> list, params T[] items)
+        public static void AddAll<T>(this ICollection<T> list, IEnumerable<T> items)
         {
-            list.AddRange(items);
+            foreach (var item in items)
+            {
+                list.Add(item);
+            }
         }
 
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
