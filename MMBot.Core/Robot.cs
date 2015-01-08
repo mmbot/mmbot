@@ -1,18 +1,16 @@
-﻿using Common.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
+using Common.Logging;
 using Common.Logging.Simple;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs.Contracts;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reactive.Disposables;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using LogLevel = Common.Logging.LogLevel;
 
 namespace MMBot
@@ -22,6 +20,7 @@ namespace MMBot
         public static string ResetEventName = "Resetting";
 
         public readonly List<ScriptMetadata> ScriptData = new List<ScriptMetadata>();
+        public readonly AdapterArguments EmptyAdapterArgs = new AdapterArguments();
         protected bool _isConfigured = false;
         private readonly IDictionary<string, IAdapter> _adapters = new Dictionary<string, IAdapter>();
         private readonly List<IListener> _listeners = new List<IListener>();
@@ -36,6 +35,7 @@ namespace MMBot
         private readonly IScriptRunner _scriptRunner;
         private readonly IScriptStore _scriptStore;
         private IDisposable _watchSubscription;
+
         public event EventHandler<EventArgs> ResetRequested;
 
         protected virtual void OnResetRequested()
@@ -58,7 +58,7 @@ namespace MMBot
             _router = router;
             _scriptRunner = scriptRunner;
             _isConfigured = true;
-            Initialize(adapters.Values.ToArray().Concat(new object[]{router, brain, scriptRunner}).ToArray());
+            Initialize(adapters.Values.ToArray().Concat(new object[] { router, brain, scriptRunner }).ToArray());
         }
 
         protected Robot(LoggerConfigurator logConfig)
@@ -217,7 +217,7 @@ namespace MMBot
             });
         }
 
-        public async void Speak(string room, params string[] messages)
+        public async Task Speak(string room, AdapterArguments adapterArgs, params string[] messages)
         {
             foreach (
                 var adapter in
@@ -227,7 +227,7 @@ namespace MMBot
                 {
                     await adapter.Value.Send(
                         new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapter.Key),
-                            string.Join(Environment.NewLine, messages))), messages);
+                            string.Join(Environment.NewLine, messages))), adapterArgs, messages);
                 }
                 catch (Exception e)
                 {
@@ -236,7 +236,12 @@ namespace MMBot
             }
         }
 
-        public async void Speak(string adapterId, string room, params string[] messages)
+        public Task Speak(string room, params string[] messages)
+        {
+            return Speak(room, EmptyAdapterArgs, messages);
+        }
+
+        public async Task Speak(string adapterId, string room, AdapterArguments adapterArgs, params string[] messages)
         {
             var adapter = GetAdapter(adapterId);
 
@@ -250,7 +255,7 @@ namespace MMBot
             {
                 await adapter.Send(
                     new Envelope(new TextMessage(this.GetUser(_name, _name, room, adapterId),
-                        string.Join(Environment.NewLine, messages))), messages);
+                        string.Join(Environment.NewLine, messages))), adapterArgs, messages);
             }
             catch (Exception e)
             {
@@ -258,12 +263,17 @@ namespace MMBot
             }
         }
 
+        public Task Speak(string adapterId, string room, params string[] messages)
+        {
+            return Speak(adapterId, room, EmptyAdapterArgs, messages);
+        }
+
         public IAdapter GetAdapter(string adapterId)
         {
             var adapter = (from a in Adapters
-                where string.Equals(a.Key, adapterId, StringComparison.InvariantCultureIgnoreCase) ||
-                      string.Equals(a.Key, string.Concat(adapterId, "Adapter"), StringComparison.InvariantCultureIgnoreCase)
-                select a.Value).FirstOrDefault();
+                           where string.Equals(a.Key, adapterId, StringComparison.InvariantCultureIgnoreCase) ||
+                                 string.Equals(a.Key, string.Concat(adapterId, "Adapter"), StringComparison.InvariantCultureIgnoreCase)
+                           select a.Value).FirstOrDefault();
 
             return adapter;
         }
@@ -289,7 +299,6 @@ namespace MMBot
         {
             ScriptData.Add(metadata);
         }
-
 
         public string GetConfigVariable(string name)
         {
@@ -472,9 +481,9 @@ namespace MMBot
         {
             Emit("ShuttingDown", true);
             _isReady = false;
-            
-			Router.Stop();
-			
+
+            Router.Stop();
+
             // Cleanup script file watcher
             if (_watchSubscription != null)
             {

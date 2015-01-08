@@ -43,20 +43,21 @@ namespace MMBot.Adapters
             }
         }
 
-        public override async Task Send(Envelope envelope, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
-            await base.Send(envelope, messages);
-
             foreach (var message in messages.Where(message => !string.IsNullOrWhiteSpace(message)))
             {
                 Console.WriteLine(message);
             }
+
+            return Task.FromResult(0);
         }
 
-        public override async Task Close()
+        public override Task Close()
         {
             _cancellationTokenSource.Cancel();
-            if (_listeningTask != null) await _listeningTask;
+            if (_listeningTask != null) return _listeningTask;
+            return Task.FromResult(0);
         }
     }
 }

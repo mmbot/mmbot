@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -35,14 +32,20 @@ namespace MMBot
     public interface IResponse<out T> where T : Message
     {
         Task Send(params string[] messages);
+        Task Send(AdapterArguments adapterArgs, params string[] messages);
         Task SendFormat(string format, params object[] args);
+        Task SendFormat(AdapterArguments adapterArgs, string format, params object[] args);
         Task Reply(params string[] message);
+        Task Reply(AdapterArguments adapterArgs, params string[] message);
         Task ReplyFormat(string format, params object[] args);
+        Task ReplyFormat(AdapterArguments adapterArgs, string format, params object[] args);
         Task Emote(params string[] message);
+        Task Emote(AdapterArguments adapterArgs, params string[] message);
         Task Topic(params string[] message);
+        Task Topic(AdapterArguments adapterArgs, params string[] message);
         Task Play(params string[] message);
-        Task Locked(params string[] message);
-        T Random<T>(IEnumerable<T> message);
+        Task Play(AdapterArguments adapterArgs, params string[] message);
+        TRand Random<TRand>(IEnumerable<TRand> message);
 
         void Finish();
         string[] Match { get; }
@@ -60,7 +63,7 @@ namespace MMBot
         public Response(Robot robot, T textMessage, MatchResult matchResult)
         {
             _robot = robot;
-            
+
             _envelope = new Envelope(textMessage);
             Matches = matchResult.Match;
             Match = matchResult.Match == null || matchResult.Match.Count == 0 ? new string[0] : matchResult.Match[0].Groups.Cast<Group>().Select(g => g.Value).ToArray();
@@ -74,73 +77,97 @@ namespace MMBot
             Message = rosterMessage;
         }
 
-        public async Task Send(params string[] messages)
+        public Task Send(AdapterArguments adapterArgs, params string[] messages)
         {
-            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
+            var adapter = FindAdapter();
+            if (adapter == null) return Task.FromResult(0);
 
-            if (adapter == null)
-            {
-                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
-                return;
-            }
-            await _robot.Adapters[_envelope.User.AdapterId].Send(_envelope, messages);
+            return adapter.Send(_envelope, adapterArgs, messages);
         }
 
-        public async Task SendFormat(string format, params object[] args)
+        public Task Send(params string[] messages)
         {
-            await Send(string.Format(format, args));
+            return Send(_robot.EmptyAdapterArgs, messages);
         }
 
-        public async Task Reply(params string[] message)
+        public Task SendFormat(AdapterArguments adapterArgs, string format, params object[] args)
         {
-            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
-
-            if (adapter == null)
-            {
-                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
-                return;
-            }
-            await _robot.Adapters[_envelope.User.AdapterId].Reply(_envelope, message);
+            return Send(adapterArgs, string.Format(format, args));
         }
 
-        public async Task ReplyFormat(string format, params object[] args)
+        public Task SendFormat(string format, params object[] args)
         {
-            await Reply(string.Format(format, args));
+            return Send(string.Format(format, args));
         }
 
-        public async Task Emote(params string[] message)
+        public Task Reply(AdapterArguments adapterArgs, params string[] message)
         {
-            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
+            var adapter = FindAdapter();
+            if (adapter == null) return Task.FromResult(0);
 
-            if (adapter == null)
-            {
-                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
-                return;
-            }
-            await _robot.Adapters[_envelope.User.AdapterId].Emote(_envelope, message);
+            return adapter.Reply(_envelope, adapterArgs, message);
+        }
+
+        public Task Reply(params string[] message)
+        {
+            return Reply(_robot.EmptyAdapterArgs, message);
+        }
+
+        public Task ReplyFormat(AdapterArguments adapterArgs, string format, params object[] args)
+        {
+            return Reply(adapterArgs, string.Format(format, args));
+        }
+
+        public Task ReplyFormat(string format, params object[] args)
+        {
+            return Reply(_robot.EmptyAdapterArgs, string.Format(format, args));
+        }
+
+        public Task Emote(AdapterArguments adapterArgs, params string[] message)
+        {
+            var adapter = FindAdapter();
+            if (adapter == null) return Task.FromResult(0);
+
+            return adapter.Emote(_envelope, adapterArgs, message);
+        }
+
+        public Task Emote(params string[] message)
+        {
+            return Emote(_robot.EmptyAdapterArgs, message);
+        }
+
+        public Task Topic(AdapterArguments adapterArgs, params string[] message)
+        {
+            var adapter = FindAdapter();
+            if (adapter == null) return Task.FromResult(0);
+
+            return adapter.Topic(_envelope, adapterArgs, message);
         }
 
         public Task Topic(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
+            return Topic(_robot.EmptyAdapterArgs, message);
+        }
+
+        public Task Play(AdapterArguments adapterArgs, params string[] message)
+        {
+            var adapter = FindAdapter();
+            if (adapter == null) return Task.FromResult(0);
+
+            return adapter.Play(_envelope, adapterArgs, message);
         }
 
         public Task Play(params string[] message)
         {
-            return TaskAsyncHelper.Empty;
-        }
-
-        public Task Locked(params string[] message)
-        {
-            return TaskAsyncHelper.Empty;
+            return Play(_robot.EmptyAdapterArgs, message);
         }
 
         static Random _random = new Random(DateTime.Now.Millisecond);
-        public T Random<T>(IEnumerable<T> messages)
+        public TRand Random<TRand>(IEnumerable<TRand> messages)
         {
             if (messages == null || !messages.Any())
             {
-                return default(T);
+                return default(TRand);
             }
             return messages.ElementAt(_random.Next(messages.Count()));
         }
@@ -153,13 +180,24 @@ namespace MMBot
         public string[] Match { get; private set; }
 
         public MatchCollection Matches { get; private set; }
-        
+
         public T Message { get; private set; }
 
         public HttpWrapper Http(string url)
         {
             return new HttpWrapper(url, _robot.Logger, _envelope);
         }
-        
+
+        private IAdapter FindAdapter()
+        {
+            var adapter = _robot.GetAdapter(_envelope.User.AdapterId);
+
+            if (adapter == null)
+            {
+                _robot.Logger.Warn(string.Format("Could not find adapter matching key '{0}'", _envelope.User.AdapterId));
+            }
+
+            return adapter;
+        }
     }
 }

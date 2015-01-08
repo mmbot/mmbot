@@ -70,7 +70,7 @@ namespace MMBot.HipChat
             }
         }
 
-        public override async Task Run()
+        public override Task Run()
         {
             if (!_isConfigured)
             {
@@ -79,6 +79,8 @@ namespace MMBot.HipChat
             Logger.Info(string.Format("Logging into HipChat..."));
 
             SetupHipChatClient();
+
+            return Task.FromResult(0);
         }
 
         private void SetupHipChatClient()
@@ -154,32 +156,40 @@ namespace MMBot.HipChat
             }
         }
 
-        public override async Task Send(Envelope envelope, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
-            await base.Send(envelope, messages);
-
-            if (messages == null || !messages.Any()) return;
+            if (messages == null || !messages.Any()) return Task.FromResult(0);
 
             int roomId;
             if (!_roomMap.TryGetValue(envelope.User.Room, out roomId))
             {
                 // There's no public room with the envelopes key, so send this
                 // as a private message to the user instead.
-                await Reply(envelope, messages);
-                return;
+                return Reply(envelope, adapterArgs, messages);
             }
+
+            var color = adapterArgs.Color ?? "";
+            color = color.ToLowerInvariant();
+
+            if (color != "yellow" &&
+                color != "green" &&
+                color != "red" &&
+                color != "purple" &&
+                color != "gray" &&
+                color != "random")
+                color = "yellow";
 
             foreach (var message in messages)
             {
-                _api.SendRoomNotification(roomId, message);
+                _api.SendRoomNotification(roomId, color, message);
             }
+
+            return Task.FromResult(0);
         }
 
-        public override async Task Reply(Envelope envelope, params string[] messages)
+        public override Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
-            await base.Reply(envelope, messages);
-
-            if (messages == null || !messages.Any()) return;
+            if (messages == null || !messages.Any()) return Task.FromResult(0);
 
             var userId = "@" + _nicks[envelope.User.Name];
 
@@ -187,19 +197,21 @@ namespace MMBot.HipChat
             {
                 _api.PrivateMessageUser(userId, message);
             }
+
+            return Task.FromResult(0);
         }
 
-        public override async Task Emote(Envelope envelope, params string[] messages)
+        public override Task Emote(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
-            await base.Emote(envelope, messages);
-
-            if (messages == null || !messages.Any()) return;
+            if (messages == null || !messages.Any()) return Task.FromResult(0);
 
             foreach (var message in messages.Select(m => "/me " + m))
             {
                 var to = new Jid(envelope.User.Room);
                 _client.Send(new agsXMPP.protocol.client.Message(to, string.Equals(to.Server, _confhost) ? MessageType.groupchat : MessageType.chat, message));
             }
+
+            return Task.FromResult(0);
         }
 
         private void OnClientLogin(object sender)
@@ -237,15 +249,17 @@ namespace MMBot.HipChat
         {
         }
 
-        public override async Task Topic(Envelope envelope, params string[] messages)
+        public override Task Topic(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (envelope != null && envelope.User != null)
             {
-                await Topic(envelope.User.Room, messages);
+                return Topic(envelope.User.Room, adapterArgs, messages);
             }
+
+            return Task.FromResult(0);
         }
 
-        public override Task Topic(string roomName, params string[] messages)
+        public override Task Topic(string roomName, AdapterArguments adapterArgs, params string[] messages)
         {
             var mucManager = new MucManager(_client);
             mucManager.ChangeSubject(new Jid(roomName), string.Join(" ", messages));

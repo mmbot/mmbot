@@ -343,7 +343,7 @@ namespace MMBot.Slack
             directMessage.IsOpen = true;
         }
 
-        private void InternalSend(string destination, string[] messages)
+        private void InternalSend(string destination, AdapterArguments adapterArgs, string[] messages)
         {
             var room = destination;
 
@@ -397,32 +397,32 @@ namespace MMBot.Slack
             }
         }
 
-        public override Task Send(Envelope envelope, params string[] messages)
+        public override Task Send(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (_socket == null)
             {
-                return base.Send(envelope, messages);
+                return base.Send(envelope, adapterArgs, messages);
             }
 
             var room = envelope.Room ?? envelope.User.Room;
 
-            InternalSend(room, messages);
+            InternalSend(room, adapterArgs, messages);
 
-            return base.Send(envelope, messages);
+            return base.Send(envelope, adapterArgs, messages);
         }
 
-        public override Task Reply(Envelope envelope, params string[] messages)
+        public override Task Reply(Envelope envelope, AdapterArguments adapterArgs, params string[] messages)
         {
             if (_socket == null)
             {
-                return base.Reply(envelope, messages);
+                return base.Reply(envelope, adapterArgs, messages);
             }
 
             var room = envelope.User.Id;
 
-            InternalSend(room, messages);
+            InternalSend(room, adapterArgs, messages);
 
-            return base.Reply(envelope, messages);
+            return base.Reply(envelope, adapterArgs, messages);
         }
 
         public override Task Close()
