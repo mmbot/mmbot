@@ -291,6 +291,12 @@ namespace MMBot.Slack
 
             var userObj = Robot.GetUser(userId, user.Name, channelId, Id);
 
+            if (!text.StartsWithIgnoreCase(Robot.Alias ?? Robot.Name + " ") &&
+                _ims.Any(im => StringComparer.InvariantCultureIgnoreCase.Equals(im.Id, channelId)))
+            {
+                text = (Robot.Alias ?? Robot.Name) + " " + text;
+            }
+
             Robot.Receive(new TextMessage(userObj, text.Trim()));
         }
 
