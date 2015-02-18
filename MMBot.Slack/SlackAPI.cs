@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+using Bert.RateLimiters;
 using ServiceStack;
 using ServiceStack.Text;
 using WebSocket4Net;
@@ -6,6 +8,7 @@ namespace MMBot.Slack
 {
     public class SlackAPI
     {
+        private static PerSecondRateLimiter limiter = new PerSecondRateLimiter(1); 
         private const string rtm_start = "https://slack.com/api/rtm.start";
         private const string channels_join = "https://slack.com/api/channels.join";
         private const string im_open = "https://slack.com/api/im.open";
@@ -57,7 +60,7 @@ namespace MMBot.Slack
             using (GetJsConfigScope())
             {
                 var data = StringExtensions.ToJson(new SendMessage(channel, message, replyId));
-
+                limiter.Limit();
                 ws.Send(data);
             }
         }
