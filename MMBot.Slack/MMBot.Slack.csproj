@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bert.RateLimiters">
+      <HintPath>..\packages\Bert.RateLimiters.1.0.0\lib\net45\Bert.RateLimiters.dll</HintPath>
+    </Reference>
     <Reference Include="Common.Logging">
       <HintPath>..\packages\Common.Logging.2.1.2\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
@@ -64,6 +67,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PerSecondRateLimiter.cs" />
     <Compile Include="SlackAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SlackAPI.cs" />
