@@ -74,27 +74,34 @@ namespace MMBot.Scripts
 
         public void RunScript(IScript script)
         {
-            if (script == null)
-            {
-                throw new ArgumentNullException("script");
-            }
+	        try
+	        {
+		        if (script == null)
+		        {
+			        throw new ArgumentNullException("script");
+		        }
 
-            var scriptFile = script as ScriptCsScriptFile;
-            if (scriptFile != null)
-            {
-                _logger.Info(string.Format("Loading script {0}", script.DisplayName));
-                RunScriptFile(scriptFile.Path);
-                return;
-            }
+		        var scriptFile = script as ScriptCsScriptFile;
+		        if (scriptFile != null)
+		        {
+			        _logger.Info(string.Format("Loading script {0}", script.DisplayName));
+			        RunScriptFile(scriptFile.Path);
+			        return;
+		        }
 
-            var typedScript = script as TypedScript;
-            if (typedScript != null)
-            {
-                RunTypedScript(script, typedScript);
-                return;
-            }
+		        var typedScript = script as TypedScript;
+		        if (typedScript != null)
+		        {
+			        RunTypedScript(script, typedScript);
+			        return;
+		        }
 
-            _logger.Debug(string.Format("Skipped running script {0} as it was not a recognised ScriptCs script type", script.Name));
+		        _logger.Debug(string.Format("Skipped running script {0} as it was not a recognised ScriptCs script type", script.Name));
+	        }
+	        catch (Exception e)
+	        {
+		        _logger.Error(e);
+	        }
         }
 
         public void RegisterCleanup(Action cleanup)
@@ -172,7 +179,7 @@ namespace MMBot.Scripts
                 //where clause hack using the exact same code that the hack in scriptCS sues to filter their list of assemblies in ShouldLoadAssembly in RuntimeServices.cs
                 var packageReferences = scriptServiceRoot.PackageAssemblyResolver.GetAssemblyNames(Environment.CurrentDirectory).Where(fileSystem.IsPathRooted);
 
-                scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(NuGetPackageAssemblyResolver.FilterAssembliesToMostRecent(packageReferences)).ToArray());
+                scriptServiceRoot.Executor.AddReferences(defaultReferences.Concat(NuGetPackageAssemblyResolver.FilterAssembliesToMostRecent(packageReferences, _logger)).ToArray());
                 scriptServiceRoot.Executor.ImportNamespaces(
                     ScriptExecutor.DefaultNamespaces.Concat(new[]
                     {

@@ -8,6 +8,7 @@ using Common.Logging;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
+using Roslyn.Compilers.CSharp;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
 
@@ -30,7 +31,9 @@ namespace MMBot
             "MMBot.Core"
         };
 
-        public NuGetPackageAssemblyResolver(LoggerConfigurator logConfig)
+	    private static IEnumerable<string> _packageDirectories = new string[0];
+
+	    public NuGetPackageAssemblyResolver(LoggerConfigurator logConfig)
         {
             _log = logConfig.GetLogger();
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
@@ -67,6 +70,14 @@ namespace MMBot
 
             _assemblies = par.GetAssemblyNames(fileSystem.CurrentDirectory).ToList();
 
+			if(Directory.Exists(packagesFolder))
+			{
+				_packageDirectories = (from packagePath in Directory.GetDirectories(packagesFolder)
+					from package in par.GetPackages(fileSystem.CurrentDirectory)
+					where packagePath.Contains(string.Concat(package.PackageId, ".", package.Version.ToString().TrimEnd('0', '.')))
+					select packagePath).ToArray();
+			}
+
             // Add the assemblies in the current directory
             _assemblies.AddRange(Directory.GetFiles(fileSystem.CurrentDirectory, "*.dll")
                 .Where(a => new AssemblyUtility().IsManagedAssembly(a)));
@@ -85,10 +96,21 @@ namespace MMBot
 
         public IEnumerable<IScript> GetPluginScripts()
         {
-            return GetCompiledScriptsFromPackages().Select(TypedScript.Create).ToArray();
+            return GetCompiledScriptsFromPackages().Select(TypedScript.Create).Concat(GetScriptFiles()).ToArray();
         }
 
-        public IEnumerable<Type> GetCompiledScriptsFromPackages()
+	    private IEnumerable<IScript> GetScriptFiles()
+	    {
+		    return from packagePath in _packageDirectories
+			    from packageFile in Directory.GetFiles(packagePath, "*.csx", SearchOption.AllDirectories)
+			    select new ScriptCsScriptFile()
+			    {
+				    Name = Path.GetFileNameWithoutExtension(packagePath),
+				    Path = packageFile
+			    };
+	    }
+
+	    public IEnumerable<Type> GetCompiledScriptsFromPackages()
         {
             return ProbeForType(typeof(IMMBotScript));
         }
@@ -121,7 +143,7 @@ namespace MMBot
                 where fileName.Split('.').Contains("mmbot", StringComparer.InvariantCultureIgnoreCase)
                 select path;
 
-            assemblies = FilterAssembliesToMostRecent(assemblies);
+            assemblies = FilterAssembliesToMostRecent(assemblies, _log);
 
             return assemblies.SelectMany(assemblyFile =>
             {
@@ -157,17 +179,31 @@ namespace MMBot
             
         }
 
-        public static IEnumerable<string> FilterAssembliesToMostRecent(IEnumerable<string> assemblies)
+		public static IEnumerable<string> FilterAssembliesToMostRecent(IEnumerable<string> assemblies, ILog log)
         {
             var filtered = from assemblyPath in assemblies
-                           let name = AssemblyName.GetAssemblyName(assemblyPath)
+						   let name = TryGetAssemblyName(assemblyPath, log)
+						   where name != null
                            group new { Path = assemblyPath, Name = name } by name.Name;
 
             return filtered.Select(g => g.OrderByDescending(a => a.Name.Version).First().Path);
         }
 
+	    private static AssemblyName TryGetAssemblyName(string assemblyPath, ILog log)
+	    {
+		    try
+		    {
+			    return AssemblyName.GetAssemblyName(assemblyPath);
+		    }
+		    catch (Exception ex)
+		    {
+				log.Error(ex);
+			    return null;
+		    }
+	    }
 
-        public Type[] GetAdapters()
+
+	    public Type[] GetAdapters()
         {
             var adapters = GetCompiledAdaptersFromPackages().ToArray();
             if(!adapters.Any())
