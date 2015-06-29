@@ -4,7 +4,7 @@
 * </description>
 *
 * <configuration>
-*    MMBOT_AUTH_ADMINS : a comma seperated list of admins
+*    MMBOT_AUTH_ADMIN : a comma seperated list of admins
 * </configuration>
 *
 * <commands>
