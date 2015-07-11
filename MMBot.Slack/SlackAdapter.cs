@@ -13,7 +13,9 @@ using WebSocket4Net;
 
 namespace MMBot.Slack
 {
-    public class SlackAdapter : Adapter
+	using System.Text.RegularExpressions;
+
+	public class SlackAdapter : Adapter
     {
         private string _token;
         private bool _isConfigured;
@@ -26,7 +28,8 @@ namespace MMBot.Slack
         private string _botUserId;
         private bool _reconnect = true;
         private string[] _commandTokens;
-        private string[] _logRooms;
+		private string[] _logRooms;
+		private readonly Regex regexUser = new Regex(@"<@(?<userId>\w*)\|?(?<userName>\w*)>");
 
         public SlackAdapter(ILog logger, string adapterId)
             : base(logger, adapterId)
@@ -291,6 +294,8 @@ namespace MMBot.Slack
 
             var userObj = Robot.GetUser(userId, user.Name, channelId, Id);
 
+	        text = this.PraseUser(text);
+
             if (!text.StartsWithIgnoreCase(Robot.Alias ?? Robot.Name + " ") &&
                 _ims.Any(im => StringComparer.InvariantCultureIgnoreCase.Equals(im.Id, channelId)))
             {
@@ -299,6 +304,23 @@ namespace MMBot.Slack
 
             Robot.Receive(new TextMessage(userObj, text.Trim()));
         }
+
+	    private string PraseUser(string message)
+	    {
+			var usersInMesage = _users.Where(user => this.regexUser.IsMatch(message));
+		    
+			if (usersInMesage.Any() != true)
+		    {
+			    return message;
+		    }
+
+		    foreach (var user in usersInMesage)
+			{
+				message = this.regexUser.Replace(message, string.Format("@{0}", user.Name));
+		    }
+
+		    return message;
+	    }
 
         private void RemoveRoom(Channel channel)
         {
