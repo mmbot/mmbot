@@ -10,6 +10,7 @@ using ServiceStack;
 using ServiceStack.Text;
 using SuperSocket.ClientEngine;
 using WebSocket4Net;
+using System.Text.RegularExpressions;
 
 namespace MMBot.Slack
 {
@@ -194,6 +195,8 @@ namespace MMBot.Slack
                 var text = raw["text"];
                 var user = raw["user"];
 
+                text = RemoveFormatting(text);
+
                 ReceiveMessage(channel, user, text);
             }
 
@@ -216,6 +219,60 @@ namespace MMBot.Slack
             {
                 HandleChannelRenameMessage(raw);
             }
+        }
+
+        /// <summary>
+        /// Reformat the message according to Slack's Message Formatting
+        /// </summary>
+        /// <param name="text">Raw text from slack</param>
+        /// <returns>Text with formatting removed.</returns>
+        private string RemoveFormatting(string text)
+        {
+            Regex regex = new Regex(@"<(?<type>[@#!])?(?<link>[^>|]+)(?:\|(?<label>[^>]+))?>");
+
+            text = regex.Replace(text, m =>
+            {
+
+                switch (m.Groups["type"].Value)
+                {
+                    case "@":
+                        if (m.Groups["label"].Success) return m.Groups["label"].Value;
+
+                        var user = _users.SingleOrDefault(u => m.Groups["link"].Value == u.Id);
+                        if (user != null) return user.Name;
+                        break;
+                    case "#":
+                        if (m.Groups["label"].Success) return m.Groups["label"].Value;
+
+                        var channel = _rooms.SingleOrDefault(r => m.Groups["link"].Value == r.Id);
+                        if (channel != null) return channel.Name;
+                        break;
+                    case "!":
+                        string[] links = {"channel","group","everyone","here"};
+                        if(links.Contains(m.Groups["link"].Value))
+                        {
+                            return String.Format("@{0}", m.Groups["link"].Value);
+                        }
+                        break;
+                    default:
+                        string link = m.Groups["link"].Value.Replace("mailto:", "");
+                        if (link == m.Groups["label"].Value)
+                        {
+                            return String.Format("{0} ({1})", m.Groups["label"].Value, link);
+                        }
+                        else
+                        {
+                            return m.Groups["link"].Value;
+                        }
+                        break;
+                }
+
+                return m.Value;
+
+            });
+
+            return text;
+
         }
 
         private void HandleTeamJoinMessage(JsonObject raw)
