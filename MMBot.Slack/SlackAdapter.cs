@@ -28,6 +28,8 @@ namespace MMBot.Slack
         private bool _reconnect = true;
         private string[] _commandTokens;
         private string[] _logRooms;
+        private static readonly Regex regex = new Regex(@"<(?<type>[@#!])?(?<link>[^>|]+)(?:\|(?<label>[^>]+))?>");
+
 
         public SlackAdapter(ILog logger, string adapterId)
             : base(logger, adapterId)
@@ -228,7 +230,6 @@ namespace MMBot.Slack
         /// <returns>Text with formatting removed.</returns>
         private string RemoveFormatting(string text)
         {
-            Regex regex = new Regex(@"<(?<type>[@#!])?(?<link>[^>|]+)(?:\|(?<label>[^>]+))?>");
 
             text = regex.Replace(text, m =>
             {
