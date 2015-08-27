@@ -20,6 +20,7 @@ namespace MMBot.HipChat
         private static string _email;
         private static string _password;
         private static string _authToken;
+        private static string _rooms;
 
         private static bool _isConfigured = false;
 
@@ -30,6 +31,7 @@ namespace MMBot.HipChat
         private readonly Dictionary<string, string> _roster = new Dictionary<string, string>();
         private readonly Dictionary<string, int> _roomMap = new Dictionary<string, int>();
         private readonly Dictionary<string, string> _nicks = new Dictionary<string, string>();
+        private readonly List<string> _roomList = new List<string>();
 
         public HipChatAdapter(ILog logger, string adapterId)
             : base(logger, adapterId)
@@ -49,6 +51,12 @@ namespace MMBot.HipChat
             _email = Robot.GetConfigVariable("MMBOT_HIPCHAT_EMAIL");
             _password = Robot.GetConfigVariable("MMBOT_HIPCHAT_PASSWORD");
             _authToken = Robot.GetConfigVariable("MMBOT_HIPCHAT_AUTHTOKEN");
+            _rooms = Robot.GetConfigVariable("MMBOT_HIPCHAT_ROOMS");
+
+            if (!string.IsNullOrWhiteSpace(_rooms))
+            {
+                _roomList.AddRange(_rooms.Trim().Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s.ToUpper().Trim()));
+            }
 
             if (_email == null || _password == null || _authToken == null)
             {
@@ -60,6 +68,7 @@ namespace MMBot.HipChat
                 helpSb.AppendLine("  MMBOT_HIPCHAT_EMAIL: The email of the bot account on HipChat, e.g. mmbot@Bot.net");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_PASSWORD: The password of the bot account on HipChat");
                 helpSb.AppendLine("  MMBOT_HIPCHAT_AUTHTOKEN: The auth token for the HipChat APIv2");
+                helpSb.AppendLine("  MMBOT_HIPCHAT_ROOM_NAMES: The list of specific rooms to enter (comma-delimited), e.g. room1,room2,room3. If not specified, the bot will enter all rooms.");
                 helpSb.AppendLine("More info on these values and how to create the mmbot.ini file can be found at https://github.com/mmbot/mmbot/wiki/Configuring-mmbot");
                 Logger.Warn(helpSb.ToString());
                 _isConfigured = false;
@@ -146,7 +155,7 @@ namespace MMBot.HipChat
 
                 Logger.Info(string.Format("[{0}] {1}: {2}", DateTime.Now, user, message.Body.Trim()));
 
-                var userObj = Robot.GetUser(message.Id, user, message.From.Bare, Id);
+                var userObj = Robot.GetUser(_nicks.ContainsKey(user) ? _nicks[user] : message.Id, user, message.From.Bare, Id);
 
                 if (userObj.Name != _botUser.MentionName)
                 {
@@ -219,7 +228,7 @@ namespace MMBot.HipChat
             var mucManager = new MucManager(_client);
 
             var rooms = _api.GetAllRooms();
-            foreach (var room in rooms.Items)
+            foreach (var room in rooms.Items.Where(r => _roomList.Count == 0 || r.Name != null && _roomList.Contains(r.Name.ToUpper())))
             {
                 var roomInfo = _api.GetRoom(room.Id);
 
