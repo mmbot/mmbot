@@ -504,7 +504,7 @@ namespace MMBot
 
         private string PrepareHearRegexPattern(string regex)
         {
-            return string.Format("^(?:{0})", regex);
+            return string.Format("(?:{0})", regex);
         }
 
         private string PrepareRespondRegexPattern(string regex)
