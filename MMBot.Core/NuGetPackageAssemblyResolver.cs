@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Common.Logging;
 using MMBot.Brains;
 using MMBot.Router;
 using MMBot.Scripts;
 using ScriptCs;
 using ScriptCs.Hosting.Package;
+using ILog = Common.Logging.ILog;
 
 namespace MMBot
 {
@@ -63,7 +63,7 @@ namespace MMBot
                 }
             }
 
-            var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem, log), log);
+            var par = new PackageAssemblyResolver(fileSystem, new PackageContainer(fileSystem, log),  new LogProvider(log), new AssemblyUtility());
 
             _assemblies = par.GetAssemblyNames(fileSystem.CurrentDirectory).ToList();
 
@@ -262,6 +262,4 @@ namespace MMBot
         }
 
     }
-
-
 }
