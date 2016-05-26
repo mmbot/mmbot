@@ -209,6 +209,7 @@
     <Compile Include="Listeners\TopicListener.cs" />
     <Compile Include="Listeners\RosterListener.cs" />
     <Compile Include="LoggerConfigurator.cs" />
+    <Compile Include="LogProvider.cs" />
     <Compile Include="MatchResult.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="NuGetPackageAssemblyResolver.cs" />

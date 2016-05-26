@@ -119,7 +119,7 @@ namespace MMBot
 
         public LoggerConfigurator LogConfig { get; private set; }
 
-        public ILog Logger { get; private set; }
+        public Common.Logging.ILog Logger { get; private set; }
 
         public string Name
         {

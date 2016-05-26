@@ -23,14 +23,14 @@ namespace MMBot.Scripts
     public class ScriptRunner : IMustBeInitializedWithRobot, IScriptRunner
     {
         private Robot _robot;
-        private ILog _logger;
+        private Common.Logging.ILog _logger;
         private string[] _defaultMMBotReferences = new[] {"Microsoft.Owin"};
 
         private readonly Dictionary<string, Action> _cleanup = new Dictionary<string, Action>();
         private readonly List<Type> _loadedScriptTypes = new List<Type>();
         private readonly Dictionary<string, string> scriptHashes = new Dictionary<string, string>();
 
-        public ScriptRunner(ILog logger)
+        public ScriptRunner(Common.Logging.ILog logger)
         {
             CurrentScriptSource = null;
             _logger = logger;
@@ -180,7 +180,7 @@ namespace MMBot.Scripts
                         "System.Net.Http"
                     }).ToArray());
                 scriptServiceRoot.Executor.AddReference<Robot>();
-                scriptServiceRoot.Executor.AddReference<ILog>();
+                scriptServiceRoot.Executor.AddReference<Common.Logging.ILog>();
                 scriptServiceRoot.Executor.AddReference<JArray>();
                 scriptServiceRoot.Executor.AddReference<HtmlDocument>();
                 scriptServiceRoot.Executor.AddReference<HttpResponseMessage>();
