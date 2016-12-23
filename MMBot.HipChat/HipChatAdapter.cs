@@ -244,14 +244,26 @@ namespace MMBot.HipChat
 
         private void OnClientRosterItem(object sender, RosterItem item)
         {
+            
             if (!_roster.ContainsKey(item.Jid.User))
             {
                 _roster.Add(item.Jid.User, item.Name);
-
-                _nicks.Add(item.Name, item.GetAttribute("mention_name"));
-
-                Logger.Info(string.Format("User '{0}' logged in", item.Name));
             }
+            
+            //Would like to make this keyed off something unique
+            if (!_nicks.ContainsKey(item.Name))
+            {
+                _nicks.Add(item.Name, item.GetAttribute("mention_name"));
+            }
+            else
+            {
+                Logger.Warn(string.Format("User '{0}' already has a nickname '{1}': Jid User: {2} ...",
+                    item.Name,
+                    _nicks[item.Name],
+                    item.Jid.User));
+            }
+            
+            Logger.Info(string.Format("User '{0}' with nickname '{1}' logged in", item.Name, item.GetAttribute("mention_name")));
         }
 
         private void OnClientRosterStart(object sender)
