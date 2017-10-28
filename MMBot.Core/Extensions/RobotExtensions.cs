@@ -25,7 +25,21 @@ namespace MMBot
         /// <returns>A disposable which, when disposed, will cancel the schedule</returns>
         public static IDisposable ScheduleRepeat(this Robot robot, TimeSpan timespan, Action action)
         {
-            return Observable.Interval(timespan).Subscribe(_ => action());
+            return Observable.Interval(timespan).Subscribe(_ =>
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception e)
+                {                
+                    if (robot?.Logger != null)
+                    {
+                        var log = robot.Logger;
+                        log.Error("Failed to repeat a given action due to the following error", e);
+                    }
+                }              
+            });
         }
     }
 }
